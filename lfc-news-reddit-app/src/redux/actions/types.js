@@ -27,6 +27,7 @@ export const SET_SELECTED_SUBREDDIT = 'SET_SELECTED_SUBREDDIT';
 // Sorting Action Types
 export const SET_SORT_BY = 'SET_SORT_BY';
 export const SET_TIME_RANGE = 'SET_TIME_RANGE';
+export const SORT_BY_VIRAL = 'SORT_BY_VIRAL';
 
 // UI Action Types
 export const SET_LOADING = 'SET_LOADING';
