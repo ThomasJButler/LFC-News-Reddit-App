@@ -1,7 +1,7 @@
 import * as types from '../actions/types';
 
 const initialState = {
-  available: ['all', 'LiverpoolFC', 'liverpoolfcmedia', 'liverpoolgifs'],
+  available: ['all', 'LiverpoolFC', 'liverpoolfcmedia'],
   selected: 'all'
 };
 
