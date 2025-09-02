@@ -1,6 +1,9 @@
 import { cache } from './cache';
 
-const BASE_URL = 'https://www.reddit.com';
+// Use CORS proxy for development, direct for production
+const isDevelopment = process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost';
+const CORS_PROXY = 'https://corsproxy.io/?';
+const BASE_URL = isDevelopment ? `${CORS_PROXY}https://www.reddit.com` : 'https://www.reddit.com';
 const RATE_LIMIT_REQUESTS = 10;
 const RATE_LIMIT_WINDOW = 60000; // 1 minute in milliseconds
 const CACHE_TTL = 300000; // 5 minutes in milliseconds
@@ -114,7 +117,7 @@ export const fetchPosts = async (subreddit = 'all', sortBy = 'hot', timeRange = 
   let url = `${BASE_URL}/r/`;
   
   if (subreddit === 'all') {
-    url += 'LiverpoolFC+liverpoolfcmedia+liverpoolgifs';
+    url += 'LiverpoolFC+liverpoolfcmedia';
   } else {
     url += subreddit;
   }
@@ -177,7 +180,7 @@ export const searchPosts = async (searchTerm, subreddit = 'all') => {
   let url = `${BASE_URL}/r/`;
   
   if (subreddit === 'all') {
-    url += 'LiverpoolFC+liverpoolfcmedia+liverpoolgifs';
+    url += 'LiverpoolFC+liverpoolfcmedia';
   } else {
     url += subreddit;
   }
