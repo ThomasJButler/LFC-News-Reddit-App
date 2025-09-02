@@ -1,23 +1,33 @@
-import logo from './logo.svg';
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import './App.css';
+import Header from './components/Header/Header';
+import SubredditFilter from './components/SubredditFilter/SubredditFilter';
+import PostList from './components/PostList/PostList';
+import PostDetail from './components/PostDetail/PostDetail';
+import LoadingSpinner from './components/LoadingSpinner/LoadingSpinner';
+import ErrorMessage from './components/ErrorMessage/ErrorMessage';
+import { fetchPosts } from './redux/actions/posts';
 
 function App() {
+  const dispatch = useDispatch();
+  const { selected: selectedSubreddit } = useSelector(state => state.subreddits);
+  const { loading, error, currentPost } = useSelector(state => state.posts);
+
+  useEffect(() => {
+    dispatch(fetchPosts(selectedSubreddit));
+  }, [dispatch, selectedSubreddit]);
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Header />
+      <main className="main-content">
+        <SubredditFilter />
+        {loading && <LoadingSpinner />}
+        {error && <ErrorMessage message={error} />}
+        {!loading && !error && <PostList />}
+      </main>
+      {currentPost && <PostDetail />}
     </div>
   );
 }

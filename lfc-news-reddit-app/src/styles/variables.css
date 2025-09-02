@@ -1,0 +1,173 @@
+/* Default Theme - Red Home Kit */
+:root {
+  /* Liverpool FC Kit Colors */
+  --lfc-red: #C8102E;
+  --lfc-green: #00B2A9;
+  --lfc-yellow: #F6EB61;
+  --lfc-white: #ffffff;
+  
+  /* Theme Variables - Default (Red Kit) */
+  --theme-primary: var(--lfc-red);
+  --theme-secondary: #a00d26;
+  --theme-accent: var(--lfc-white);
+  
+  /* Background Colors */
+  --bg-primary: #0f0f0f;
+  --bg-secondary: #1a1a1a;
+  --bg-tertiary: #252525;
+  --bg-glass: rgba(26, 26, 26, 0.8);
+  --bg-gradient: linear-gradient(135deg, var(--theme-primary) 0%, var(--theme-secondary) 100%);
+  
+  /* Text Colors */
+  --text-primary: #ffffff;
+  --text-secondary: #b0b0b0;
+  --text-muted: #666666;
+  --text-accent: var(--theme-primary);
+  
+  /* Accent Colors */
+  --accent: var(--theme-primary);
+  --accent-hover: var(--theme-secondary);
+  --accent-light: rgba(200, 16, 46, 0.15);
+  --accent-ultra-light: rgba(200, 16, 46, 0.05);
+  
+  /* Glass Effects */
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  
+  /* Enhanced Shadows */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.4);
+  --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.5);
+  --shadow-theme: 0 8px 25px rgba(200, 16, 46, 0.3);
+  
+  /* UI Colors */
+  --border-color: rgba(255, 255, 255, 0.1);
+  --border-hover: rgba(255, 255, 255, 0.2);
+  --error: #ff4444;
+  --success: var(--lfc-green);
+  --warning: var(--lfc-yellow);
+  
+  /* Spacing System (Golden Ratio Based) */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.618rem;
+  --spacing-xl: 2.618rem;
+  --spacing-xxl: 4.236rem;
+  
+  /* Border Radius */
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-xl: 32px;
+  --radius-full: 50%;
+  
+  /* Enhanced Transitions */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-bounce: 400ms cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --transition-theme: 300ms ease-in-out;
+  
+  /* Typography */
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 2rem;
+  --font-weight-light: 300;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-black: 900;
+  
+  /* Z-index */
+  --z-header: 100;
+  --z-dropdown: 200;
+  --z-modal-overlay: 999;
+  --z-modal: 1000;
+  --z-tooltip: 1001;
+  
+  /* Breakpoints */
+  --breakpoint-mobile: 320px;
+  --breakpoint-tablet: 768px;
+  --breakpoint-desktop: 1024px;
+  --breakpoint-wide: 1440px;
+}
+
+/* White Away Kit Theme */
+[data-theme="white"] {
+  --theme-primary: #1a1a1a;
+  --theme-secondary: #333333;
+  --theme-accent: var(--lfc-red);
+  
+  --bg-primary: #f8f9fa;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #e9ecef;
+  --bg-glass: rgba(255, 255, 255, 0.9);
+  --bg-gradient: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  
+  --text-primary: #1a1a1a;
+  --text-secondary: #6c757d;
+  --text-muted: #adb5bd;
+  --text-accent: var(--lfc-red);
+  
+  --accent: var(--lfc-red);
+  --accent-hover: #a00d26;
+  --accent-light: rgba(200, 16, 46, 0.1);
+  --accent-ultra-light: rgba(200, 16, 46, 0.03);
+  
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(26, 26, 26, 0.1);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.15);
+  --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.2);
+  --shadow-theme: 0 8px 25px rgba(200, 16, 46, 0.2);
+  
+  --border-color: rgba(26, 26, 26, 0.1);
+  --border-hover: rgba(26, 26, 26, 0.2);
+}
+
+/* Green Third Kit Theme */
+[data-theme="green"] {
+  --theme-primary: var(--lfc-green);
+  --theme-secondary: #008a82;
+  --theme-accent: var(--lfc-white);
+  
+  --bg-primary: #0a1a1a;
+  --bg-secondary: #0f2625;
+  --bg-tertiary: #1a3332;
+  --bg-glass: rgba(15, 38, 37, 0.8);
+  --bg-gradient: linear-gradient(135deg, var(--lfc-green) 0%, #008a82 100%);
+  
+  --text-primary: #ffffff;
+  --text-secondary: #b0d4d1;
+  --text-muted: #6b9996;
+  --text-accent: var(--lfc-green);
+  
+  --accent: var(--lfc-green);
+  --accent-hover: #008a82;
+  --accent-light: rgba(0, 178, 169, 0.15);
+  --accent-ultra-light: rgba(0, 178, 169, 0.05);
+  
+  --glass-bg: rgba(0, 178, 169, 0.05);
+  --glass-border: rgba(0, 178, 169, 0.2);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.6);
+  --shadow-theme: 0 8px 25px rgba(0, 178, 169, 0.4);
+  
+  --border-color: rgba(0, 178, 169, 0.2);
+  --border-hover: rgba(0, 178, 169, 0.3);
+}

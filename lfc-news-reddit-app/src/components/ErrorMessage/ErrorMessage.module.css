@@ -1,0 +1,50 @@
+.errorContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-xl);
+  text-align: center;
+  min-height: 300px;
+}
+
+.errorIcon {
+  color: var(--error);
+  margin-bottom: var(--spacing-md);
+}
+
+.errorTitle {
+  color: var(--text-primary);
+  font-size: 1.5rem;
+  margin-bottom: var(--spacing-sm);
+}
+
+.errorMessage {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  max-width: 400px;
+  margin-bottom: var(--spacing-lg);
+  line-height: 1.5;
+}
+
+.retryButton {
+  padding: var(--spacing-sm) var(--spacing-lg);
+  background-color: var(--accent);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.retryButton:hover {
+  background-color: var(--accent-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.retryButton:active {
+  transform: translateY(0);
+}

@@ -1,0 +1,134 @@
+.header {
+  background: var(--bg-gradient);
+  backdrop-filter: blur(20px);
+  color: var(--theme-accent);
+  padding: var(--spacing-lg) 0;
+  box-shadow: var(--shadow-theme);
+  position: sticky;
+  top: 0;
+  z-index: var(--z-header);
+  border-bottom: 1px solid var(--glass-border);
+  transition: all var(--transition-theme);
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-lg);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-lg);
+}
+
+.titleSection {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.title {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-black);
+  margin: 0;
+  letter-spacing: -1px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(45deg, var(--theme-accent), var(--theme-primary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: titleGlow 3s ease-in-out infinite alternate;
+}
+
+.subtitle {
+  font-size: var(--font-size-sm);
+  opacity: 0.9;
+  margin-top: var(--spacing-xs);
+  font-weight: var(--font-weight-medium);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+  flex-wrap: wrap;
+}
+
+@keyframes titleGlow {
+  0% {
+    filter: drop-shadow(0 0 5px rgba(200, 16, 46, 0.3));
+  }
+  100% {
+    filter: drop-shadow(0 0 15px rgba(200, 16, 46, 0.6));
+  }
+}
+
+/* Mobile first responsive design */
+@media (max-width: 767px) {
+  .header {
+    padding: var(--spacing-md) 0;
+  }
+  
+  .container {
+    padding: 0 var(--spacing-md);
+    gap: var(--spacing-md);
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .title {
+    font-size: var(--font-size-2xl);
+  }
+  
+  .subtitle {
+    font-size: var(--font-size-xs);
+  }
+  
+  .headerActions {
+    width: 100%;
+    justify-content: center;
+    gap: var(--spacing-md);
+  }
+  
+  .titleSection {
+    margin-bottom: var(--spacing-sm);
+  }
+}
+
+@media (min-width: 768px) {
+  .header {
+    padding: var(--spacing-xl) 0;
+  }
+  
+  .title {
+    font-size: var(--font-size-3xl);
+  }
+  
+  .subtitle {
+    font-size: var(--font-size-base);
+  }
+  
+  .headerActions {
+    gap: var(--spacing-xl);
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    padding: 0 var(--spacing-xxl);
+  }
+  
+  .title {
+    font-size: 3.5rem;
+  }
+}
+
+@media (min-width: 1440px) {
+  .container {
+    max-width: 1400px;
+  }
+}
