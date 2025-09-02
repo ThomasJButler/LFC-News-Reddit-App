@@ -1,0 +1,72 @@
+.spicyMeter {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  animation: spicyGlow 2s ease-in-out infinite alternate;
+}
+
+.chilis {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+}
+
+.chili {
+  font-size: 12px;
+  transition: all var(--transition-fast);
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+}
+
+.chili.active {
+  animation: chiliPulse 1.5s ease-in-out infinite alternate;
+}
+
+.chili.inactive {
+  opacity: 0.2;
+  filter: grayscale(100%) drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+}
+
+.spicyText {
+  color: var(--theme-accent);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+@keyframes spicyGlow {
+  0% {
+    box-shadow: 0 2px 4px rgba(255, 87, 34, 0.2);
+  }
+  100% {
+    box-shadow: 0 4px 12px rgba(255, 87, 34, 0.4), 0 0 20px rgba(255, 87, 34, 0.1);
+  }
+}
+
+@keyframes chiliPulse {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1.1);
+  }
+}
+
+/* Mobile responsive */
+@media (max-width: 767px) {
+  .spicyMeter {
+    font-size: 10px;
+    padding: 2px var(--spacing-xs);
+  }
+  
+  .chili {
+    font-size: 10px;
+  }
+}

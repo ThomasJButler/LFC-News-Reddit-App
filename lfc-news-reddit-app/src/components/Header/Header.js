@@ -10,6 +10,14 @@ const Header = () => {
         <div className={styles.titleSection}>
           <h1 className={styles.title}>LFC Reddit Viewer</h1>
           <span className={styles.subtitle}>Liverpool FC Community Posts</span>
+          <a 
+            href="https://github.com/thomasjbutler" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className={styles.developerLink}
+          >
+            Developed by Thomas Butler
+          </a>
         </div>
         <div className={styles.headerActions}>
           <SearchBar />

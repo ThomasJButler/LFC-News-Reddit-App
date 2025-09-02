@@ -168,6 +168,33 @@
   margin-top: var(--spacing-sm);
 }
 
+.gifContainer {
+  margin: var(--spacing-sm) 0;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--bg-secondary);
+  max-width: 300px;
+}
+
+.commentGif {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: var(--radius-md);
+  transition: transform var(--transition-normal);
+}
+
+.commentGif:hover {
+  transform: scale(1.02);
+}
+
+.commentImage {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius-sm);
+  margin: var(--spacing-sm) 0;
+}
+
 .noComments {
   text-align: center;
   padding: var(--spacing-xl);

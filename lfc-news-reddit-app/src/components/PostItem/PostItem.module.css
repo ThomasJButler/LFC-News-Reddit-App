@@ -134,14 +134,21 @@
   color: var(--text-secondary);
 }
 
+.upvotes,
 .comments {
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
 }
 
+.upvotes svg,
 .comments svg {
   opacity: 0.7;
+}
+
+.upvotes {
+  color: var(--theme-accent);
+  font-weight: var(--font-weight-medium);
 }
 
 .thumbnailSection {
