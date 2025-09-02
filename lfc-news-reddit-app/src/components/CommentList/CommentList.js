@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { sanitizeUrl } from '../../utils/sanitize';
 import styles from './CommentList.module.css';
 
 const Comment = ({ comment }) => {
@@ -51,7 +52,106 @@ const Comment = ({ comment }) => {
       {!collapsed && (
         <>
           <div className={styles.commentBody}>
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+            <ReactMarkdown 
+              remarkPlugins={[remarkGfm]}
+              components={{
+                a: ({ href, children }) => {
+                  if (!href) return <span>{children}</span>;
+
+                  // Check if link is a video URL
+                  if (/\.(mp4|webm|mov)$/i.test(href) || href.includes('v.redd.it') || href.includes('gfycat.com') || href.includes('redgifs.com')) {
+                    return (
+                      <div className={styles.videoLinkContainer}>
+                        <video 
+                          src={sanitizeUrl(href)} 
+                          className={styles.commentVideo}
+                          controls
+                          preload="metadata"
+                          playsInline
+                        >
+                          <a 
+                            href={sanitizeUrl(href)} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                          >
+                            {children}
+                          </a>
+                        </video>
+                      </div>
+                    );
+                  }
+
+                  // Check if link is an image
+                  if (/\.(jpg|jpeg|png|gif|webp)$/i.test(href)) {
+                    return (
+                      <div className={styles.imageLinkContainer}>
+                        <img 
+                          src={sanitizeUrl(href)} 
+                          alt="Linked image" 
+                          className={styles.commentImage}
+                          loading="lazy"
+                        />
+                      </div>
+                    );
+                  }
+
+                  // Regular link
+                  return (
+                    <a 
+                      href={sanitizeUrl(href)} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                    >
+                      {children}
+                    </a>
+                  );
+                },
+                img: ({ src, alt }) => {
+                  if (!src) return null;
+
+                  // Handle GIFs and animated content
+                  if (/\.(gif|gifv)$/i.test(src)) {
+                    return (
+                      <div className={styles.gifContainer}>
+                        <img 
+                          src={sanitizeUrl(src)} 
+                          alt={alt} 
+                          className={styles.commentGif}
+                          loading="lazy"
+                        />
+                      </div>
+                    );
+                  }
+
+                  // Handle Reddit video links (v.redd.it)
+                  if (src.includes('v.redd.it')) {
+                    return (
+                      <div className={styles.videoContainer}>
+                        <video 
+                          src={sanitizeUrl(src)} 
+                          className={styles.commentVideo}
+                          controls
+                          preload="metadata"
+                          playsInline
+                        >
+                          Your browser does not support the video tag.
+                        </video>
+                      </div>
+                    );
+                  }
+
+                  // Handle regular images
+                  return (
+                    <img 
+                      src={sanitizeUrl(src)} 
+                      alt={alt} 
+                      className={styles.commentImage}
+                      loading="lazy"
+                    />
+                  );
+                }
+              }}
+            >
               {comment.body}
             </ReactMarkdown>
           </div>
