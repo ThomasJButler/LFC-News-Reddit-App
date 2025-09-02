@@ -2,6 +2,7 @@ import React from 'react';
 import { useDispatch } from 'react-redux';
 import { setCurrentPost } from '../../redux/actions/posts';
 import { fetchComments } from '../../redux/actions/comments';
+import SpicyMeter from '../SpicyMeter/SpicyMeter';
 import styles from './PostItem.module.css';
 
 const PostItem = ({ post }) => {
@@ -35,12 +36,38 @@ const PostItem = ({ post }) => {
   };
 
   const getThumbnail = () => {
-    if (post.thumbnail && post.thumbnail.startsWith('http')) {
-      return post.thumbnail;
+    // First try the thumbnail if it's a valid image URL
+    if (post.thumbnail && 
+        post.thumbnail.startsWith('http') && 
+        !post.thumbnail.includes('reddit.com') &&
+        /\.(jpg|jpeg|png|gif|webp)($|\?)/i.test(post.thumbnail)) {
+      return post.thumbnail.replace(/&amp;/g, '&');
     }
-    if (post.preview?.images?.[0]?.resolutions?.[0]?.url) {
-      return post.preview.images[0].resolutions[0].url.replace(/&amp;/g, '&');
+    
+    // Try preview images - get the best quality available
+    if (post.preview?.images?.[0]) {
+      const image = post.preview.images[0];
+      
+      // Try to get a medium resolution image (around 320px width)
+      if (image.resolutions) {
+        const bestRes = image.resolutions.find(res => res.width >= 140 && res.width <= 320) ||
+                       image.resolutions[image.resolutions.length - 1]; // fallback to largest
+        if (bestRes?.url) {
+          return bestRes.url.replace(/&amp;/g, '&');
+        }
+      }
+      
+      // Fallback to source image
+      if (image.source?.url) {
+        return image.source.url.replace(/&amp;/g, '&');
+      }
     }
+    
+    // Check if the main URL is an image
+    if (post.url && /\.(jpg|jpeg|png|gif|webp)($|\?)/i.test(post.url)) {
+      return post.url.replace(/&amp;/g, '&');
+    }
+    
     return null;
   };
 
@@ -71,12 +98,19 @@ const PostItem = ({ post }) => {
         )}
         
         <div className={styles.postFooter}>
+          <span className={styles.upvotes}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M7 14l5-5 5 5" />
+            </svg>
+            {formatScore(post.score)} upvotes
+          </span>
           <span className={styles.comments}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
             </svg>
             {post.numComments} comments
           </span>
+          <SpicyMeter score={post.score} />
         </div>
       </div>
       
