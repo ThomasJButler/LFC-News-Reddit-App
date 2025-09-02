@@ -1,7 +1,7 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setSelectedSubreddit } from '../../redux/actions/subreddits';
-import { fetchPosts, setSortBy, setTimeRange } from '../../redux/actions/posts';
+import { fetchPosts, setSortBy, setTimeRange, sortByViral } from '../../redux/actions/posts';
 import styles from './SubredditFilter.module.css';
 
 const SubredditFilter = () => {
@@ -15,8 +15,12 @@ const SubredditFilter = () => {
   };
 
   const handleSortChange = (newSortBy) => {
-    dispatch(setSortBy(newSortBy));
-    dispatch(fetchPosts(selected, newSortBy, timeRange));
+    if (newSortBy === 'viral') {
+      dispatch(sortByViral());
+    } else {
+      dispatch(setSortBy(newSortBy));
+      dispatch(fetchPosts(selected, newSortBy, timeRange));
+    }
   };
 
   const handleTimeRangeChange = (newTimeRange) => {
@@ -52,6 +56,7 @@ const SubredditFilter = () => {
           <option value="new">New</option>
           <option value="top">Top</option>
           <option value="rising">Rising</option>
+          <option value="viral">🔥 Viral (Spicy)</option>
         </select>
       </div>
       

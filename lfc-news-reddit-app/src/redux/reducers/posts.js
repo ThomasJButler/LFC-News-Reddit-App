@@ -29,6 +29,14 @@ const postsReducer = (state = initialState, action) => {
         error: null
       };
       
+    case types.SORT_BY_VIRAL:
+      const sortedItems = [...state.items].sort((a, b) => b.score - a.score);
+      return {
+        ...state,
+        items: sortedItems,
+        sortBy: 'viral'
+      };
+      
     case types.FETCH_POSTS_FAILURE:
     case types.SEARCH_POSTS_FAILURE:
       return {

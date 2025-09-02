@@ -82,3 +82,7 @@ export const setTimeRange = (timeRange) => ({
   type: types.SET_TIME_RANGE,
   payload: timeRange
 });
+
+export const sortByViral = () => ({
+  type: types.SORT_BY_VIRAL
+});
