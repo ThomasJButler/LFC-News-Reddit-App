@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { sanitizeUrl } from '../../utils/sanitize';
 import styles from './CommentList.module.css';
 
 const Comment = ({ comment }) => {
@@ -51,7 +52,42 @@ const Comment = ({ comment }) => {
       {!collapsed && (
         <>
           <div className={styles.commentBody}>
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+            <ReactMarkdown 
+              remarkPlugins={[remarkGfm]}
+              components={{
+                a: ({ href, children }) => (
+                  <a 
+                    href={sanitizeUrl(href)} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                  >
+                    {children}
+                  </a>
+                ),
+                img: ({ src, alt }) => {
+                  if (src && /\.(gif|gifv)$/i.test(src)) {
+                    return (
+                      <div className={styles.gifContainer}>
+                        <img 
+                          src={src} 
+                          alt={alt} 
+                          className={styles.commentGif}
+                          loading="lazy"
+                        />
+                      </div>
+                    );
+                  }
+                  return (
+                    <img 
+                      src={sanitizeUrl(src)} 
+                      alt={alt} 
+                      className={styles.commentImage}
+                      loading="lazy"
+                    />
+                  );
+                }
+              }}
+            >
               {comment.body}
             </ReactMarkdown>
           </div>

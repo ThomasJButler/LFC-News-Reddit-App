@@ -6,6 +6,7 @@ import CommentList from '../CommentList/CommentList';
 import LoadingSpinner from '../LoadingSpinner/LoadingSpinner';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { sanitizeUrl } from '../../utils/sanitize';
 import styles from './PostDetail.module.css';
 
 const PostDetail = () => {
@@ -35,13 +36,35 @@ const PostDetail = () => {
       );
     }
     
-    if (currentPost.preview?.images?.[0]?.source) {
-      const imageUrl = currentPost.preview.images[0].source.url.replace(/&amp;/g, '&');
-      return <img src={imageUrl} alt={currentPost.title} className={styles.media} />;
+    // Handle preview images with better resolution selection
+    if (currentPost.preview?.images?.[0]) {
+      const image = currentPost.preview.images[0];
+      
+      // Use source for full quality, or largest resolution available
+      const imageUrl = image.source?.url || 
+                      (image.resolutions?.length > 0 ? 
+                       image.resolutions[image.resolutions.length - 1].url : null);
+      
+      if (imageUrl) {
+        return (
+          <img 
+            src={imageUrl.replace(/&amp;/g, '&')} 
+            alt={currentPost.title} 
+            className={styles.media} 
+          />
+        );
+      }
     }
     
-    if (currentPost.url && /\.(jpg|jpeg|png|gif|webp)$/i.test(currentPost.url)) {
-      return <img src={currentPost.url} alt={currentPost.title} className={styles.media} />;
+    // Handle direct image URLs
+    if (currentPost.url && /\.(jpg|jpeg|png|gif|webp)($|\?)/i.test(currentPost.url)) {
+      return (
+        <img 
+          src={currentPost.url.replace(/&amp;/g, '&')} 
+          alt={currentPost.title} 
+          className={styles.media} 
+        />
+      );
     }
     
     return null;
@@ -65,7 +88,20 @@ const PostDetail = () => {
           
           {currentPost.selftext && (
             <div className={styles.content}>
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              <ReactMarkdown 
+                remarkPlugins={[remarkGfm]}
+                components={{
+                  a: ({ href, children }) => (
+                    <a 
+                      href={sanitizeUrl(href)} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                    >
+                      {children}
+                    </a>
+                  )
+                }}
+              >
                 {currentPost.selftext}
               </ReactMarkdown>
             </div>
@@ -75,7 +111,7 @@ const PostDetail = () => {
           
           {currentPost.url && !currentPost.selftext && !renderMedia() && (
             <a 
-              href={currentPost.url} 
+              href={sanitizeUrl(currentPost.url)} 
               target="_blank" 
               rel="noopener noreferrer" 
               className={styles.externalLink}
