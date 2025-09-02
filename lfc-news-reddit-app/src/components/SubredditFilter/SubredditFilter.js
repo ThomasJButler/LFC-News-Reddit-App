@@ -1,7 +1,7 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setSelectedSubreddit } from '../../redux/actions/subreddits';
-import { fetchPosts } from '../../redux/actions/posts';
+import { fetchPosts, setSortBy, setTimeRange } from '../../redux/actions/posts';
 import styles from './SubredditFilter.module.css';
 
 const SubredditFilter = () => {
@@ -15,7 +15,13 @@ const SubredditFilter = () => {
   };
 
   const handleSortChange = (newSortBy) => {
+    dispatch(setSortBy(newSortBy));
     dispatch(fetchPosts(selected, newSortBy, timeRange));
+  };
+
+  const handleTimeRangeChange = (newTimeRange) => {
+    dispatch(setTimeRange(newTimeRange));
+    dispatch(fetchPosts(selected, sortBy, newTimeRange));
   };
 
   return (
@@ -48,6 +54,24 @@ const SubredditFilter = () => {
           <option value="rising">Rising</option>
         </select>
       </div>
+      
+      {sortBy === 'top' && (
+        <div className={styles.timeRangeFilter}>
+          <label className={styles.filterLabel}>Time range:</label>
+          <select 
+            className={styles.sortSelect}
+            value={timeRange}
+            onChange={(e) => handleTimeRangeChange(e.target.value)}
+          >
+            <option value="hour">Hour</option>
+            <option value="day">Day</option>
+            <option value="week">Week</option>
+            <option value="month">Month</option>
+            <option value="year">Year</option>
+            <option value="all">All Time</option>
+          </select>
+        </div>
+      )}
     </div>
   );
 };
