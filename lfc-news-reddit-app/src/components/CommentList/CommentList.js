@@ -87,7 +87,7 @@ const Comment = ({ comment }) => {
                       <div className={styles.imageLinkContainer}>
                         <img 
                           src={sanitizeUrl(href)} 
-                          alt="Linked image" 
+                          alt="" 
                           className={styles.commentImage}
                           loading="lazy"
                         />

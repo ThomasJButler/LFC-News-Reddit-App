@@ -122,6 +122,11 @@
   color: var(--text-primary);
   line-height: 1.5;
   margin-bottom: var(--spacing-sm);
+  word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  max-width: 100%;
 }
 
 .commentBody p {
@@ -248,6 +253,42 @@
 
 /* Responsive media queries */
 @media (max-width: 767px) {
+  .comment {
+    padding: var(--spacing-sm);
+    margin-bottom: var(--spacing-xs);
+  }
+
+  .commentBody {
+    font-size: 0.9rem;
+    overflow-x: hidden;
+  }
+
+  .commentBody p {
+    max-width: 100%;
+    overflow-wrap: break-word;
+  }
+
+  .commentBody pre {
+    max-width: 100%;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+
+  .commentBody blockquote {
+    padding-left: var(--spacing-sm);
+    margin: var(--spacing-xs) 0;
+  }
+
+  .commentHeader {
+    font-size: 0.8rem;
+    gap: var(--spacing-xs);
+  }
+
+  .replies {
+    padding-left: var(--spacing-xs);
+  }
+
   .commentImage,
   .commentGif,
   .commentVideo {
