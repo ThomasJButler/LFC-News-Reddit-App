@@ -6,6 +6,8 @@
 
 A modern React application for browsing Liverpool FC-related content from Reddit. View posts, comments, and discussions from multiple Liverpool FC subreddits in a clean, responsive interface with a dark theme featuring Liverpool FC colors.
 
+<img width="1374" height="931" alt="image" src="https://github.com/user-attachments/assets/885cf941-5084-4330-9da5-e0588d8b4560" />
+
 ## Features
 
 - 🔴 **Liverpool FC Themed** - Dark theme with official LFC red (#C8102E) accents
