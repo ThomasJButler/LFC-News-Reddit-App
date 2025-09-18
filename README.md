@@ -1,4 +1,6 @@
-# LFC Reddit Viewer
+# LFC Reddit Viewer 
+
+** At this stage, this is a desktop only app due to difficulties with the Reddit API and CORS on mobile browsers. 
 
 **Developed by [Thomas Butler](https://thomasjbutler.me)**
 
