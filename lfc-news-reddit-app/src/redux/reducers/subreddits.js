@@ -1,3 +1,10 @@
+/**
+ * @author Tom Butler
+ * @date 2025-10-22
+ * @description Subreddits reducer managing available Liverpool FC subreddits and current selection.
+ *              State shape: { available, selected }
+ */
+
 import * as types from '../actions/types';
 
 const initialState = {
