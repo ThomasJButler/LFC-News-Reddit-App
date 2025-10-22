@@ -1,9 +1,20 @@
+/**
+ * @author Tom Butler
+ * @date 2025-10-22
+ * @description Filter controls for subreddit selection, sort method, and time range.
+ *              Viral/spiciness sort uses client-side scoring instead of API request.
+ */
+
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setSelectedSubreddit } from '../../redux/actions/subreddits';
 import { fetchPosts, setSortBy, setTimeRange, sortByViral } from '../../redux/actions/posts';
 import styles from './SubredditFilter.module.css';
 
+/**
+ * @return {JSX.Element}
+ * @constructor
+ */
 const SubredditFilter = () => {
   const dispatch = useDispatch();
   const { available, selected } = useSelector(state => state.subreddits);
@@ -56,7 +67,7 @@ const SubredditFilter = () => {
           <option value="new">New</option>
           <option value="top">Top</option>
           <option value="rising">Rising</option>
-          <option value="viral">🔥 Viral (Spicy)</option>
+          <option value="viral">Viral (Spicy)</option>
         </select>
       </div>
       

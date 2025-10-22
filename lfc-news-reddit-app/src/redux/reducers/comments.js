@@ -1,3 +1,10 @@
+/**
+ * @author Tom Butler
+ * @date 2025-10-22
+ * @description Comments reducer managing threaded comment data with loading and error states.
+ *              State shape: { items, loading, error }
+ */
+
 import * as types from '../actions/types';
 
 const initialState = {

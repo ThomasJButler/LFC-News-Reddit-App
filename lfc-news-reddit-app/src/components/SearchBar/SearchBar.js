@@ -1,8 +1,18 @@
+/**
+ * @author Tom Butler
+ * @date 2025-10-22
+ * @description Search bar component with clear functionality and subreddit-aware searching.
+ */
+
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { searchPosts, fetchPosts, setSearchTerm } from '../../redux/actions/posts';
 import styles from './SearchBar.module.css';
 
+/**
+ * @return {JSX.Element}
+ * @constructor
+ */
 const SearchBar = () => {
   const dispatch = useDispatch();
   const { selectedSubreddit } = useSelector(state => state.subreddits);

@@ -1,17 +1,31 @@
+/**
+ * @author Tom Butler
+ * @date 2025-10-22
+ * @description Theme switcher for Liverpool FC colour schemes (red, white, green).
+ *              Persists selection to localStorage and applies via data attributes.
+ */
+
 import React, { useState, useEffect } from 'react';
 import styles from './ThemeSwitcher.module.css';
 
+/**
+ * @return {JSX.Element}
+ * @constructor
+ */
 const ThemeSwitcher = () => {
   const themes = [
     { id: 'red', name: 'Red', color: '#C8102E' },
     { id: 'white', name: 'White', color: '#ffffff' },
     { id: 'green', name: 'Green', color: '#00B2A9' }
   ];
-  
+
   const [currentTheme, setCurrentTheme] = useState(() => {
     return localStorage.getItem('lfc-theme') || 'red';
   });
-  
+
+  /**
+   * @listens currentTheme - Applies theme data attribute when selection changes
+   */
   useEffect(() => {
     applyTheme(currentTheme);
   }, [currentTheme]);

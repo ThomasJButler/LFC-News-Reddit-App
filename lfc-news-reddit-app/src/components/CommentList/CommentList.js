@@ -1,12 +1,29 @@
+/**
+ * @author Tom Butler
+ * @date 2025-10-22
+ * @description Threaded comment display with collapsible nesting, media rendering, and markdown support.
+ *              Detects video/image URLs and renders inline media with lazy loading.
+ */
+
 import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { sanitizeUrl } from '../../utils/sanitize';
 import styles from './CommentList.module.css';
 
+/**
+ * @param {Object} props
+ * @param {Object} props.comment - Comment object with body, author, score, and nested replies
+ * @return {JSX.Element}
+ * @constructor
+ */
 const Comment = ({ comment }) => {
   const [collapsed, setCollapsed] = useState(false);
 
+  /**
+   * @param {number} timestamp - Unix timestamp in seconds
+   * @return {string} Human-readable relative time
+   */
   const formatTime = (timestamp) => {
     const now = Date.now() / 1000;
     const diff = now - timestamp;
@@ -22,6 +39,7 @@ const Comment = ({ comment }) => {
     }
   };
 
+  // Cap indentation at 100px to prevent excessive nesting pushing content off-screen
   const levelIndent = Math.min(comment.level * 20, 100);
 
   return (
@@ -58,7 +76,7 @@ const Comment = ({ comment }) => {
                 a: ({ href, children }) => {
                   if (!href) return <span>{children}</span>;
 
-                  // Check if link is a video URL
+                  // Pattern 1: Detect video URLs by extension or known video hosting domains
                   if (/\.(mp4|webm|mov)$/i.test(href) || href.includes('v.redd.it') || href.includes('gfycat.com') || href.includes('redgifs.com')) {
                     return (
                       <div className={styles.videoLinkContainer}>
@@ -81,13 +99,13 @@ const Comment = ({ comment }) => {
                     );
                   }
 
-                  // Check if link is an image
+                  // Pattern 2: Detect image URLs by file extension
                   if (/\.(jpg|jpeg|png|gif|webp)$/i.test(href)) {
                     return (
                       <div className={styles.imageLinkContainer}>
                         <img 
                           src={sanitizeUrl(href)} 
-                          alt="Linked image" 
+                          alt="" 
                           className={styles.commentImage}
                           loading="lazy"
                         />
@@ -95,7 +113,7 @@ const Comment = ({ comment }) => {
                     );
                   }
 
-                  // Regular link
+                  // Default: Standard external link
                   return (
                     <a 
                       href={sanitizeUrl(href)} 
@@ -109,7 +127,7 @@ const Comment = ({ comment }) => {
                 img: ({ src, alt }) => {
                   if (!src) return null;
 
-                  // Handle GIFs and animated content
+                  // Type 1: GIFs and animated content
                   if (/\.(gif|gifv)$/i.test(src)) {
                     return (
                       <div className={styles.gifContainer}>
@@ -123,7 +141,7 @@ const Comment = ({ comment }) => {
                     );
                   }
 
-                  // Handle Reddit video links (v.redd.it)
+                  // Type 2: Reddit-hosted videos
                   if (src.includes('v.redd.it')) {
                     return (
                       <div className={styles.videoContainer}>
@@ -140,7 +158,7 @@ const Comment = ({ comment }) => {
                     );
                   }
 
-                  // Handle regular images
+                  // Type 3: Standard images
                   return (
                     <img 
                       src={sanitizeUrl(src)} 
@@ -169,6 +187,12 @@ const Comment = ({ comment }) => {
   );
 };
 
+/**
+ * @param {Object} props
+ * @param {Object[]} props.comments - Array of top-level comment objects
+ * @return {JSX.Element}
+ * @constructor
+ */
 const CommentList = ({ comments }) => {
   if (!comments || comments.length === 0) {
     return (

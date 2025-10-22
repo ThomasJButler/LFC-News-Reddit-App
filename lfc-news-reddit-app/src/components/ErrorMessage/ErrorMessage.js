@@ -1,6 +1,19 @@
+/**
+ * @author Tom Butler
+ * @date 2025-10-22
+ * @description Error display component with optional retry functionality.
+ */
+
 import React from 'react';
 import styles from './ErrorMessage.module.css';
 
+/**
+ * @param {Object} props
+ * @param {string} [props.message] - Error message to display
+ * @param {Function} [props.onRetry] - Callback for retry button click
+ * @return {JSX.Element}
+ * @constructor
+ */
 const ErrorMessage = ({ message, onRetry }) => {
   return (
     <div className={styles.errorContainer}>

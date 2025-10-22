@@ -1,6 +1,17 @@
+/**
+ * @author Tom Butler
+ * @date 2025-10-22
+ * @description Markdown rendering configuration with GitHub-flavoured markdown support.
+ *              Configures safe link handling and code block styling.
+ */
+
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
+/**
+ * @param {string} content - Markdown content to render
+ * @return {Object|null} ReactMarkdown component configuration or null if no content
+ */
 export const renderMarkdown = (content) => {
   if (!content) return null;
   
@@ -25,6 +36,10 @@ export const renderMarkdown = (content) => {
   };
 };
 
+/**
+ * @param {string} html - HTML-encoded string to decode
+ * @return {string} Decoded plain text with HTML entities converted
+ */
 export const decodeHtml = (html) => {
   const txt = document.createElement('textarea');
   txt.innerHTML = html;

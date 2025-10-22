@@ -1,3 +1,10 @@
+/**
+ * @author Tom Butler
+ * @date 2025-10-22
+ * @description Posts reducer managing post list, current post, search, and sorting state.
+ *              State shape: { items, loading, error, currentPost, searchTerm, sortBy, timeRange }
+ */
+
 import * as types from '../actions/types';
 
 const initialState = {
@@ -30,6 +37,7 @@ const postsReducer = (state = initialState, action) => {
       };
       
     case types.SORT_BY_VIRAL:
+      // Client-side sort by Reddit score (upvotes - downvotes)
       const sortedItems = [...state.items].sort((a, b) => b.score - a.score);
       return {
         ...state,

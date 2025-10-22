@@ -1,3 +1,10 @@
+/**
+ * @author Tom Butler
+ * @date 2025-10-22
+ * @description Modal displaying full post content with media, markdown rendering, and threaded comments.
+ *              Handles Reddit videos, images, and external links with sanitisation.
+ */
+
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { clearCurrentPost } from '../../redux/actions/posts';
@@ -9,6 +16,10 @@ import remarkGfm from 'remark-gfm';
 import { sanitizeUrl } from '../../utils/sanitize';
 import styles from './PostDetail.module.css';
 
+/**
+ * @return {JSX.Element|null}
+ * @constructor
+ */
 const PostDetail = () => {
   const dispatch = useDispatch();
   const { currentPost } = useSelector(state => state.posts);
@@ -21,52 +32,58 @@ const PostDetail = () => {
     dispatch(clearComments());
   };
 
+  /**
+   * @param {number} timestamp - Unix timestamp in seconds
+   * @return {string} Localised date and time string
+   */
   const formatTime = (timestamp) => {
     return new Date(timestamp * 1000).toLocaleString();
   };
 
+  /**
+   * Renders appropriate media element based on post content type
+   * Priority: Reddit video > Preview images > Direct image URLs
+   * @return {JSX.Element|null}
+   */
   const renderMedia = () => {
     if (currentPost.isVideo && currentPost.media?.reddit_video) {
       return (
-        <video 
-          className={styles.media} 
+        <video
+          className={styles.media}
           controls
           src={currentPost.media.reddit_video.fallback_url}
         />
       );
     }
-    
-    // Handle preview images with better resolution selection
+
     if (currentPost.preview?.images?.[0]) {
       const image = currentPost.preview.images[0];
-      
-      // Use source for full quality, or largest resolution available
-      const imageUrl = image.source?.url || 
-                      (image.resolutions?.length > 0 ? 
+
+      const imageUrl = image.source?.url ||
+                      (image.resolutions?.length > 0 ?
                        image.resolutions[image.resolutions.length - 1].url : null);
-      
+
       if (imageUrl) {
         return (
-          <img 
-            src={imageUrl.replace(/&amp;/g, '&')} 
-            alt={currentPost.title} 
-            className={styles.media} 
+          <img
+            src={imageUrl.replace(/&amp;/g, '&')}
+            alt={currentPost.title}
+            className={styles.media}
           />
         );
       }
     }
-    
-    // Handle direct image URLs
+
     if (currentPost.url && /\.(jpg|jpeg|png|gif|webp)($|\?)/i.test(currentPost.url)) {
       return (
-        <img 
-          src={currentPost.url.replace(/&amp;/g, '&')} 
-          alt={currentPost.title} 
-          className={styles.media} 
+        <img
+          src={currentPost.url.replace(/&amp;/g, '&')}
+          alt={currentPost.title}
+          className={styles.media}
         />
       );
     }
-    
+
     return null;
   };
 

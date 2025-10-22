@@ -1,3 +1,10 @@
+/**
+ * @author Tom Butler
+ * @date 2025-10-22
+ * @description Individual Reddit post card with thumbnail, score, metadata, and spiciness indicator.
+ *              Handles thumbnail resolution selection and HTML entity decoding.
+ */
+
 import React from 'react';
 import { useDispatch } from 'react-redux';
 import { setCurrentPost } from '../../redux/actions/posts';
@@ -5,6 +12,12 @@ import { fetchComments } from '../../redux/actions/comments';
 import SpicyMeter from '../SpicyMeter/SpicyMeter';
 import styles from './PostItem.module.css';
 
+/**
+ * @param {Object} props
+ * @param {Object} props.post - Reddit post object
+ * @return {JSX.Element}
+ * @constructor
+ */
 const PostItem = ({ post }) => {
   const dispatch = useDispatch();
 
@@ -13,6 +26,10 @@ const PostItem = ({ post }) => {
     dispatch(fetchComments(post.id, post.subreddit));
   };
 
+  /**
+   * @param {number} score - Reddit score to format
+   * @return {string} Formatted score with 'k' suffix for thousands
+   */
   const formatScore = (score) => {
     if (score >= 1000) {
       return `${(score / 1000).toFixed(1)}k`;
@@ -20,6 +37,10 @@ const PostItem = ({ post }) => {
     return score.toString();
   };
 
+  /**
+   * @param {number} timestamp - Unix timestamp in seconds
+   * @return {string} Human-readable relative time
+   */
   const formatTime = (timestamp) => {
     const now = Date.now() / 1000;
     const diff = now - timestamp;
@@ -35,39 +56,41 @@ const PostItem = ({ post }) => {
     }
   };
 
+  /**
+   * Selects optimal thumbnail from Reddit's available image sources
+   * Strategy 1: Use direct thumbnail URL if valid and not Reddit-hosted
+   * Strategy 2: Select preview resolution around 320px width for performance
+   * Strategy 3: Fall back to source image or main post URL if image
+   * @return {string|null} Thumbnail URL with decoded HTML entities
+   */
   const getThumbnail = () => {
-    // First try the thumbnail if it's a valid image URL
-    if (post.thumbnail && 
-        post.thumbnail.startsWith('http') && 
+    if (post.thumbnail &&
+        post.thumbnail.startsWith('http') &&
         !post.thumbnail.includes('reddit.com') &&
         /\.(jpg|jpeg|png|gif|webp)($|\?)/i.test(post.thumbnail)) {
       return post.thumbnail.replace(/&amp;/g, '&');
     }
-    
-    // Try preview images - get the best quality available
+
     if (post.preview?.images?.[0]) {
       const image = post.preview.images[0];
-      
-      // Try to get a medium resolution image (around 320px width)
+
       if (image.resolutions) {
         const bestRes = image.resolutions.find(res => res.width >= 140 && res.width <= 320) ||
-                       image.resolutions[image.resolutions.length - 1]; // fallback to largest
+                       image.resolutions[image.resolutions.length - 1];
         if (bestRes?.url) {
           return bestRes.url.replace(/&amp;/g, '&');
         }
       }
-      
-      // Fallback to source image
+
       if (image.source?.url) {
         return image.source.url.replace(/&amp;/g, '&');
       }
     }
-    
-    // Check if the main URL is an image
+
     if (post.url && /\.(jpg|jpeg|png|gif|webp)($|\?)/i.test(post.url)) {
       return post.url.replace(/&amp;/g, '&');
     }
-    
+
     return null;
   };
 
