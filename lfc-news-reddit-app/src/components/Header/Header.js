@@ -1,9 +1,19 @@
+/**
+ * @author Tom Butler
+ * @date 2025-10-22
+ * @description Application header with branding, search functionality, and theme controls.
+ */
+
 import React from 'react';
 import SearchBar from '../SearchBar/SearchBar';
 import ThemeSwitcher from '../ThemeSwitcher/ThemeSwitcher';
 import lfcLogo from '../../logo/lfc-logo.png';
 import styles from './Header.module.css';
 
+/**
+ * @return {JSX.Element}
+ * @constructor
+ */
 const Header = () => {
   return (
     <header className={styles.header}>

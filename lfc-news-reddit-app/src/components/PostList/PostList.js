@@ -1,8 +1,18 @@
+/**
+ * @author Tom Butler
+ * @date 2025-10-22
+ * @description Grid container for Reddit post cards with empty state handling.
+ */
+
 import React from 'react';
 import { useSelector } from 'react-redux';
 import PostItem from '../PostItem/PostItem';
 import styles from './PostList.module.css';
 
+/**
+ * @return {JSX.Element}
+ * @constructor
+ */
 const PostList = () => {
   const { items: posts, searchTerm } = useSelector(state => state.posts);
 
