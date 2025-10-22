@@ -4,7 +4,9 @@
 
 A React app for browsing Liverpool FC content from Reddit without the clutter.
 
-## What It Is
+Pulls posts and comments from Liverpool FC subreddits (r/LiverpoolFC and r/liverpoolfcmedia) and displays them in a cleaner interface. No Reddit account needed, no API keys, just reads the public JSON feeds.
+
+Includes search, sorting, threaded comments with media support, and a spiciness meter that ranks posts by score. Three colour themes based on LFC kits (red, white, green).
 
 <img width="1374" height="931" alt="image" src="https://github.com/user-attachments/assets/885cf941-5084-4330-9da5-e0588d8b4560" />
 
