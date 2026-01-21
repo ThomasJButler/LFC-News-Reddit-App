@@ -91,10 +91,12 @@ test.describe('Component Visual Tests', () => {
         );
       });
 
-      // Desktop only for focus states
-      test.skip(({ project }) => project.name === 'mobile');
-
       test(`post card focused in ${theme} theme`, async ({ page }, testInfo) => {
+        // Desktop only for focus states
+        if (testInfo.project.name === 'mobile') {
+          test.skip();
+          return;
+        }
         await setThemeDirect(page, theme);
 
         const postCard = page.locator('[class*="postItem"]').first();
@@ -108,11 +110,13 @@ test.describe('Component Visual Tests', () => {
   });
 
   test.describe('Bottom Navigation', () => {
-    // Only visible on mobile
-    test.skip(({ project }) => project.name !== 'mobile');
-
     for (const theme of THEMES) {
       test(`bottom nav in ${theme} theme`, async ({ page }, testInfo) => {
+        // Only visible on mobile
+        if (testInfo.project.name !== 'mobile') {
+          test.skip();
+          return;
+        }
         await setThemeDirect(page, theme);
 
         const bottomNav = page.locator('[class*="bottomNav"]').first();

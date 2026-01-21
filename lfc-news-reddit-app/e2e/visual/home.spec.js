@@ -51,11 +51,13 @@ test.describe('Home Page Visual Tests', () => {
   });
 
   test.describe('Post Card Hover State', () => {
-    // Desktop only - hover states not applicable to touch devices
-    test.skip(({ project }) => project.name === 'mobile');
-
     for (const theme of THEMES) {
       test(`post card hover effect in ${theme} theme`, async ({ page }, testInfo) => {
+        // Desktop only - hover states not applicable to touch devices
+        if (testInfo.project.name === 'mobile') {
+          test.skip();
+          return;
+        }
         await setThemeDirect(page, theme);
 
         // Get first post card

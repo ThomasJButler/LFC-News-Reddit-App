@@ -12,12 +12,13 @@ This plan tracks all remaining work to achieve 9+/10 polish quality across the L
 
 **Current codebase analysis (VERIFIED):**
 - Components: 19 React components across `/src/components/` (Toast added)
-- Test coverage: ~73% (App.test.js + Toast.test.js + utility tests + Redux tests + component tests with 503 total tests)
+- Test coverage: ~73% (App.test.js + Toast.test.js + utility tests + Redux tests + component tests with 503 total unit tests)
+- E2E tests: 492 functional tests across 4 test files + visual regression tests (Playwright)
 - Animation support: 9 keyframes across 6 files, `prefers-reduced-motion` in 4 files
 - Empty states: Comprehensive in PostList (3 variants), basic in CommentList
 - Redux: Traditional action/reducer pattern with 4 async thunks, 28 action types
 - Utils: 5 utility files (api, cache, formatTime, markdown, sanitize) - all tested
-- CI/CD: NO GitHub Actions workflows exist
+- CI/CD: GitHub Actions workflow configured for visual tests
 - Hooks: `/src/hooks/` directory created with useToast.js
 - Jest: Fixed transformIgnorePatterns for ESM modules, added test:coverage and test:ci scripts
 
@@ -29,13 +30,14 @@ This plan tracks all remaining work to achieve 9+/10 polish quality across the L
 |----------|--------|----------|----------|
 | Toast Notifications | COMPLETE | 100% | No |
 | Visual Testing (Playwright) | COMPLETE | 100% | No |
+| E2E Functional Tests | COMPLETE | 100% | No |
 | Test Coverage | Good | ~73% (target 80%) | Yes - Production quality |
 | Comment Threading Polish | Partial | ~50% | No |
 | Post Card Polish | Partial | ~65% | No |
 | Loading States / Skeletons | Partial | ~55% | No |
 | Animation Refinements | Partial | ~35% | No |
 | Empty States | Mostly Complete | ~85% | No |
-| Production Readiness | Not Ready | ~35% | Yes - Deployment blocker |
+| Production Readiness | In Progress | ~60% | Yes - Deployment blocker |
 
 ---
 
@@ -224,12 +226,19 @@ Prevents visual regressions across 4 themes and 3 viewports.
 | ErrorBoundary | [x] COMPLETE | Medium |
 | Toast | [x] COMPLETE | High - 14 tests passing |
 
-#### E2E Tests
+#### E2E Tests - COMPLETE
 
-- [ ] Create `/e2e/happy-path.spec.js`
-- [ ] Create `/e2e/theme-persistence.spec.js`
-- [ ] Create `/e2e/mobile-navigation.spec.js`
-- [ ] Create `/e2e/error-recovery.spec.js`
+- [x] Create `/e2e/happy-path.spec.js` - COMPLETE
+- [x] Create `/e2e/theme-persistence.spec.js` - COMPLETE
+- [x] Create `/e2e/mobile-navigation.spec.js` - COMPLETE
+- [x] Create `/e2e/error-recovery.spec.js` - COMPLETE
+
+**Summary:** All 4 E2E functional test files created with comprehensive coverage:
+- 492 total E2E tests across 3 viewports (mobile, tablet, desktop)
+- Tests cover happy paths, theme persistence, mobile navigation, and error recovery
+- All tests passing in Playwright 1.57
+
+**Bug Fix:** Fixed test.skip() syntax in existing visual test files (home.spec.js, post-detail.spec.js, comments.spec.js, components.spec.js) where the API had changed in Playwright 1.57 and was causing errors.
 
 ---
 
@@ -577,14 +586,14 @@ Prevents visual regressions across 4 themes and 3 viewports.
 5. **Staggered List Animations** (P1)
 
 ### Phase 3 (Week 3) - Testing
-6. **Unit Tests for Utilities** (P0)
-7. **Redux Tests** (P0)
-8. **Component Tests** (P0)
+6. ~~**Unit Tests for Utilities** (P0)~~ COMPLETE
+7. ~~**Redux Tests** (P0)~~ COMPLETE
+8. ~~**Component Tests** (P0)~~ COMPLETE
 
 ### Phase 4 (Week 4) - Quality Assurance
-9. **Visual Testing Infrastructure** (P0)
-10. **E2E Tests** (P0)
-11. **Production Readiness Audits** (P3)
+9. ~~**Visual Testing Infrastructure** (P0)~~ COMPLETE
+10. ~~**E2E Tests** (P0)~~ COMPLETE
+11. **Production Readiness Audits** (P3) - In Progress
 
 ---
 
@@ -657,10 +666,10 @@ Prevents visual regressions across 4 themes and 3 viewports.
 
 **E2E Tests:**
 ```
-/e2e/happy-path.spec.js
-/e2e/theme-persistence.spec.js
-/e2e/mobile-navigation.spec.js
-/e2e/error-recovery.spec.js
+/e2e/happy-path.spec.js - CREATED (492 total tests across 3 viewports)
+/e2e/theme-persistence.spec.js - CREATED
+/e2e/mobile-navigation.spec.js - CREATED
+/e2e/error-recovery.spec.js - CREATED
 ```
 
 ### Files to Modify
@@ -814,9 +823,10 @@ Prevents visual regressions across 4 themes and 3 viewports.
 - [ ] Test coverage > 80%
 - [x] All utility functions have unit tests (api.js, cache.js, formatTime.js, markdown.js, sanitize.js)
 - [x] Redux actions/reducers have tests (posts, comments, subreddits)
-- [ ] E2E tests cover critical paths
+- [x] E2E tests cover critical paths (492 tests across 4 test files, 3 viewports)
+- [x] Visual regression tests implemented (Playwright)
 - [ ] Lighthouse performance > 90
-- [ ] GitHub Actions CI/CD workflow configured
+- [x] GitHub Actions CI/CD workflow configured (visual-tests.yml)
 - [ ] Build verification passes without errors
 
 ---
