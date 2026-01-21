@@ -61,7 +61,8 @@
 }
 
 .collapseAllButton:active {
-  transform: translateY(0);
+  /* WHY: scale(0.97) provides tactile press feedback per animation-refinements.md spec */
+  transform: translateY(0) scale(0.97);
 }
 
 .commentCount {
@@ -193,6 +194,24 @@
   color: var(--theme-accent);
   transform: scale(1.1);
   box-shadow: var(--shadow-sm);
+}
+
+.collapseButton:active {
+  /* WHY: scale(0.97) provides tactile press feedback per animation-refinements.md spec */
+  transform: scale(0.97);
+}
+
+/* WHY: Chevron rotation animation for collapse/expand per animation-refinements.md spec
+   Smooth 200ms rotation instead of icon swap provides better visual feedback */
+.chevronIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 200ms ease-out;
+}
+
+.collapseButton.collapsed .chevronIcon {
+  transform: rotate(-90deg);
 }
 
 /* Reply count badge on collapse button */
@@ -478,5 +497,9 @@
   .topLevelCommentAnimated {
     animation: none;
     opacity: 1;
+  }
+
+  .chevronIcon {
+    transition: none;
   }
 }

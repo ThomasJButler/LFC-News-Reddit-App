@@ -59,6 +59,8 @@
 
 .copyButton:active {
   background-color: var(--highlight-soft);
+  /* WHY: scale(0.97) provides tactile press feedback per animation-refinements.md spec */
+  transform: scale(0.97);
 }
 
 .copyText {

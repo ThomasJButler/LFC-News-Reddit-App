@@ -114,7 +114,8 @@ button:hover {
 }
 
 button:active {
-  transform: translateY(0);
+  /* WHY: scale(0.97) provides tactile press feedback per animation-refinements.md spec */
+  transform: translateY(0) scale(0.97);
 }
 
 button:disabled {

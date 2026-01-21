@@ -123,6 +123,11 @@
   color: var(--text-primary);
 }
 
+.filterButton:active {
+  /* WHY: scale(0.97) provides tactile press feedback per animation-refinements.md spec */
+  transform: scale(0.97);
+}
+
 .filterButton.active {
   background-color: var(--accent);
   color: white;
@@ -212,6 +217,11 @@
   color: var(--text-primary);
 }
 
+.flairExpandButton:active {
+  /* WHY: scale(0.97) provides tactile press feedback per animation-refinements.md spec */
+  transform: scale(0.97);
+}
+
 .flairFilterContent {
   display: flex;
   flex-direction: column;
@@ -259,6 +269,11 @@
   background-color: var(--bg-secondary);
   color: var(--text-primary);
   border-color: var(--accent);
+}
+
+.clearFlairFilters:active {
+  /* WHY: scale(0.97) provides tactile press feedback per animation-refinements.md spec */
+  transform: scale(0.97);
 }
 
 @media (min-width: 768px) {

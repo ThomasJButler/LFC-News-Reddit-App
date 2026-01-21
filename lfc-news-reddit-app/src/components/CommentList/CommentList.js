@@ -120,12 +120,15 @@ const Comment = ({ comment, onToggleCollapse, collapsed }) => {
       <div className={styles.commentHeader}>
         {(hasReplies || onToggleCollapse) && (
           <button
-            className={styles.collapseButton}
+            className={`${styles.collapseButton} ${collapsed ? styles.collapsed : ''}`}
             onClick={() => onToggleCollapse && onToggleCollapse(comment.id)}
             aria-expanded={!collapsed}
             aria-label={`Toggle comment thread${replyCount > 0 ? ` with ${replyCount} ${replyCount === 1 ? 'reply' : 'replies'}` : ''}`}
           >
-            <Icon name={collapsed ? 'ChevronRight' : 'ChevronDown'} size="sm" ariaHidden={true} />
+            {/* WHY: Using single ChevronDown icon with CSS rotation for smooth animation per animation-refinements.md spec */}
+            <span className={styles.chevronIcon}>
+              <Icon name="ChevronDown" size="sm" ariaHidden={true} />
+            </span>
             {replyCount > 0 && <span className={styles.replyCount}>{replyCount}</span>}
           </button>
         )}

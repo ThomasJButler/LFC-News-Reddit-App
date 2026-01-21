@@ -86,7 +86,8 @@
 }
 
 .primaryAction:active {
-  transform: translateY(0);
+  /* WHY: scale(0.97) provides tactile press feedback per animation-refinements.md spec */
+  transform: translateY(0) scale(0.97);
   box-shadow: var(--shadow-sm);
 }
 
@@ -123,7 +124,8 @@
 }
 
 .secondaryAction:active {
-  transform: translateY(0);
+  /* WHY: scale(0.97) provides tactile press feedback per animation-refinements.md spec */
+  transform: translateY(0) scale(0.97);
 }
 
 .secondaryAction:focus-visible {
@@ -236,7 +238,8 @@
 }
 
 .loadMoreButton:active {
-  transform: translateY(0);
+  /* WHY: scale(0.97) provides tactile press feedback per animation-refinements.md spec */
+  transform: translateY(0) scale(0.97);
   box-shadow: var(--shadow-sm);
 }
 
