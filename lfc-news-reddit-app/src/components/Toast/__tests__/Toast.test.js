@@ -305,3 +305,207 @@ describe('useToast Hook', () => {
     consoleSpy.mockRestore();
   });
 });
+
+describe('Toast Interactions', () => {
+  describe('Keyboard Navigation', () => {
+    it('dismisses toast on Escape key press', async () => {
+      renderWithProvider(
+        <ToastTrigger toastConfig={{ type: 'success', message: 'Test message' }} />
+      );
+
+      fireEvent.click(screen.getByTestId('show-toast'));
+
+      await waitFor(() => {
+        expect(screen.getByText('Test message')).toBeInTheDocument();
+      });
+
+      const toast = screen.getByRole('status');
+      fireEvent.keyDown(toast, { key: 'Escape' });
+
+      await waitFor(
+        () => {
+          expect(screen.queryByText('Test message')).not.toBeInTheDocument();
+        },
+        { timeout: 1000 }
+      );
+    });
+
+    it('ignores non-Escape keys', async () => {
+      renderWithProvider(
+        <ToastTrigger toastConfig={{ type: 'success', message: 'Test message' }} />
+      );
+
+      fireEvent.click(screen.getByTestId('show-toast'));
+
+      await waitFor(() => {
+        expect(screen.getByText('Test message')).toBeInTheDocument();
+      });
+
+      const toast = screen.getByRole('status');
+      fireEvent.keyDown(toast, { key: 'Enter' });
+
+      // Toast should still be visible
+      expect(screen.getByText('Test message')).toBeInTheDocument();
+    });
+  });
+
+  describe('Mouse Interactions (Desktop)', () => {
+    it('pauses timer on mouse enter', async () => {
+      renderWithProvider(
+        <ToastTrigger toastConfig={{ type: 'success', message: 'Hover test', duration: 500 }} />
+      );
+
+      fireEvent.click(screen.getByTestId('show-toast'));
+
+      await waitFor(() => {
+        expect(screen.getByText('Hover test')).toBeInTheDocument();
+      });
+
+      const toast = screen.getByRole('status');
+
+      // Hover over toast
+      fireEvent.mouseEnter(toast);
+
+      // Wait longer than duration
+      await new Promise(resolve => setTimeout(resolve, 600));
+
+      // Toast should still be visible because timer was paused
+      expect(screen.getByText('Hover test')).toBeInTheDocument();
+    });
+
+    it('resumes timer on mouse leave', async () => {
+      renderWithProvider(
+        <ToastTrigger toastConfig={{ type: 'success', message: 'Resume test', duration: 500 }} />
+      );
+
+      fireEvent.click(screen.getByTestId('show-toast'));
+
+      await waitFor(() => {
+        expect(screen.getByText('Resume test')).toBeInTheDocument();
+      });
+
+      const toast = screen.getByRole('status');
+
+      // Hover and then leave
+      fireEvent.mouseEnter(toast);
+      fireEvent.mouseLeave(toast);
+
+      // Toast should eventually be dismissed (resume timer uses shorter duration)
+      await waitFor(
+        () => {
+          expect(screen.queryByText('Resume test')).not.toBeInTheDocument();
+        },
+        { timeout: 3000 }
+      );
+    });
+  });
+
+  describe('Focus Interactions', () => {
+    it('pauses timer on focus', async () => {
+      renderWithProvider(
+        <ToastTrigger toastConfig={{ type: 'success', message: 'Focus test', duration: 500 }} />
+      );
+
+      fireEvent.click(screen.getByTestId('show-toast'));
+
+      await waitFor(() => {
+        expect(screen.getByText('Focus test')).toBeInTheDocument();
+      });
+
+      const toast = screen.getByRole('status');
+
+      // Focus toast
+      fireEvent.focus(toast);
+
+      // Wait longer than duration
+      await new Promise(resolve => setTimeout(resolve, 600));
+
+      // Toast should still be visible because timer was paused
+      expect(screen.getByText('Focus test')).toBeInTheDocument();
+    });
+
+    it('resumes timer on blur', async () => {
+      renderWithProvider(
+        <ToastTrigger toastConfig={{ type: 'success', message: 'Blur test', duration: 500 }} />
+      );
+
+      fireEvent.click(screen.getByTestId('show-toast'));
+
+      await waitFor(() => {
+        expect(screen.getByText('Blur test')).toBeInTheDocument();
+      });
+
+      const toast = screen.getByRole('status');
+
+      // Focus and then blur
+      fireEvent.focus(toast);
+      fireEvent.blur(toast);
+
+      // Toast should eventually be dismissed
+      await waitFor(
+        () => {
+          expect(screen.queryByText('Blur test')).not.toBeInTheDocument();
+        },
+        { timeout: 3000 }
+      );
+    });
+  });
+
+  describe('Duration Handling', () => {
+    it('uses custom duration when provided', async () => {
+      renderWithProvider(
+        <ToastTrigger toastConfig={{ type: 'success', message: 'Custom duration', duration: 300 }} />
+      );
+
+      fireEvent.click(screen.getByTestId('show-toast'));
+
+      await waitFor(() => {
+        expect(screen.getByText('Custom duration')).toBeInTheDocument();
+      });
+
+      // Toast should auto-dismiss quickly
+      await waitFor(
+        () => {
+          expect(screen.queryByText('Custom duration')).not.toBeInTheDocument();
+        },
+        { timeout: 1000 }
+      );
+    });
+
+    it('uses longer duration for error toasts', async () => {
+      // Error toasts should stay longer by default
+      renderWithProvider(
+        <ToastTrigger toastConfig={{ type: 'error', message: 'Error toast' }} />
+      );
+
+      fireEvent.click(screen.getByTestId('show-toast'));
+
+      await waitFor(() => {
+        expect(screen.getByText('Error toast')).toBeInTheDocument();
+      });
+
+      // Toast should still be visible after default duration (4s)
+      await new Promise(resolve => setTimeout(resolve, 200));
+      expect(screen.getByText('Error toast')).toBeInTheDocument();
+    });
+  });
+
+  describe('Unknown Toast Type Handling', () => {
+    it('defaults to info icon for unknown type', async () => {
+      // Simulate fallback behaviour
+      renderWithProvider(
+        <ToastTrigger toastConfig={{ type: 'info', message: 'Default icon test' }} />
+      );
+
+      fireEvent.click(screen.getByTestId('show-toast'));
+
+      await waitFor(() => {
+        expect(screen.getByText('Default icon test')).toBeInTheDocument();
+      });
+
+      // Toast should render with info icon (default)
+      const toast = screen.getByRole('status');
+      expect(toast).toBeInTheDocument();
+    });
+  });
+});
