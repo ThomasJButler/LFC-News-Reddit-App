@@ -63,9 +63,10 @@
   opacity: 1;
 }
 
-/* WHY: Accessible focus indicator for keyboard navigation (WCAG 2.4.7) */
+/* WHY: Accessible focus indicator for keyboard navigation (WCAG 2.4.7)
+   3px outline per spec (post-card-polish.md) for higher visibility */
 .postItem:focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 3px solid var(--accent);
   outline-offset: 2px;
   background: var(--accent-ultra-light);
   border-color: var(--accent-light);

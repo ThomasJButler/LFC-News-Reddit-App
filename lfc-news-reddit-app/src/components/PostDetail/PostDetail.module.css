@@ -803,7 +803,8 @@
 }
 
 /* WHY: Respect user's motion preferences for accessibility (WCAG 2.3.3)
-   Users with vestibular disorders may experience discomfort from animations */
+   Users with vestibular disorders may experience discomfort from animations.
+   This includes modal animations AND hover transforms on interactive elements. */
 @media (prefers-reduced-motion: reduce) {
   .modalOverlay,
   .modalContent,
@@ -817,5 +818,30 @@
 
   .progressFill {
     transition: none;
+  }
+
+  /* Disable hover transforms on interactive elements */
+  .readingModeButton,
+  .galleryNav,
+  .galleryThumbnail,
+  .videoFallback,
+  .externalLink {
+    transition: background-color var(--transition-theme),
+                color var(--transition-theme),
+                border-color var(--transition-theme),
+                opacity var(--transition-theme);
+  }
+
+  .readingModeButton:hover,
+  .galleryNav:hover,
+  .galleryThumbnail:hover,
+  .videoFallback:hover,
+  .externalLink:hover {
+    transform: none;
+  }
+
+  /* Gallery nav needs to preserve translateY for vertical centering */
+  .galleryNav {
+    transform: translateY(-50%);
   }
 }
