@@ -27,12 +27,19 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "test:e2e": "jest --config=jest.e2e.config.js"
+    "test:e2e": "jest --config=jest.e2e.config.js",
+    "test:coverage": "react-scripts test --coverage --watchAll=false",
+    "test:ci": "react-scripts test --ci --coverage --watchAll=false"
   },
   "eslintConfig": {
     "extends": [
       "react-app",
       "react-app/jest"
+    ]
+  },
+  "jest": {
+    "transformIgnorePatterns": [
+      "node_modules/(?!(react-markdown|remark-gfm|remark-parse|remark-rehype|rehype-raw|micromark|micromark-.*|mdast-.*|unist-.*|unified|bail|is-plain-obj|trough|vfile|vfile-.*|decode-named-character-reference|character-entities|property-information|hast-util-.*|hastscript|space-separated-tokens|comma-separated-tokens|ccount|escape-string-regexp|markdown-table|devlop|trim-lines|zwitch|html-url-attributes)/)"
     ]
   },
   "browserslist": {

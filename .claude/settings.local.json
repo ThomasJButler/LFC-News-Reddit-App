@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(frontend-design:frontend-design)",
+      "Skill(frontend-design:frontend-design:*)"
+    ]
+  },
+  "enabledPlugins": {
+    "ralph-loop@claude-plugins-official": true
+  }
+}
