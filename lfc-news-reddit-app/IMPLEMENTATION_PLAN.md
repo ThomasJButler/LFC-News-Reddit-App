@@ -12,7 +12,7 @@ This plan tracks all remaining work to achieve 9+/10 polish quality across the L
 
 **Current codebase analysis (VERIFIED):**
 - Components: 19 React components across `/src/components/` (Toast added)
-- Test coverage: ~57% (App.test.js + Toast.test.js + utility tests + Redux tests + component tests with 434 total tests)
+- Test coverage: ~58% (App.test.js + Toast.test.js + utility tests + Redux tests + component tests with 459 total tests)
 - Animation support: 9 keyframes across 6 files, `prefers-reduced-motion` in 4 files
 - Empty states: Comprehensive in PostList (3 variants), basic in CommentList
 - Redux: Traditional action/reducer pattern with 4 async thunks, 28 action types
@@ -29,7 +29,7 @@ This plan tracks all remaining work to achieve 9+/10 polish quality across the L
 |----------|--------|----------|----------|
 | Toast Notifications | COMPLETE | 100% | No |
 | Visual Testing (Playwright) | Not Started | 0% | Yes - Regression prevention |
-| Test Coverage | Good | ~57% (target 80%) | Yes - Production quality |
+| Test Coverage | Good | ~58% (target 80%) | Yes - Production quality |
 | Comment Threading Polish | Partial | ~50% | No |
 | Post Card Polish | Partial | ~65% | No |
 | Loading States / Skeletons | Partial | ~55% | No |
@@ -217,7 +217,7 @@ Prevents visual regressions across 4 themes and 3 viewports.
 |-----------|--------|----------|
 | PostItem | [x] COMPLETE | High |
 | PostDetail | [ ] Not Started | High |
-| CommentList | [ ] Not Started | High |
+| CommentList | [x] COMPLETE | High |
 | SearchBar | [x] COMPLETE | Medium |
 | ThemeSwitcher | [x] COMPLETE | Medium |
 | SkeletonLoader | [x] COMPLETE | Medium |
@@ -688,7 +688,7 @@ Prevents visual regressions across 4 themes and 3 viewports.
 
 | Metric | Current | Target | Priority |
 |--------|---------|--------|----------|
-| Test Coverage (Statements) | ~57% | 80% | P0 |
+| Test Coverage (Statements) | ~58% | 80% | P0 |
 | Test Coverage (Branches) | ~25% | 75% | P0 |
 | Lighthouse Performance | Unknown | 90+ | P3 |
 | Lighthouse Accessibility | Unknown | 95+ | P3 |
