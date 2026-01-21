@@ -35,7 +35,7 @@ This plan tracks all remaining work to achieve 9+/10 polish quality across the L
 | Loading States / Skeletons | **COMPLETE** | **95%** | No |
 | Empty States | **COMPLETE** | **90%** | No |
 | Post Card Polish | Partial | **~90%** | No |
-| Comment Threading Polish | Partial | **~85%** | No |
+| Comment Threading Polish | Partial | **~95%** | No |
 | Animation Refinements | Partial | ~90% | No |
 | Production Readiness | In Progress | ~65% | Yes - Deployment blocker |
 
@@ -249,7 +249,7 @@ Prevents visual regressions across 4 themes and 3 viewports.
 ## P1 - High Priority (Core UX Features)
 
 ### 4. Comment Threading Visual Polish
-**Spec:** `specs/comment-threading-polish.md` | **Status:** ~85% | **Verified:** January 2026
+**Spec:** `specs/comment-threading-polish.md` | **Status:** ~95% | **Verified:** January 2026
 
 Core threading is complete. Main gaps: Avatar component and action bar redesign.
 
@@ -276,28 +276,34 @@ Core threading is complete. Main gaps: Avatar component and action bar redesign.
 - [x] Create `/src/utils/colorHash.js`
 - [x] Integrate Avatar into CommentList header layout
 
-#### P2 - User Badges Enhancement
+#### P2 - User Badges Enhancement - COMPLETE
 
 - [x] OP badge exists (theme accent color) - DONE
-- [ ] Add explicit Mod badge (green pill) displaying "MOD" instead of "moderator" text
+- [x] Add explicit Mod badge (green pill) displaying "MOD" instead of "moderator" text - DONE
+  - Created `.modBadge` CSS class with green background and pill styling
 
-#### P2 - Thread Line Enhancements (Optional)
+#### P2 - Thread Line Enhancements - COMPLETE
 
 - [x] Thread lines 3px with depth colors - DONE
-- [ ] Make thread lines clickable to collapse entire branch (Reddit-style UX)
-- [ ] Add hover glow effect on thread lines (`box-shadow`)
+- [x] Make thread lines clickable to collapse entire branch (Reddit-style UX) - DONE
+  - Added `.threadLineButton` overlay with hover glow effect
+- [x] Add hover glow effect on thread lines (`box-shadow`) - DONE
+  - Hover glow uses box-shadow with theme color
 
-#### P2 - Action Bar Redesign
+#### P2 - Action Bar Redesign - COMPLETE
 
-- [ ] Add Reply button (pill style, links to Reddit)
-- [ ] Add Share button (pill style, copy permalink)
-- [ ] Show actions on hover (desktop), always visible (mobile)
+- [x] Add Reply button (pill style, links to Reddit) - DONE
+- [x] Add Share button (pill style, copy permalink with feedback) - DONE
+- [x] Show actions on hover (desktop), always visible (mobile) - DONE
+  - Desktop: visible on hover | Mobile: always visible
+  - 44x44px touch targets on mobile for accessibility
 
-#### P2 - Collapse Animation Enhancement
+#### P2 - Collapse Animation Enhancement - COMPLETE
 
 - [x] Collapse button exists with icon toggle - DONE
-- [x] Add chevron rotation animation on collapse (0 -> 90 degrees)
-- [ ] Add 300ms ease-out height transition for content
+- [x] Add chevron rotation animation on collapse (0 -> 90 degrees) - DONE
+- [x] Add 300ms ease-out height transition for content - DONE
+  - Added opacity transition for smoother visual effect
 
 **Files to modify:**
 ```
@@ -748,7 +754,7 @@ All empty states are implemented with helpful actions and Reddit integration.
 | PostItem | `/src/components/PostItem/` | **90%** | Minor optional polish (focus 3px, overlays) |
 | PostDetail | `/src/components/PostDetail/` | **95%** | Exit animations done |
 | PostList | `/src/components/PostList/` | **95%** | Stagger animations done |
-| CommentList | `/src/components/CommentList/` | **90%** | Stagger animations done, action bar pending |
+| CommentList | `/src/components/CommentList/` | **95%** | Stagger animations, action bar, thread line collapse all done |
 | SkeletonLoader | `/src/components/SkeletonLoader/` | **95%** | **COMPLETE** - All 6 types + shimmer + reduced motion |
 | ErrorBoundary | `/src/components/ErrorBoundary/` | 100% | Complete |
 | SearchBar | `/src/components/SearchBar/` | 100% | Complete |
@@ -810,11 +816,11 @@ All empty states are implemented with helpful actions and Reddit integration.
 ### Comment Threading (from spec)
 - [x] Avatar placeholders render with username-based colors
 - [x] OP badge displays as styled pill
-- [ ] Mod badge displays as styled pill
-- [ ] Thread lines are clickable for collapse
-- [ ] Action bar uses pill-style buttons
-- [ ] Collapse animation is smooth (300ms)
-- [ ] Collapsed state shows summary with reply count
+- [x] Mod badge displays as styled pill (green "MOD" badge)
+- [x] Thread lines are clickable for collapse (with hover glow effect)
+- [x] Action bar uses pill-style buttons (Reply + Share)
+- [x] Collapse animation is smooth (300ms ease-out with opacity transition)
+- [x] Collapsed state shows summary with reply count
 - [x] Works correctly in all 4 themes
 - [x] Mobile touch targets >= 44x44px
 

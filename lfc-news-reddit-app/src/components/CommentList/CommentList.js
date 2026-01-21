@@ -81,10 +81,14 @@ const flattenComments = (comments, collapsedState = {}) => {
  * @param {Object} props.comment - Comment object with body, author, score, and nested replies
  * @param {Function} props.onToggleCollapse - Callback when collapse button is clicked (optional)
  * @param {boolean} props.collapsed - Whether this comment is collapsed (for virtualized mode)
+ * @param {string} props.postId - Post ID for constructing Reddit URLs (optional)
+ * @param {string} props.subreddit - Subreddit name for constructing Reddit URLs (optional)
  * @return {JSX.Element}
  * @constructor
  */
-const Comment = ({ comment, onToggleCollapse, collapsed }) => {
+const Comment = ({ comment, onToggleCollapse, collapsed, postId, subreddit }) => {
+  // WHY: Track copy state to show feedback when user copies permalink
+  const [copied, setCopied] = useState(false);
   // Cap indentation based on screen size to prevent excessive nesting pushing content off-screen
   // WHY mobile optimization: 100px is 31% of 320px screen width, too much horizontal space
   // Mobile (< 768px): Max 40px indent (12.5% of 320px screen)
@@ -117,6 +121,17 @@ const Comment = ({ comment, onToggleCollapse, collapsed }) => {
         '--thread-color': threadColor
       }}
     >
+      {/* WHY: Clickable thread line to collapse entire branch per comment-threading-polish.md spec
+          Uses a button overlay on the thread line for keyboard accessibility */}
+      {onToggleCollapse && (
+        <button
+          className={styles.threadLineButton}
+          onClick={() => onToggleCollapse(comment.id)}
+          aria-label={`Collapse comment thread by ${comment.author}`}
+          tabIndex={-1}
+          style={{ '--thread-color': threadColor }}
+        />
+      )}
       <div className={styles.commentHeader}>
         {(hasReplies || onToggleCollapse) && (
           <button
@@ -146,13 +161,18 @@ const Comment = ({ comment, onToggleCollapse, collapsed }) => {
         <span className={styles.score}>{comment.score} upvotes</span>
         <span className={styles.time}>{formatRelativeTime(comment.created)}</span>
         {comment.stickied && <span className={styles.stickied}>Pinned</span>}
-        {comment.distinguished && (
+        {comment.distinguished === 'moderator' && (
+          <span className={styles.modBadge}>MOD</span>
+        )}
+        {comment.distinguished && comment.distinguished !== 'moderator' && (
           <span className={styles.distinguished}>{comment.distinguished}</span>
         )}
       </div>
       
-      {!collapsed && (
-        <div className={styles.commentBody}>
+      {/* WHY: Always render body for smooth CSS height animation
+          Collapsed state uses CSS to animate to max-height: 0 */}
+      <div className={`${styles.commentBody} ${collapsed ? styles.commentBodyCollapsed : ''}`}>
+        {!collapsed && (
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
             components={{
@@ -259,8 +279,44 @@ const Comment = ({ comment, onToggleCollapse, collapsed }) => {
           >
             {comment.body}
           </ReactMarkdown>
-        </div>
-      )}
+        )}
+
+        {/* WHY: Action bar per comment-threading-polish.md spec
+            Pill-style buttons for Reply (links to Reddit) and Share (copy permalink)
+            Desktop: visible on hover | Mobile: always visible */}
+        {!collapsed && (
+          <div className={styles.actionBar}>
+            {postId && subreddit && (
+              <a
+                href={`https://www.reddit.com/r/${subreddit}/comments/${postId}/comment/${comment.id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.actionButton}
+                aria-label="Reply on Reddit (opens in new tab)"
+              >
+                <Icon name="MessageCircle" size="sm" ariaHidden={true} />
+                <span>Reply</span>
+              </a>
+            )}
+            <button
+              className={`${styles.actionButton} ${copied ? styles.actionButtonCopied : ''}`}
+              onClick={() => {
+                const permalink = postId && subreddit
+                  ? `https://www.reddit.com/r/${subreddit}/comments/${postId}/comment/${comment.id}`
+                  : `https://www.reddit.com${comment.permalink || ''}`;
+                navigator.clipboard.writeText(permalink).then(() => {
+                  setCopied(true);
+                  setTimeout(() => setCopied(false), 2000);
+                });
+              }}
+              aria-label={copied ? 'Link copied!' : 'Copy link to comment'}
+            >
+              <Icon name={copied ? 'Check' : 'Share2'} size="sm" ariaHidden={true} />
+              <span>{copied ? 'Copied!' : 'Share'}</span>
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
@@ -275,7 +331,7 @@ const Comment = ({ comment, onToggleCollapse, collapsed }) => {
  * @return {JSX.Element}
  */
 const VirtualizedRow = ({ index, style, data }) => {
-  const { flatComments, collapsedState, onToggleCollapse } = data;
+  const { flatComments, collapsedState, onToggleCollapse, postId, subreddit } = data;
   const comment = flatComments[index];
 
   return (
@@ -284,6 +340,8 @@ const VirtualizedRow = ({ index, style, data }) => {
         comment={comment}
         onToggleCollapse={onToggleCollapse}
         collapsed={collapsedState[comment.id]}
+        postId={postId}
+        subreddit={subreddit}
       />
     </div>
   );
@@ -302,10 +360,12 @@ const getTopLevelCommentIds = (comments) => {
 /**
  * @param {Object} props
  * @param {Object[]} props.comments - Array of top-level comment objects
+ * @param {string} props.postId - Post ID for constructing Reddit URLs (optional)
+ * @param {string} props.subreddit - Subreddit name for constructing Reddit URLs (optional)
  * @return {JSX.Element}
  * @constructor
  */
-const CommentList = ({ comments }) => {
+const CommentList = ({ comments, postId, subreddit }) => {
   // ALL HOOKS MUST BE CALLED BEFORE ANY CONDITIONAL RETURNS
   const [collapsedState, setCollapsedState] = useState({});
   const [windowHeight, setWindowHeight] = useState(window.innerHeight);
@@ -392,9 +452,11 @@ const CommentList = ({ comments }) => {
     () => ({
       flatComments,
       collapsedState,
-      onToggleCollapse: handleToggleCollapse
+      onToggleCollapse: handleToggleCollapse,
+      postId,
+      subreddit
     }),
-    [flatComments, collapsedState, handleToggleCollapse]
+    [flatComments, collapsedState, handleToggleCollapse, postId, subreddit]
   );
 
   // NOW we can do conditional returns after all hooks are called
@@ -419,6 +481,8 @@ const CommentList = ({ comments }) => {
             comment={comment}
             onToggleCollapse={() => handleToggleCollapse(comment.id)}
             collapsed={collapsed}
+            postId={postId}
+            subreddit={subreddit}
           />
           {!collapsed && comment.replies && comment.replies.length > 0 && (
             <div className={styles.replies}>
@@ -516,7 +580,11 @@ CommentList.propTypes = {
       replies: PropTypes.array,
       level: PropTypes.number
     })
-  ).isRequired
+  ).isRequired,
+  // Post ID for constructing Reddit URLs (optional)
+  postId: PropTypes.string,
+  // Subreddit name for constructing Reddit URLs (optional)
+  subreddit: PropTypes.string
 };
 
 Comment.propTypes = {
@@ -528,12 +596,17 @@ Comment.propTypes = {
     score: PropTypes.number,
     created: PropTypes.number,
     replies: PropTypes.array,
-    level: PropTypes.number
+    level: PropTypes.number,
+    permalink: PropTypes.string
   }).isRequired,
   // Callback when collapse button is clicked
   onToggleCollapse: PropTypes.func,
   // Whether this comment is collapsed
-  collapsed: PropTypes.bool
+  collapsed: PropTypes.bool,
+  // Post ID for constructing Reddit URLs (optional)
+  postId: PropTypes.string,
+  // Subreddit name for constructing Reddit URLs (optional)
+  subreddit: PropTypes.string
 };
 
 export default React.memo(CommentList);

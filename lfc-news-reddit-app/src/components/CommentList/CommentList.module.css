@@ -141,7 +141,39 @@
   background: var(--thread-color, var(--accent));
   border-radius: var(--radius-sm);
   opacity: 0.6;
-  transition: opacity var(--transition-fast);
+  transition: opacity var(--transition-fast),
+              box-shadow var(--transition-fast);
+}
+
+/* WHY: Clickable thread line button per comment-threading-polish.md spec
+   Overlays the visual thread line to allow collapse on click
+   Negative tabIndex since collapse button already provides keyboard access */
+.threadLineButton {
+  position: absolute;
+  left: -4px;
+  top: 0;
+  bottom: 0;
+  width: 11px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  z-index: 1;
+}
+
+/* WHY: Hover glow effect on thread line per comment-threading-polish.md spec
+   Applied when hovering the thread line button area */
+.threadLineButton:hover::before {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--thread-color, var(--accent));
+  border-radius: var(--radius-sm);
+  opacity: 1;
+  box-shadow: 0 0 8px var(--thread-color, var(--accent));
 }
 
 .comment:hover {
@@ -274,6 +306,19 @@
   color: white;
 }
 
+/* WHY: Moderator badge per comment-threading-polish.md spec
+   Green pill style for moderator-distinguished comments */
+.modBadge {
+  background-color: var(--lfc-green);
+  color: white;
+  padding: 1px 6px;
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
 .commentBody {
   color: var(--text-primary);
   line-height: 1.5;
@@ -284,6 +329,20 @@
   hyphens: auto;
   /* Enforce maximum line length for readability (65-75 characters) */
   max-width: 75ch;
+  /* WHY: Animated collapse per comment-threading-polish.md spec (300ms ease-out)
+     Using max-height transition allows smooth height animation */
+  overflow: hidden;
+  transition: max-height 300ms ease-out,
+              opacity 200ms ease-out;
+  max-height: 2000px;
+  opacity: 1;
+}
+
+/* WHY: Collapsed state uses muted styling and animates to zero height */
+.commentBodyCollapsed {
+  max-height: 0;
+  opacity: 0;
+  margin-bottom: 0;
 }
 
 .commentBody p {
@@ -328,6 +387,55 @@
 
 .replies {
   margin-top: var(--spacing-sm);
+}
+
+/* WHY: Action bar per comment-threading-polish.md spec
+   Pill-style buttons with icons, visible on hover (desktop) or always (mobile) */
+.actionBar {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-sm);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+/* Show action bar on comment hover (desktop) */
+.comment:hover .actionBar {
+  opacity: 1;
+}
+
+.actionButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: var(--accent-ultra-light);
+  border: 1px solid var(--accent-light);
+  border-radius: var(--radius-full);
+  color: var(--accent);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color var(--transition-fast),
+              color var(--transition-fast),
+              transform var(--transition-fast);
+}
+
+.actionButton:hover {
+  background: var(--accent-light);
+  color: var(--theme-accent);
+  transform: translateY(-1px);
+}
+
+.actionButton:active {
+  transform: scale(0.97);
+}
+
+.actionButtonCopied {
+  background: var(--lfc-green);
+  border-color: var(--lfc-green);
+  color: white;
 }
 
 .gifContainer {
@@ -489,6 +597,18 @@
   .gifContainer {
     max-width: 100%;
   }
+
+  /* WHY: Action bar always visible on mobile per comment-threading-polish.md spec
+     No hover on touch devices, so buttons must be visible */
+  .actionBar {
+    opacity: 1;
+  }
+
+  /* WHY: Ensure 44x44px touch targets for WCAG 2.5.5 accessibility */
+  .actionButton {
+    min-height: 44px;
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
 }
 
 /* WHY: Respect user's motion preferences for accessibility (WCAG 2.3.3)
@@ -500,6 +620,18 @@
   }
 
   .chevronIcon {
+    transition: none;
+  }
+
+  .commentBody {
+    transition: none;
+  }
+
+  .actionBar {
+    transition: none;
+  }
+
+  .threadLineButton:hover::before {
     transition: none;
   }
 }

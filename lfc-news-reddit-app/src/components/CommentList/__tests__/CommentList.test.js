@@ -280,11 +280,13 @@ describe('CommentList Component', () => {
       expect(screen.getByText('Pinned')).toBeInTheDocument();
     });
 
-    it('shows distinguished badge for moderator comments', () => {
+    it('shows MOD badge for moderator-distinguished comments', () => {
       const comments = [createMockComment({ distinguished: 'moderator' })];
       render(<CommentList comments={comments} />);
 
-      expect(screen.getByText('moderator')).toBeInTheDocument();
+      // WHY: Changed from 'moderator' to 'MOD' per comment-threading-polish.md spec
+      // Moderators now display a concise "MOD" pill badge instead of the full word
+      expect(screen.getByText('MOD')).toBeInTheDocument();
     });
   });
 
