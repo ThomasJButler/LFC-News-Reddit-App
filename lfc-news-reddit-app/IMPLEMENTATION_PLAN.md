@@ -12,11 +12,11 @@ This plan tracks all remaining work to achieve 9+/10 polish quality across the L
 
 **Current codebase analysis (VERIFIED):**
 - Components: 19 React components across `/src/components/` (Toast added)
-- Test coverage: ~25% (App.test.js + Toast.test.js with 17 total tests)
+- Test coverage: ~35% (App.test.js + Toast.test.js + utility tests with 210 total tests)
 - Animation support: 9 keyframes across 6 files, `prefers-reduced-motion` in 4 files
 - Empty states: Comprehensive in PostList (3 variants), basic in CommentList
 - Redux: Traditional action/reducer pattern with 4 async thunks, 28 action types
-- Utils: 5 utility files (api, cache, formatTime, markdown, sanitize) - all untested
+- Utils: 5 utility files (api, cache, formatTime, markdown, sanitize) - all tested
 - CI/CD: NO GitHub Actions workflows exist
 - Hooks: `/src/hooks/` directory created with useToast.js
 - Jest: Fixed transformIgnorePatterns for ESM modules, added test:coverage and test:ci scripts
@@ -29,13 +29,13 @@ This plan tracks all remaining work to achieve 9+/10 polish quality across the L
 |----------|--------|----------|----------|
 | Toast Notifications | COMPLETE | 100% | No |
 | Visual Testing (Playwright) | Not Started | 0% | Yes - Regression prevention |
-| Test Coverage | Critical Gap | ~25% (target 80%) | Yes - Production quality |
+| Test Coverage | Partial | ~35% (target 80%) | Yes - Production quality |
 | Comment Threading Polish | Partial | ~50% | No |
 | Post Card Polish | Partial | ~65% | No |
 | Loading States / Skeletons | Partial | ~55% | No |
 | Animation Refinements | Partial | ~35% | No |
 | Empty States | Mostly Complete | ~85% | No |
-| Production Readiness | Not Ready | ~25% | Yes - Deployment blocker |
+| Production Readiness | Not Ready | ~35% | Yes - Deployment blocker |
 
 ---
 
@@ -185,15 +185,20 @@ Prevents visual regressions across 4 themes and 3 viewports.
 - [x] Fixed Jest transformIgnorePatterns to handle react-markdown ESM modules
 - [x] Added mocks for react-markdown and react-syntax-highlighter in setupTests.js
 
+#### Test Coverage Expansion
+
+- [x] Created `/src/utils/__tests__/` directory
+- [x] All 5 utility files have comprehensive test coverage
+
 #### Utility Tests (Target: 100%)
 
-| File | Status | Tests Needed |
-|------|--------|--------------|
-| `/src/utils/api.test.js` | [ ] Not Started | Proxy fallback, retries, all fetch functions |
-| `/src/utils/cache.test.js` | [ ] Not Started | get/set/clear, TTL expiration |
-| `/src/utils/formatTime.test.js` | [ ] Not Started | All relative time formats, edge cases |
-| `/src/utils/markdown.test.js` | [ ] Not Started | Markdown-it config, decodeHtml security |
-| `/src/utils/sanitize.test.js` | [ ] Not Started | URL/HTML sanitization |
+| File | Status | Coverage |
+|------|--------|----------|
+| `/src/utils/__tests__/formatTime.test.js` | [x] COMPLETE | 100% coverage |
+| `/src/utils/__tests__/cache.test.js` | [x] COMPLETE | 96.42% coverage |
+| `/src/utils/__tests__/sanitize.test.js` | [x] COMPLETE | 100% coverage |
+| `/src/utils/__tests__/api.test.js` | [x] COMPLETE | 84.37% coverage |
+| `/src/utils/__tests__/markdown.test.js` | [x] COMPLETE | 92.3% coverage (known bug: image stripping - link regex runs before image regex, leaving `!` prefix on alt text) |
 
 #### Redux Tests (Target: 90%)
 
@@ -681,8 +686,8 @@ Prevents visual regressions across 4 themes and 3 viewports.
 
 | Metric | Current | Target | Priority |
 |--------|---------|--------|----------|
-| Test Coverage (Statements) | ~20% | 80% | P0 |
-| Test Coverage (Branches) | ~15% | 75% | P0 |
+| Test Coverage (Statements) | ~35% | 80% | P0 |
+| Test Coverage (Branches) | ~25% | 75% | P0 |
 | Lighthouse Performance | Unknown | 90+ | P3 |
 | Lighthouse Accessibility | Unknown | 95+ | P3 |
 | Lighthouse Best Practices | Unknown | 90+ | P3 |
@@ -805,7 +810,7 @@ Prevents visual regressions across 4 themes and 3 viewports.
 
 ### Production Readiness (from spec)
 - [ ] Test coverage > 80%
-- [ ] All utility functions have unit tests (api.js, cache.js, formatTime.js, markdown.js, sanitize.js)
+- [x] All utility functions have unit tests (api.js, cache.js, formatTime.js, markdown.js, sanitize.js)
 - [ ] Redux actions/reducers have tests (posts, comments, subreddits)
 - [ ] E2E tests cover critical paths
 - [ ] Lighthouse performance > 90
@@ -825,11 +830,11 @@ Prevents visual regressions across 4 themes and 3 viewports.
 ### Utils Summary
 | File | Functions | Test Status |
 |------|-----------|-------------|
-| api.js | 9 exports (fetchPosts, fetchPostDetails, fetchComments, searchPosts, processPostData, processCommentData, tryProxy, fetchFromReddit, isMobile) | NOT TESTED |
-| cache.js | 7 operations (get, set, delete, clear, has, size, cleanExpired) | NOT TESTED |
-| formatTime.js | 2 functions (formatRelativeTime, formatDateTime) | NOT TESTED |
-| markdown.js | 3 functions (renderMarkdown, decodeHtml, stripMarkdown) | NOT TESTED |
-| sanitize.js | 2 functions (sanitizeUrl, sanitizeHtml) | NOT TESTED |
+| api.js | 9 exports (fetchPosts, fetchPostDetails, fetchComments, searchPosts, processPostData, processCommentData, tryProxy, fetchFromReddit, isMobile) | TESTED (84.37%) |
+| cache.js | 7 operations (get, set, delete, clear, has, size, cleanExpired) | TESTED (96.42%) |
+| formatTime.js | 2 functions (formatRelativeTime, formatDateTime) | TESTED (100%) |
+| markdown.js | 3 functions (renderMarkdown, decodeHtml, stripMarkdown) | TESTED (92.3%) |
+| sanitize.js | 2 functions (sanitizeUrl, sanitizeHtml) | TESTED (100%) |
 
 ### Key Directory Structure
 ```
@@ -842,5 +847,5 @@ src/
 ├── redux/          # Traditional actions/reducers
 ├── styles/         # Only variables.css exists
 │   └── animations.css  # NOT CREATED
-└── utils/          # 5 utility files, all untested
+└── utils/          # 5 utility files, all tested
 ```
