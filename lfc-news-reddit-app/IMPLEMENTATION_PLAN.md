@@ -36,7 +36,7 @@ This plan tracks all remaining work to achieve 9+/10 polish quality across the L
 | Empty States | **COMPLETE** | **90%** | No |
 | Post Card Polish | Partial | **~90%** | No |
 | Comment Threading Polish | Partial | **~95%** | No |
-| Animation Refinements | Partial | ~90% | No |
+| Animation Refinements | Partial | **~95%** | No |
 | Production Readiness | In Progress | ~65% | Yes - Deployment blocker |
 
 ---
