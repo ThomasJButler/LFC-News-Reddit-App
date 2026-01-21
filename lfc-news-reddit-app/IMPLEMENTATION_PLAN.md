@@ -12,7 +12,7 @@ This plan tracks all remaining work to achieve 9+/10 polish quality across the L
 
 **Current codebase analysis (VERIFIED):**
 - Components: 19 React components across `/src/components/` (Toast added)
-- Test coverage: ~35% (App.test.js + Toast.test.js + utility tests with 210 total tests)
+- Test coverage: ~45% (App.test.js + Toast.test.js + utility tests + Redux tests with 315 total tests)
 - Animation support: 9 keyframes across 6 files, `prefers-reduced-motion` in 4 files
 - Empty states: Comprehensive in PostList (3 variants), basic in CommentList
 - Redux: Traditional action/reducer pattern with 4 async thunks, 28 action types
@@ -29,7 +29,7 @@ This plan tracks all remaining work to achieve 9+/10 polish quality across the L
 |----------|--------|----------|----------|
 | Toast Notifications | COMPLETE | 100% | No |
 | Visual Testing (Playwright) | Not Started | 0% | Yes - Regression prevention |
-| Test Coverage | Partial | ~35% (target 80%) | Yes - Production quality |
+| Test Coverage | Good | ~45% (target 80%) | Yes - Production quality |
 | Comment Threading Polish | Partial | ~50% | No |
 | Post Card Polish | Partial | ~65% | No |
 | Loading States / Skeletons | Partial | ~55% | No |
@@ -200,14 +200,16 @@ Prevents visual regressions across 4 themes and 3 viewports.
 | `/src/utils/__tests__/api.test.js` | [x] COMPLETE | 84.37% coverage |
 | `/src/utils/__tests__/markdown.test.js` | [x] COMPLETE | 92.3% coverage (known bug: image stripping - link regex runs before image regex, leaving `!` prefix on alt text) |
 
-#### Redux Tests (Target: 90%)
+#### Redux Tests (Target: 90%) - COMPLETE
 
-| File | Status | Tests Needed |
-|------|--------|--------------|
-| `/src/redux/__tests__/posts.actions.test.js` | [ ] Not Started | Async thunks, filter actions |
-| `/src/redux/__tests__/posts.reducer.test.js` | [ ] Not Started | State transitions, loading/error states |
-| `/src/redux/__tests__/comments.test.js` | [ ] Not Started | fetchComments thunk, reducer |
-| `/src/redux/__tests__/subreddits.test.js` | [ ] Not Started | Selection actions, reducer |
+| File | Status | Coverage |
+|------|--------|----------|
+| `/src/redux/__tests__/posts.actions.test.js` | [x] COMPLETE | 100% coverage |
+| `/src/redux/__tests__/posts.reducer.test.js` | [x] COMPLETE | 100% coverage |
+| `/src/redux/__tests__/comments.test.js` | [x] COMPLETE | 100% coverage |
+| `/src/redux/__tests__/subreddits.test.js` | [x] COMPLETE | 100% coverage |
+
+**Note:** `redux-mock-store` was installed as a dev dependency to enable testing of async thunks.
 
 #### Component Tests (Target: 80%)
 
@@ -686,7 +688,7 @@ Prevents visual regressions across 4 themes and 3 viewports.
 
 | Metric | Current | Target | Priority |
 |--------|---------|--------|----------|
-| Test Coverage (Statements) | ~35% | 80% | P0 |
+| Test Coverage (Statements) | ~45% | 80% | P0 |
 | Test Coverage (Branches) | ~25% | 75% | P0 |
 | Lighthouse Performance | Unknown | 90+ | P3 |
 | Lighthouse Accessibility | Unknown | 95+ | P3 |
@@ -811,7 +813,7 @@ Prevents visual regressions across 4 themes and 3 viewports.
 ### Production Readiness (from spec)
 - [ ] Test coverage > 80%
 - [x] All utility functions have unit tests (api.js, cache.js, formatTime.js, markdown.js, sanitize.js)
-- [ ] Redux actions/reducers have tests (posts, comments, subreddits)
+- [x] Redux actions/reducers have tests (posts, comments, subreddits)
 - [ ] E2E tests cover critical paths
 - [ ] Lighthouse performance > 90
 - [ ] GitHub Actions CI/CD workflow configured
@@ -821,11 +823,12 @@ Prevents visual regressions across 4 themes and 3 viewports.
 
 ## Codebase Quick Reference
 
-### Redux Structure (Traditional Pattern)
+### Redux Structure (Traditional Pattern) - All Tested
 - **Store:** `/src/redux/store.js` - redux-thunk middleware
-- **Actions:** `/src/redux/actions/` - types.js (28 types), posts.js, comments.js, subreddits.js
-- **Reducers:** `/src/redux/reducers/` - posts.js (with filters), comments.js, subreddits.js, index.js
-- **Async Thunks:** fetchPosts, fetchPostDetails, searchPosts, fetchComments
+- **Actions:** `/src/redux/actions/` - types.js (28 types), posts.js, comments.js, subreddits.js - All tested (100% coverage)
+- **Reducers:** `/src/redux/reducers/` - posts.js (with filters), comments.js, subreddits.js, index.js - All tested (100% coverage)
+- **Async Thunks:** fetchPosts, fetchPostDetails, searchPosts, fetchComments - All tested
+- **Test Dependency:** `redux-mock-store` installed for async thunk testing
 
 ### Utils Summary
 | File | Functions | Test Status |
