@@ -1,3 +1,12 @@
+/* WHY: Shake animation draws user attention to the retry button when error occurs.
+   3 quick horizontal movements over 400ms total per animation-refinements.md spec.
+   Animation runs once on mount to indicate actionable recovery option. */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
 .errorContainer {
   display: flex;
   flex-direction: column;
@@ -40,6 +49,8 @@
   transition: background-color var(--transition-theme),
               transform var(--transition-fast),
               box-shadow var(--transition-fast);
+  /* WHY: Shake animation on mount draws attention to actionable recovery option */
+  animation: shake 400ms ease-out;
 }
 
 .retryButton:hover {
@@ -51,4 +62,16 @@
 .retryButton:active {
   /* WHY: scale(0.97) provides tactile press feedback per animation-refinements.md spec */
   transform: translateY(0) scale(0.97);
+}
+
+/* WHY: Respect user's motion preferences for accessibility (WCAG 2.3.3) */
+@media (prefers-reduced-motion: reduce) {
+  .retryButton {
+    animation: none;
+  }
+
+  .retryButton:hover,
+  .retryButton:active {
+    transform: none;
+  }
 }
