@@ -12,7 +12,7 @@ This plan tracks all remaining work to achieve 9+/10 polish quality across the L
 
 **Current codebase analysis (VERIFIED):**
 - Components: 19 React components across `/src/components/` (Toast added)
-- Test coverage: ~73% (App.test.js + Toast.test.js + utility tests + Redux tests + component tests with 503 total unit tests)
+- Test coverage: 80.06% statements (App.test.js + Toast.test.js + utility tests + Redux tests + component tests with 599 total unit tests)
 - E2E tests: 492 functional tests across 4 test files + visual regression tests (Playwright)
 - Animation support: 9 keyframes across 6 files, `prefers-reduced-motion` in 4 files
 - Empty states: Comprehensive in PostList (3 variants), basic in CommentList
@@ -31,7 +31,7 @@ This plan tracks all remaining work to achieve 9+/10 polish quality across the L
 | Toast Notifications | COMPLETE | 100% | No |
 | Visual Testing (Playwright) | COMPLETE | 100% | No |
 | E2E Functional Tests | COMPLETE | 100% | No |
-| Test Coverage | Good | ~73% (target 80%) | Yes - Production quality |
+| Test Coverage | COMPLETE | 80.06% (target 80%) | No |
 | Comment Threading Polish | Partial | ~50% | No |
 | Post Card Polish | Partial | ~65% | No |
 | Loading States / Skeletons | Partial | ~55% | No |
@@ -167,7 +167,7 @@ Prevents visual regressions across 4 themes and 3 viewports.
 ---
 
 ### 3. Test Coverage Expansion
-**Spec:** `specs/production-readiness.md` | **Status:** ~20% -> Target 80% | **Estimate:** 8-12 hours
+**Spec:** `specs/production-readiness.md` | **Status:** COMPLETE (80.06%) | **Completed:** January 2026
 
 **Current state (UPDATED):**
 - `App.test.js` exists with 3 smoke tests
@@ -213,7 +213,7 @@ Prevents visual regressions across 4 themes and 3 viewports.
 
 **Note:** `redux-mock-store` was installed as a dev dependency to enable testing of async thunks.
 
-#### Component Tests (Target: 80%)
+#### Component Tests (Target: 80%) - COMPLETE
 
 | Component | Status | Priority |
 |-----------|--------|----------|
@@ -225,6 +225,10 @@ Prevents visual regressions across 4 themes and 3 viewports.
 | SkeletonLoader | [x] COMPLETE | Medium |
 | ErrorBoundary | [x] COMPLETE | Medium |
 | Toast | [x] COMPLETE | High - 14 tests passing |
+| SubredditFilter | [x] COMPLETE | Medium - 26 tests |
+| PostList | [x] COMPLETE | High - 26 tests |
+| BottomNav | [x] COMPLETE | Medium - 23 tests |
+| VideoPlayer | [x] COMPLETE | High - 30 tests (HLS, fallbacks, errors) |
 
 #### E2E Tests - COMPLETE
 
@@ -662,6 +666,10 @@ Prevents visual regressions across 4 themes and 3 viewports.
 /src/components/Toast/__tests__/Toast.test.js
 /src/components/SkeletonLoader/__tests__/SkeletonLoader.test.js
 /src/components/ErrorBoundary/__tests__/ErrorBoundary.test.js
+/src/components/SubredditFilter/__tests__/SubredditFilter.test.js - CREATED
+/src/components/PostList/__tests__/PostList.test.js - CREATED
+/src/components/BottomNav/__tests__/BottomNav.test.js - CREATED
+/src/components/VideoPlayer/__tests__/VideoPlayer.test.js - CREATED
 ```
 
 **E2E Tests:**
@@ -697,8 +705,8 @@ Prevents visual regressions across 4 themes and 3 viewports.
 
 | Metric | Current | Target | Priority |
 |--------|---------|--------|----------|
-| Test Coverage (Statements) | ~73% | 80% | P0 |
-| Test Coverage (Branches) | ~63% | 75% | P0 |
+| Test Coverage (Statements) | 80.06% | 80% | P0 - COMPLETE |
+| Test Coverage (Branches) | 72.14% | 75% | P0 |
 | Lighthouse Performance | Unknown | 90+ | P3 |
 | Lighthouse Accessibility | Unknown | 95+ | P3 |
 | Lighthouse Best Practices | Unknown | 90+ | P3 |
@@ -820,7 +828,7 @@ Prevents visual regressions across 4 themes and 3 viewports.
 - [ ] CI workflow runs on PR
 
 ### Production Readiness (from spec)
-- [ ] Test coverage > 80%
+- [x] Test coverage > 80% (80.06% achieved)
 - [x] All utility functions have unit tests (api.js, cache.js, formatTime.js, markdown.js, sanitize.js)
 - [x] Redux actions/reducers have tests (posts, comments, subreddits)
 - [x] E2E tests cover critical paths (492 tests across 4 test files, 3 viewports)
