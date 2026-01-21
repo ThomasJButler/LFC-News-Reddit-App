@@ -547,8 +547,10 @@ All empty states are implemented with helpful actions and Reddit integration.
 
 #### Missing Coverage
 
-- [ ] Add to `/src/components/SkeletonLoader/SkeletonLoader.module.css`
-- [ ] Verify ErrorBoundary (has comment about respecting, but no actual query)
+- [x] Add to `/src/components/SkeletonLoader/SkeletonLoader.module.css` - DONE (lines 944-968)
+- [x] Verify ErrorBoundary (has comment about respecting, but no actual query) - FIXED January 2026
+  - Added `@media (prefers-reduced-motion: reduce)` query to disable errorPulse animation
+  - Also disabled button hover/active transforms for motion-sensitive users
 - [ ] Verify PostDetail modal animations honor global rule
 
 ---
@@ -778,8 +780,8 @@ All empty states are implemented with helpful actions and Reddit integration.
 | fadeIn | App.css:228, PostDetail.module.css:586 | Keyframes | Yes (global) | DUPLICATE - consolidate |
 | slideUp | PostDetail.module.css:595 | Keyframes | Yes (global) | 20px translateY |
 | slideUpFromBottom | PostDetail.module.css:607 | Keyframes | Yes (global) | 100% for mobile |
-| shimmer | SkeletonLoader.module.css:2 | Keyframes | **NO - NEEDS ADD** | Opacity-based, should be gradient |
-| errorPulse | ErrorBoundary.module.css:36 | Keyframes | **NO - NEEDS ADD** | Scale bounce 0.8→1.1→1.0 |
+| shimmer | SkeletonLoader.module.css:2 | Keyframes | Yes (local:944-968) | Gradient-based shimmer with pulse fallback |
+| errorPulse | ErrorBoundary.module.css:36 | Keyframes | Yes (local) | Scale bounce 0.8→1.1→1.0, disabled for reduced motion |
 | spin | SearchBar.module.css:69 | Keyframes | Yes (local:79) | 360deg rotation |
 | sk-bouncedelay | LoadingSpinner.module.css:38 | Keyframes | Yes (global) | Scale bounce |
 | pulse | PostList.module.css:301 | Keyframes | Yes (local:311) | Opacity 1→0.6→1 |
@@ -796,6 +798,8 @@ All empty states are implemented with helpful actions and Reddit integration.
 - `/src/components/PostItem/PostItem.module.css` - postItemEnter animation
 - `/src/components/CommentList/CommentList.module.css` - commentEnter animation
 - `/src/components/PostDetail/PostDetail.module.css` - All modal animations
+- `/src/components/SkeletonLoader/SkeletonLoader.module.css:944-968` - Shimmer animation
+- `/src/components/ErrorBoundary/ErrorBoundary.module.css` - errorPulse animation + button transforms
 
 ---
 

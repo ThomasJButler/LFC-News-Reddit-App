@@ -29,7 +29,7 @@
   /* WHY: Using --font-size-4xl for large icons (4rem -> 3.5rem) */
   font-size: var(--font-size-4xl);
   margin-bottom: var(--spacing-md);
-  /* WHY: Animation draws attention but isn't continuous (respects prefers-reduced-motion) */
+  /* WHY: Animation draws attention. Disabled via @media query for prefers-reduced-motion */
   animation: errorPulse 0.5s ease-out;
 }
 
@@ -160,6 +160,27 @@
 
 .secondaryButton:active {
   transform: translateY(0);
+}
+
+/* Reduced motion support - respect user accessibility preference */
+@media (prefers-reduced-motion: reduce) {
+  .errorIcon {
+    animation: none;
+    /* Display icon immediately without animation for users with motion sensitivity */
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .primaryButton:hover,
+  .secondaryButton:hover {
+    /* Remove transform animations but keep colour changes */
+    transform: none;
+  }
+
+  .primaryButton:active,
+  .secondaryButton:active {
+    transform: none;
+  }
 }
 
 /* Mobile responsive adjustments */
