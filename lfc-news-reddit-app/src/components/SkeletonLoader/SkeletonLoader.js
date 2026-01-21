@@ -62,9 +62,8 @@ PostListSkeleton.propTypes = {
   count: PropTypes.number
 };
 
-PostListSkeleton.defaultProps = {
-  count: 5
-};
+// WHY: Default values are set via ES6 default parameters in the function signature
+// instead of defaultProps, which is deprecated in React 18.3+
 
 /**
  * CommentsSkeleton component - renders skeleton placeholder for comments
@@ -124,9 +123,7 @@ CommentsSkeleton.propTypes = {
   count: PropTypes.number
 };
 
-CommentsSkeleton.defaultProps = {
-  count: 4
-};
+// WHY: Default values set via ES6 default parameters (deprecated defaultProps removed)
 
 /**
  * HeaderSkeleton component - renders skeleton placeholder for app header
@@ -250,9 +247,7 @@ PostDetailSkeleton.propTypes = {
   showMedia: PropTypes.bool
 };
 
-PostDetailSkeleton.defaultProps = {
-  showMedia: true
-};
+// WHY: Default values set via ES6 default parameters (deprecated defaultProps removed)
 
 /**
  * SearchResultsSkeleton component - renders skeleton placeholder for search results
@@ -289,8 +284,6 @@ SearchResultsSkeleton.propTypes = {
   count: PropTypes.number
 };
 
-SearchResultsSkeleton.defaultProps = {
-  count: 5
-};
+// WHY: Default values set via ES6 default parameters (deprecated defaultProps removed)
 
 export default PostListSkeleton;

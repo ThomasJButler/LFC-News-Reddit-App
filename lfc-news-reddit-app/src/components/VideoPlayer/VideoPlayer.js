@@ -137,9 +137,7 @@ VideoPlayer.propTypes = {
   title: PropTypes.string
 };
 
-VideoPlayer.defaultProps = {
-  className: '',
-  title: 'Video'
-};
+// WHY: Default values are set via ES6 default parameters in the function signature
+// instead of defaultProps, which is deprecated in React 18.3+
 
 export default React.memo(VideoPlayer);

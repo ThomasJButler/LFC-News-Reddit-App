@@ -56,10 +56,7 @@ Icon.propTypes = {
   ariaHidden: PropTypes.bool
 };
 
-Icon.defaultProps = {
-  size: 'md',
-  className: '',
-  ariaHidden: false
-};
+// WHY: Default values are set via ES6 default parameters in the function signature
+// instead of defaultProps, which is deprecated in React 18.3+
 
 export default React.memo(Icon);
