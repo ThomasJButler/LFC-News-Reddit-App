@@ -128,4 +128,169 @@ CommentsSkeleton.defaultProps = {
   count: 4
 };
 
+/**
+ * HeaderSkeleton component - renders skeleton placeholder for app header
+ * Matches Header component layout with logo, subtitle, tagline and search bar
+ * @return {JSX.Element}
+ * @constructor
+ */
+export const HeaderSkeleton = () => {
+  return (
+    <div
+      className={styles.headerSkeletonContainer}
+      role="status"
+      aria-live="polite"
+      aria-label="Loading header"
+    >
+      <div className={styles.headerSkeletonRow}>
+        <div className={styles.headerTitleSection}>
+          <div className={styles.headerLogo}></div>
+          <div className={styles.headerSubtitle}></div>
+          <div className={styles.headerTagline}></div>
+        </div>
+        <div className={styles.headerSearchBar}></div>
+      </div>
+      <span className="sr-only">Loading header, please wait...</span>
+    </div>
+  );
+};
+
+/**
+ * SubredditFilterSkeleton component - renders skeleton placeholder for filter section
+ * Matches SubredditFilter layout with sort options and filter buttons
+ * @return {JSX.Element}
+ * @constructor
+ */
+export const SubredditFilterSkeleton = () => {
+  return (
+    <div
+      className={styles.filterSkeletonContainer}
+      role="status"
+      aria-live="polite"
+      aria-label="Loading filters"
+    >
+      <div className={styles.filterSkeletonLayout}>
+        {/* Sort Section */}
+        <div className={`${styles.filterSkeletonCard} ${styles.filterSkeletonSortSection}`}>
+          <div className={styles.filterSkeletonRow}>
+            <div className={styles.filterLabel}></div>
+            <div className={styles.filterSelect}></div>
+          </div>
+        </div>
+
+        {/* Filters Card */}
+        <div className={`${styles.filterSkeletonCard} ${styles.filterSkeletonFiltersCard}`}>
+          <div className={styles.filterSkeletonRow}>
+            <div className={styles.filterButton}></div>
+            <div className={styles.filterButton}></div>
+            <div className={styles.filterButton}></div>
+            <div className={styles.filterButton}></div>
+          </div>
+        </div>
+      </div>
+      <span className="sr-only">Loading filters, please wait...</span>
+    </div>
+  );
+};
+
+/**
+ * PostDetailSkeleton component - renders skeleton placeholder for post detail modal
+ * Matches PostDetail layout with header, title, media, content and stats
+ * @param {Object} props
+ * @param {boolean} props.showMedia - Whether to show media placeholder (default: true)
+ * @return {JSX.Element}
+ * @constructor
+ */
+export const PostDetailSkeleton = ({ showMedia = true }) => {
+  return (
+    <div
+      className={styles.postDetailSkeletonContainer}
+      role="status"
+      aria-live="polite"
+      aria-label="Loading post details"
+    >
+      {/* Post Header */}
+      <div className={styles.postDetailHeader}>
+        <div className={styles.postDetailSubreddit}></div>
+        <div className={styles.postDetailAuthor}></div>
+        <div className={styles.postDetailTime}></div>
+      </div>
+
+      {/* Title */}
+      <div className={styles.postDetailTitle}></div>
+      <div className={styles.postDetailTitleSecond}></div>
+
+      {/* Media (conditional) */}
+      {showMedia && <div className={styles.postDetailMedia}></div>}
+
+      {/* Content */}
+      <div className={styles.postDetailContent}>
+        <div className={styles.postDetailContentLine} style={{ width: '95%' }}></div>
+        <div className={styles.postDetailContentLine} style={{ width: '88%' }}></div>
+        <div className={styles.postDetailContentLine} style={{ width: '92%' }}></div>
+        <div className={styles.postDetailContentLine} style={{ width: '75%' }}></div>
+      </div>
+
+      {/* Stats */}
+      <div className={styles.postDetailStats}>
+        <div className={styles.postDetailAction}></div>
+        <div className={styles.postDetailAction}></div>
+      </div>
+
+      {/* Comments skeleton */}
+      <CommentsSkeleton count={3} />
+
+      <span className="sr-only">Loading post details, please wait...</span>
+    </div>
+  );
+};
+
+PostDetailSkeleton.propTypes = {
+  // Whether to show the media placeholder
+  showMedia: PropTypes.bool
+};
+
+PostDetailSkeleton.defaultProps = {
+  showMedia: true
+};
+
+/**
+ * SearchResultsSkeleton component - renders skeleton placeholder for search results
+ * Includes search context indicator above PostListSkeleton
+ * @param {Object} props
+ * @param {number} props.count - Number of skeleton result cards to render (default: 5)
+ * @return {JSX.Element}
+ * @constructor
+ */
+export const SearchResultsSkeleton = ({ count = 5 }) => {
+  return (
+    <div
+      className={styles.searchResultsSkeletonContainer}
+      role="status"
+      aria-live="polite"
+      aria-label="Loading search results"
+    >
+      {/* Search Context */}
+      <div className={styles.searchContext}>
+        <div className={styles.searchContextIcon}></div>
+        <div className={styles.searchContextText}></div>
+      </div>
+
+      {/* Results */}
+      <PostListSkeleton count={count} />
+
+      <span className="sr-only">Loading search results, please wait...</span>
+    </div>
+  );
+};
+
+SearchResultsSkeleton.propTypes = {
+  // Number of skeleton result cards to render
+  count: PropTypes.number
+};
+
+SearchResultsSkeleton.defaultProps = {
+  count: 5
+};
+
 export default PostListSkeleton;

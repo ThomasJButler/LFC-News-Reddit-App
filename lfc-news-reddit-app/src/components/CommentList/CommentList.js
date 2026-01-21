@@ -16,6 +16,7 @@ import { FixedSizeList as List } from 'react-window';
 import { formatRelativeTime } from '../../utils/formatTime';
 import { sanitizeUrl } from '../../utils/sanitize';
 import Icon from '../Icon/Icon';
+import Avatar from '../Avatar';
 import styles from './CommentList.module.css';
 
 /**
@@ -128,6 +129,13 @@ const Comment = ({ comment, onToggleCollapse, collapsed }) => {
             {replyCount > 0 && <span className={styles.replyCount}>{replyCount}</span>}
           </button>
         )}
+        <Avatar
+          username={comment.author}
+          size="md"
+          showBorder={comment.level > 0}
+          borderColor={threadColor}
+          className={styles.commentAvatar}
+        />
         <span className={`${styles.author} ${comment.isSubmitter ? styles.op : ''}`}>
           {comment.author}
           {comment.isSubmitter && <span className={styles.opBadge}>OP</span>}

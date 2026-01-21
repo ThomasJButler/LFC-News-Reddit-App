@@ -183,6 +183,12 @@
   color: inherit;
 }
 
+/* Avatar styling in comment header */
+/* WHY: Avatar placed before username following social media conventions */
+.commentAvatar {
+  flex-shrink: 0;
+}
+
 .author {
   font-weight: 500;
   color: var(--text-primary);

@@ -136,6 +136,11 @@
   --breakpoint-tablet: 768px;
   --breakpoint-desktop: 1024px;
   --breakpoint-wide: 1440px;
+
+  /* Skeleton Loading - WHY: Theme-aware skeleton colours for consistent loading states */
+  --skeleton-base: var(--bg-secondary);
+  --skeleton-highlight: var(--bg-tertiary);
+  --skeleton-radius: var(--radius-sm);
 }
 
 /* White Away Kit Theme */
@@ -174,6 +179,10 @@
 
   --border-color: rgba(26, 26, 26, 0.1);
   --border-hover: rgba(26, 26, 26, 0.2);
+
+  /* Skeleton Loading - Light theme uses subtle darker shimmer */
+  --skeleton-base: var(--bg-tertiary);
+  --skeleton-highlight: #d1d5db;
 }
 
 /* Green Third Kit Theme */
@@ -185,6 +194,10 @@
   --bg-primary: #0a1a1a;
   --bg-secondary: #0f2625;
   --bg-tertiary: #1a3332;
+
+  /* Skeleton Loading - Green theme shimmer */
+  --skeleton-base: var(--bg-secondary);
+  --skeleton-highlight: var(--bg-tertiary);
   --bg-glass: rgba(15, 38, 37, 0.8);
   --bg-gradient: linear-gradient(135deg, var(--lfc-green) 0%, #008a82 100%);
 
@@ -248,4 +261,8 @@
 
   --border-color: rgba(255, 255, 255, 0.1);
   --border-hover: rgba(255, 255, 255, 0.15);
+
+  /* Skeleton Loading - Night mode shimmer */
+  --skeleton-base: var(--bg-secondary);
+  --skeleton-highlight: var(--bg-tertiary);
 }

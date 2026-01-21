@@ -1,12 +1,19 @@
-/* Shimmer animation for skeleton loading state */
+/* Shimmer animation for skeleton loading state - gradient-based for visual polish */
 @keyframes shimmer {
   0% {
-    opacity: 0.6;
-  }
-  50% {
-    opacity: 1;
+    background-position: -200% 0;
   }
   100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Fallback pulse animation for reduced motion preference */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
     opacity: 0.6;
   }
 }
@@ -31,12 +38,31 @@
   overflow: hidden;
 }
 
+/* Base skeleton element styles with gradient shimmer animation */
+.skeletonElement {
+  background: linear-gradient(
+    90deg,
+    var(--skeleton-base) 25%,
+    var(--skeleton-highlight) 50%,
+    var(--skeleton-base) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--skeleton-radius);
+}
+
 /* All skeleton elements share the shimmer animation */
 .skeletonCard > *,
 .skeletonCard div[class*="skeleton"] {
-  animation: shimmer 1.5s infinite ease-in-out;
-  background: var(--bg-tertiary);
-  border-radius: var(--radius-sm);
+  background: linear-gradient(
+    90deg,
+    var(--skeleton-base) 25%,
+    var(--skeleton-highlight) 50%,
+    var(--skeleton-base) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--skeleton-radius);
 }
 
 /* Vote Section */
@@ -249,9 +275,15 @@
 
 /* All comment skeleton elements share the shimmer animation */
 .commentSkeleton div[class*="comment"] {
-  animation: shimmer 1.5s infinite ease-in-out;
-  background: var(--bg-tertiary);
-  border-radius: var(--radius-sm);
+  background: linear-gradient(
+    90deg,
+    var(--skeleton-base) 25%,
+    var(--skeleton-highlight) 50%,
+    var(--skeleton-base) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--skeleton-radius);
 }
 
 .commentHeader {
@@ -265,20 +297,43 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: var(--bg-secondary);
+  background: linear-gradient(
+    90deg,
+    var(--skeleton-base) 25%,
+    var(--skeleton-highlight) 50%,
+    var(--skeleton-base) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
   flex-shrink: 0;
 }
 
 .commentAuthor {
   width: 80px;
   height: 14px;
-  background: var(--bg-tertiary);
+  background: linear-gradient(
+    90deg,
+    var(--skeleton-base) 25%,
+    var(--skeleton-highlight) 50%,
+    var(--skeleton-base) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--skeleton-radius);
 }
 
 .commentTimestamp {
   width: 60px;
   height: 14px;
-  background: var(--bg-tertiary);
+  background: linear-gradient(
+    90deg,
+    var(--skeleton-base) 25%,
+    var(--skeleton-highlight) 50%,
+    var(--skeleton-base) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--skeleton-radius);
 }
 
 .commentBody {
@@ -289,9 +344,15 @@
 
 .commentBodyLine {
   height: 16px;
-  background: var(--bg-tertiary);
-  border-radius: var(--radius-sm);
-  animation: shimmer 1.5s infinite ease-in-out;
+  background: linear-gradient(
+    90deg,
+    var(--skeleton-base) 25%,
+    var(--skeleton-highlight) 50%,
+    var(--skeleton-base) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--skeleton-radius);
 }
 
 /* Nested comment indentation */
@@ -363,5 +424,545 @@
   .nestedComment {
     margin-left: var(--spacing-xs);
     padding-left: var(--spacing-xs);
+  }
+}
+
+/* ============================================
+   HEADER SKELETON
+   ============================================ */
+
+.headerSkeletonContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--glass-border);
+  width: 100%;
+}
+
+.headerSkeletonRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spacing-lg);
+}
+
+.headerTitleSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  flex: 1;
+}
+
+.headerLogo {
+  width: 200px;
+  height: 32px;
+  background: linear-gradient(
+    90deg,
+    var(--skeleton-base) 25%,
+    var(--skeleton-highlight) 50%,
+    var(--skeleton-base) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--skeleton-radius);
+}
+
+.headerSubtitle {
+  width: 180px;
+  height: 14px;
+  background: linear-gradient(
+    90deg,
+    var(--skeleton-base) 25%,
+    var(--skeleton-highlight) 50%,
+    var(--skeleton-base) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--skeleton-radius);
+}
+
+.headerTagline {
+  width: 160px;
+  height: 12px;
+  background: linear-gradient(
+    90deg,
+    var(--skeleton-base) 25%,
+    var(--skeleton-highlight) 50%,
+    var(--skeleton-base) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--skeleton-radius);
+}
+
+.headerSearchBar {
+  width: 300px;
+  height: 44px;
+  background: linear-gradient(
+    90deg,
+    var(--skeleton-base) 25%,
+    var(--skeleton-highlight) 50%,
+    var(--skeleton-base) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--radius-md);
+  flex-shrink: 0;
+}
+
+@media (max-width: 767px) {
+  .headerSkeletonContainer {
+    padding: var(--spacing-md);
+    backdrop-filter: none;
+    background: var(--bg-secondary);
+  }
+
+  .headerSkeletonRow {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    align-items: stretch;
+  }
+
+  .headerTitleSection {
+    align-items: center;
+  }
+
+  .headerLogo {
+    width: 160px;
+    height: 28px;
+  }
+
+  .headerSubtitle {
+    width: 140px;
+    height: 12px;
+  }
+
+  .headerTagline {
+    width: 120px;
+    height: 10px;
+  }
+
+  .headerSearchBar {
+    width: 100%;
+    height: 40px;
+  }
+}
+
+@media (max-width: 374px) {
+  .headerSkeletonContainer {
+    padding: var(--spacing-sm);
+  }
+
+  .headerSubtitle,
+  .headerTagline {
+    display: none;
+  }
+}
+
+/* ============================================
+   SUBREDDIT FILTER SKELETON
+   ============================================ */
+
+.filterSkeletonContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md) 0;
+  margin-bottom: var(--spacing-lg);
+  border-bottom: 1px solid var(--border-color);
+  width: 100%;
+}
+
+.filterSkeletonLayout {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--spacing-lg);
+}
+
+.filterSkeletonCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+}
+
+.filterSkeletonSortSection {
+  min-width: 140px;
+}
+
+.filterSkeletonFiltersCard {
+  flex: 1;
+}
+
+.filterSkeletonRow {
+  display: flex;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
+.filterButton {
+  width: 80px;
+  height: 44px;
+  background: linear-gradient(
+    90deg,
+    var(--skeleton-base) 25%,
+    var(--skeleton-highlight) 50%,
+    var(--skeleton-base) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+}
+
+.filterSelect {
+  width: 120px;
+  height: 44px;
+  background: linear-gradient(
+    90deg,
+    var(--skeleton-base) 25%,
+    var(--skeleton-highlight) 50%,
+    var(--skeleton-base) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--radius-sm);
+}
+
+.filterLabel {
+  width: 60px;
+  height: 16px;
+  background: linear-gradient(
+    90deg,
+    var(--skeleton-base) 25%,
+    var(--skeleton-highlight) 50%,
+    var(--skeleton-base) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--skeleton-radius);
+  align-self: center;
+}
+
+@media (max-width: 767px) {
+  .filterSkeletonLayout {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-md);
+  }
+
+  .filterSkeletonSortSection {
+    min-width: auto;
+  }
+
+  .filterSkeletonRow {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: var(--spacing-xs);
+  }
+
+  .filterButton {
+    width: 70px;
+    height: 40px;
+  }
+
+  .filterSelect {
+    width: 100px;
+    height: 40px;
+  }
+}
+
+@media (max-width: 374px) {
+  .filterSkeletonContainer {
+    padding: var(--spacing-sm) 0;
+  }
+
+  .filterSkeletonCard {
+    padding: var(--spacing-sm);
+  }
+
+  .filterButton {
+    width: 60px;
+    height: 36px;
+  }
+}
+
+/* ============================================
+   POST DETAIL SKELETON
+   ============================================ */
+
+.postDetailSkeletonContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-lg);
+  width: 100%;
+  max-width: min(1200px, 95vw);
+}
+
+.postDetailHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
+.postDetailSubreddit {
+  width: 100px;
+  height: 14px;
+  background: linear-gradient(
+    90deg,
+    var(--skeleton-base) 25%,
+    var(--skeleton-highlight) 50%,
+    var(--skeleton-base) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--skeleton-radius);
+}
+
+.postDetailAuthor {
+  width: 80px;
+  height: 14px;
+  background: linear-gradient(
+    90deg,
+    var(--skeleton-base) 25%,
+    var(--skeleton-highlight) 50%,
+    var(--skeleton-base) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--skeleton-radius);
+}
+
+.postDetailTime {
+  width: 60px;
+  height: 14px;
+  background: linear-gradient(
+    90deg,
+    var(--skeleton-base) 25%,
+    var(--skeleton-highlight) 50%,
+    var(--skeleton-base) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--skeleton-radius);
+}
+
+.postDetailTitle {
+  width: 85%;
+  height: 30px;
+  background: linear-gradient(
+    90deg,
+    var(--skeleton-base) 25%,
+    var(--skeleton-highlight) 50%,
+    var(--skeleton-base) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--skeleton-radius);
+}
+
+.postDetailTitleSecond {
+  width: 65%;
+  height: 30px;
+  background: linear-gradient(
+    90deg,
+    var(--skeleton-base) 25%,
+    var(--skeleton-highlight) 50%,
+    var(--skeleton-base) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--skeleton-radius);
+}
+
+.postDetailMedia {
+  width: 100%;
+  min-height: 300px;
+  aspect-ratio: 16 / 9;
+  background: linear-gradient(
+    90deg,
+    var(--skeleton-base) 25%,
+    var(--skeleton-highlight) 50%,
+    var(--skeleton-base) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--radius-md);
+}
+
+.postDetailContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  max-width: 75ch;
+}
+
+.postDetailContentLine {
+  height: 16px;
+  background: linear-gradient(
+    90deg,
+    var(--skeleton-base) 25%,
+    var(--skeleton-highlight) 50%,
+    var(--skeleton-base) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--skeleton-radius);
+}
+
+.postDetailStats {
+  display: flex;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-md) 0;
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.postDetailAction {
+  width: 80px;
+  height: 20px;
+  background: linear-gradient(
+    90deg,
+    var(--skeleton-base) 25%,
+    var(--skeleton-highlight) 50%,
+    var(--skeleton-base) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--skeleton-radius);
+}
+
+@media (max-width: 767px) {
+  .postDetailSkeletonContainer {
+    padding: var(--spacing-md);
+    max-width: 100%;
+  }
+
+  .postDetailTitle {
+    height: 24px;
+  }
+
+  .postDetailTitleSecond {
+    height: 24px;
+  }
+
+  .postDetailMedia {
+    min-height: 200px;
+  }
+
+  .postDetailContentLine {
+    height: 14px;
+  }
+}
+
+@media (max-width: 374px) {
+  .postDetailSkeletonContainer {
+    padding: var(--spacing-sm);
+    gap: var(--spacing-md);
+  }
+
+  .postDetailTitle {
+    width: 95%;
+    height: 20px;
+  }
+
+  .postDetailTitleSecond {
+    width: 75%;
+    height: 20px;
+  }
+}
+
+/* ============================================
+   SEARCH RESULTS SKELETON
+   ============================================ */
+
+.searchResultsSkeletonContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  width: 100%;
+}
+
+.searchContext {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  margin-bottom: var(--spacing-sm);
+}
+
+.searchContextIcon {
+  width: 20px;
+  height: 20px;
+  background: linear-gradient(
+    90deg,
+    var(--skeleton-base) 25%,
+    var(--skeleton-highlight) 50%,
+    var(--skeleton-base) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.searchContextText {
+  width: 200px;
+  height: 16px;
+  background: linear-gradient(
+    90deg,
+    var(--skeleton-base) 25%,
+    var(--skeleton-highlight) 50%,
+    var(--skeleton-base) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--skeleton-radius);
+}
+
+@media (max-width: 767px) {
+  .searchContext {
+    padding: var(--spacing-sm);
+  }
+
+  .searchContextText {
+    width: 160px;
+    height: 14px;
+  }
+}
+
+/* Reduced motion support - use subtle pulse instead of gradient shimmer */
+@media (prefers-reduced-motion: reduce) {
+  .skeletonCard > *,
+  .skeletonCard div[class*="skeleton"],
+  .commentSkeleton div[class*="comment"],
+  .commentAvatar,
+  .commentAuthor,
+  .commentTimestamp,
+  .commentBodyLine,
+  .skeletonElement,
+  .headerLogo,
+  .headerThemeSwitcher,
+  .headerSearchBar,
+  .filterButton,
+  .postDetailMedia,
+  .postDetailTitle,
+  .postDetailMeta,
+  .postDetailContent,
+  .postDetailAction,
+  .searchContext {
+    background: var(--skeleton-base);
+    background-size: 100% 100%;
+    animation: pulse 2s ease-in-out infinite;
   }
 }
