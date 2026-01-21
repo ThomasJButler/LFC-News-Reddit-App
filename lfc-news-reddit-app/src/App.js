@@ -5,16 +5,20 @@
  *              Orchestrates header, filters, post list, and post detail modal.
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, Suspense, lazy } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import './App.css';
 import Header from './components/Header/Header';
 import SubredditFilter from './components/SubredditFilter/SubredditFilter';
 import PostList from './components/PostList/PostList';
-import PostDetail from './components/PostDetail/PostDetail';
-import LoadingSpinner from './components/LoadingSpinner/LoadingSpinner';
+import PostListSkeleton from './components/SkeletonLoader/SkeletonLoader';
 import ErrorMessage from './components/ErrorMessage/ErrorMessage';
+import BottomNav from './components/BottomNav/BottomNav';
+import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary';
 import { fetchPosts } from './redux/actions/posts';
+
+// Code splitting: Lazy load PostDetail since it's only needed when viewing a post
+const PostDetail = lazy(() => import('./components/PostDetail/PostDetail'));
 
 /**
  * @return {JSX.Element}
@@ -34,14 +38,32 @@ function App() {
 
   return (
     <div className="App">
+      {/* Skip-to-content link for keyboard users - becomes visible on focus */}
+      <a href="#main-content" className="skip-to-content">
+        Skip to main content
+      </a>
       <Header />
-      <main className="main-content">
-        <SubredditFilter />
-        {loading && <LoadingSpinner />}
-        {error && <ErrorMessage message={error} />}
-        {!loading && !error && <PostList />}
+      <main id="main-content" className="main-content" role="main">
+        <nav role="navigation" aria-label="Subreddit filters">
+          <SubredditFilter />
+        </nav>
+        {loading && <PostListSkeleton />}
+        {error && <ErrorMessage message={error} onRetry={() => dispatch(fetchPosts(selectedSubreddit))} />}
+        {!loading && !error && (
+          <ErrorBoundary>
+            <PostList />
+          </ErrorBoundary>
+        )}
       </main>
-      {currentPost && <PostDetail />}
+      {currentPost && (
+        <Suspense fallback={<PostListSkeleton count={1} />}>
+          <ErrorBoundary>
+            <PostDetail />
+          </ErrorBoundary>
+        </Suspense>
+      )}
+      {/* Mobile bottom navigation - only visible on screens < 768px */}
+      <BottomNav />
     </div>
   );
 }

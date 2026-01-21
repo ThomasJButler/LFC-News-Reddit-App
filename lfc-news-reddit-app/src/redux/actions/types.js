@@ -36,6 +36,13 @@ export const SET_SORT_BY = 'SET_SORT_BY';
 export const SET_TIME_RANGE = 'SET_TIME_RANGE';
 export const SORT_BY_VIRAL = 'SORT_BY_VIRAL';
 
+// Filtering action types for football-specific content and media types
+export const SET_FLAIR_FILTER = 'SET_FLAIR_FILTER';
+export const CLEAR_FLAIR_FILTERS = 'CLEAR_FLAIR_FILTERS';
+export const TOGGLE_FLAIR_FILTER = 'TOGGLE_FLAIR_FILTER'; // WHY: Multi-select flair filtering
+export const SET_MEDIA_FILTER = 'SET_MEDIA_FILTER';
+export const CLEAR_MEDIA_FILTERS = 'CLEAR_MEDIA_FILTERS';
+
 // UI action types
 export const SET_LOADING = 'SET_LOADING';
 export const SET_ERROR = 'SET_ERROR';

@@ -7,6 +7,7 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { searchPosts, fetchPosts, setSearchTerm } from '../../redux/actions/posts';
+import Icon from '../Icon/Icon';
 import styles from './SearchBar.module.css';
 
 /**
@@ -16,7 +17,7 @@ import styles from './SearchBar.module.css';
 const SearchBar = () => {
   const dispatch = useDispatch();
   const { selectedSubreddit } = useSelector(state => state.subreddits);
-  const { searchTerm: currentSearchTerm } = useSelector(state => state.posts);
+  const { searchTerm: currentSearchTerm, loading } = useSelector(state => state.posts);
   const [inputValue, setInputValue] = useState(currentSearchTerm);
 
   const handleSearch = (e) => {
@@ -39,12 +40,17 @@ const SearchBar = () => {
 
   return (
     <form className={styles.searchBar} onSubmit={handleSearch}>
+      <label htmlFor="search-input" className="visually-hidden">
+        Search posts
+      </label>
       <input
+        id="search-input"
         type="text"
         className={styles.searchInput}
         placeholder="Search posts..."
         value={inputValue}
         onChange={(e) => setInputValue(e.target.value)}
+        autoComplete="off"
       />
       {inputValue && (
         <button
@@ -53,17 +59,23 @@ const SearchBar = () => {
           onClick={handleClear}
           aria-label="Clear search"
         >
-          ×
+          <Icon name="X" size="md" ariaHidden={true} />
         </button>
       )}
-      <button type="submit" className={styles.searchButton} aria-label="Search">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <circle cx="11" cy="11" r="8" />
-          <path d="m21 21-4.35-4.35" />
-        </svg>
+      <button
+        type="submit"
+        className={styles.searchButton}
+        aria-label={loading && inputValue ? "Searching..." : "Search"}
+        disabled={loading && inputValue}
+      >
+        {loading && inputValue ? (
+          <Icon name="Loader2" size="md" ariaHidden={true} className={styles.spinner} />
+        ) : (
+          <Icon name="Search" size="md" ariaHidden={true} />
+        )}
       </button>
     </form>
   );
 };
 
-export default SearchBar;
+export default React.memo(SearchBar);

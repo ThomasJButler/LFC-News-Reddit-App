@@ -5,10 +5,12 @@
  *              Viral/spiciness sort uses client-side scoring instead of API request.
  */
 
-import React from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setSelectedSubreddit } from '../../redux/actions/subreddits';
-import { fetchPosts, setSortBy, setTimeRange, sortByViral } from '../../redux/actions/posts';
+import { fetchPosts, setSortBy, setTimeRange, sortByViral, setFlairFilter, clearFlairFilters, toggleFlairFilter, setMediaFilter, clearMediaFilters } from '../../redux/actions/posts';
+import Icon from '../Icon/Icon';
+import ThemeSwitcher from '../ThemeSwitcher/ThemeSwitcher';
 import styles from './SubredditFilter.module.css';
 
 /**
@@ -18,78 +20,331 @@ import styles from './SubredditFilter.module.css';
 const SubredditFilter = () => {
   const dispatch = useDispatch();
   const { available, selected } = useSelector(state => state.subreddits);
-  const { sortBy, timeRange } = useSelector(state => state.posts);
+  const { items: posts, sortBy, timeRange, activeFilter, activeFlairFilters, activeMediaFilter } = useSelector(state => state.posts);
+  const [announcement, setAnnouncement] = useState('');
+  const [flairSectionExpanded, setFlairSectionExpanded] = useState(false);
+
+  /**
+   * Collect unique flairs from loaded posts
+   * WHY useMemo: Only recalculate when posts change, improving performance
+   * WHY: Dynamically show flairs that exist in current data, not hardcoded list
+   */
+  const uniqueFlairs = useMemo(() => {
+    const flairSet = new Set();
+    posts.forEach(post => {
+      if (post.linkFlair && post.linkFlair.trim()) {
+        flairSet.add(post.linkFlair.trim());
+      }
+    });
+    return Array.from(flairSet).sort();
+  }, [posts]);
 
   const handleSubredditChange = (subreddit) => {
     dispatch(setSelectedSubreddit(subreddit));
     dispatch(fetchPosts(subreddit, sortBy, timeRange));
+    // Announce subreddit change to screen readers
+    const displayName = subreddit === 'all' ? 'All LFC' : `r/${subreddit}`;
+    setAnnouncement(`Subreddit changed to ${displayName}`);
   };
 
   const handleSortChange = (newSortBy) => {
     if (newSortBy === 'viral') {
       dispatch(sortByViral());
+      setAnnouncement('Sorted by Viral (Spicy)');
     } else {
       dispatch(setSortBy(newSortBy));
       dispatch(fetchPosts(selected, newSortBy, timeRange));
+      // Announce sort change to screen readers
+      setAnnouncement(`Sorted by ${newSortBy}`);
     }
   };
 
   const handleTimeRangeChange = (newTimeRange) => {
     dispatch(setTimeRange(newTimeRange));
     dispatch(fetchPosts(selected, sortBy, newTimeRange));
+    // Announce time range change to screen readers
+    const timeRangeDisplay = newTimeRange === 'all' ? 'All Time' : newTimeRange;
+    setAnnouncement(`Time range changed to ${timeRangeDisplay}`);
+  };
+
+  const handleFilterChange = (filterType) => {
+    if (activeFilter === filterType) {
+      // Clicking the same filter toggles it off
+      dispatch(clearFlairFilters());
+      setAnnouncement('Filter cleared, showing all posts');
+    } else {
+      dispatch(setFlairFilter(filterType));
+      const filterName = filterType === 'matchday' ? 'Match Day' : 'Transfer News';
+      setAnnouncement(`Filtered by ${filterName}`);
+    }
+  };
+
+  const handleMediaFilterChange = (mediaType) => {
+    if (activeMediaFilter === mediaType) {
+      // Clicking the same media filter toggles it off
+      dispatch(clearMediaFilters());
+      setAnnouncement('Media filter cleared, showing all content types');
+    } else {
+      dispatch(setMediaFilter(mediaType));
+      const mediaName = {
+        'images': 'Images',
+        'videos': 'Videos',
+        'articles': 'Articles',
+        'discussions': 'Discussions'
+      }[mediaType];
+      setAnnouncement(`Filtered by ${mediaName}`);
+    }
+  };
+
+  /**
+   * Toggle a specific flair filter
+   * WHY: Multi-select allows combining filters (e.g., Tier 1 + Tier 2 sources)
+   */
+  const handleToggleFlairFilter = (flairText) => {
+    dispatch(toggleFlairFilter(flairText));
+    const isActive = activeFlairFilters.includes(flairText);
+    setAnnouncement(
+      isActive
+        ? `Removed ${flairText} filter`
+        : `Added ${flairText} filter`
+    );
+  };
+
+  // Clear announcement after it's been read (WHY: prevents repeated announcements)
+  useEffect(() => {
+    if (announcement) {
+      const timer = setTimeout(() => setAnnouncement(''), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [announcement]);
+
+  /**
+   * Returns the appropriate icon name for the current sort method
+   * WHY: Visual icons improve content scanability and provide quick visual reference
+   * @return {string} Lucide icon name
+   */
+  const getSortIcon = () => {
+    switch (sortBy) {
+      case 'hot':
+        return 'Flame';
+      case 'new':
+        return 'Clock';
+      case 'top':
+        return 'Trophy';
+      case 'rising':
+        return 'TrendingUp';
+      case 'viral':
+        return 'Flame'; // Using Flame for Viral (Spicy) to match the chili pepper theme
+      default:
+        return 'Flame';
+    }
   };
 
   return (
     <div className={styles.filterContainer}>
-      <div className={styles.subredditFilter}>
-        <label className={styles.filterLabel}>Subreddit:</label>
-        <div className={styles.buttonGroup}>
-          {available.map(subreddit => (
-            <button
-              key={subreddit}
-              className={`${styles.filterButton} ${selected === subreddit ? styles.active : ''}`}
-              onClick={() => handleSubredditChange(subreddit)}
-            >
-              {subreddit === 'all' ? 'All LFC' : `r/${subreddit}`}
-            </button>
-          ))}
-        </div>
+      {/* Live region for screen reader announcements */}
+      <div role="status" aria-live="polite" className="visually-hidden">
+        {announcement}
       </div>
-      
-      <div className={styles.sortFilter}>
-        <label className={styles.filterLabel}>Sort by:</label>
-        <select 
-          className={styles.sortSelect}
-          value={sortBy}
-          onChange={(e) => handleSortChange(e.target.value)}
-        >
-          <option value="hot">Hot</option>
-          <option value="new">New</option>
-          <option value="top">Top</option>
-          <option value="rising">Rising</option>
-          <option value="viral">Viral (Spicy)</option>
-        </select>
-      </div>
-      
-      {sortBy === 'top' && (
-        <div className={styles.timeRangeFilter}>
-          <label className={styles.filterLabel}>Time range:</label>
-          <select 
-            className={styles.sortSelect}
-            value={timeRange}
-            onChange={(e) => handleTimeRangeChange(e.target.value)}
-          >
-            <option value="hour">Hour</option>
-            <option value="day">Day</option>
-            <option value="week">Week</option>
-            <option value="month">Month</option>
-            <option value="year">Year</option>
-            <option value="all">All Time</option>
-          </select>
+
+      {/* Subreddit selector (only when multiple available) */}
+      {available.length > 1 && (
+        <div className={styles.subredditFilter}>
+          <label className={styles.filterLabel}>Subreddit:</label>
+          <div className={styles.buttonGroup} role="radiogroup" aria-label="Subreddit selection">
+            {available.map(subreddit => (
+              <button
+                key={subreddit}
+                role="radio"
+                aria-checked={selected === subreddit}
+                className={`${styles.filterButton} ${selected === subreddit ? styles.active : ''}`}
+                onClick={() => handleSubredditChange(subreddit)}
+              >
+                {subreddit === 'all' ? 'All LFC' : `r/${subreddit}`}
+              </button>
+            ))}
+          </div>
         </div>
       )}
+
+      {/* Main filter layout: Sort section + Filters card */}
+      <div className={styles.filterLayout}>
+        {/* Sort Section */}
+        <div className={styles.sortSection}>
+          <div className={styles.sortFilter}>
+            <Icon
+              name={getSortIcon()}
+              size="sm"
+              className={`${styles.sortIcon} ${sortBy === 'viral' ? styles.viralIcon : ''}`}
+              ariaHidden={true}
+            />
+            <label className={styles.filterLabel} htmlFor="sort-select">Sort by:</label>
+            <select
+              id="sort-select"
+              className={styles.sortSelect}
+              value={sortBy}
+              onChange={(e) => handleSortChange(e.target.value)}
+            >
+              <option value="hot">Hot</option>
+              <option value="new">New</option>
+              <option value="top">Top</option>
+              <option value="rising">Rising</option>
+              <option value="viral">Viral (Spicy)</option>
+            </select>
+          </div>
+
+          {sortBy === 'top' && (
+            <div className={styles.timeRangeFilter}>
+              <label className={styles.filterLabel} htmlFor="time-select">Time:</label>
+              <select
+                id="time-select"
+                className={styles.sortSelect}
+                value={timeRange}
+                onChange={(e) => handleTimeRangeChange(e.target.value)}
+              >
+                <option value="hour">Hour</option>
+                <option value="day">Day</option>
+                <option value="week">Week</option>
+                <option value="month">Month</option>
+                <option value="year">Year</option>
+                <option value="all">All Time</option>
+              </select>
+            </div>
+          )}
+
+          {/* Theme Switcher */}
+          <div className={styles.themeSection}>
+            <ThemeSwitcher />
+          </div>
+        </div>
+
+        {/* Filters Card - Quick filters + Media type combined */}
+        <div className={styles.filtersCard}>
+          {/* Quick Filters Group */}
+          <div className={styles.filterGroup}>
+            <span className={styles.filterLabel}>Quick filters:</span>
+            <div className={styles.buttonGroup} role="group" aria-label="Content filters">
+              <button
+                className={`${styles.filterButton} ${activeFilter === 'matchday' ? styles.active : ''}`}
+                onClick={() => handleFilterChange('matchday')}
+                aria-pressed={activeFilter === 'matchday'}
+              >
+                <Icon name="Trophy" size="sm" ariaHidden={true} />
+                <span className={styles.filterButtonText}>Match Day</span>
+              </button>
+              <button
+                className={`${styles.filterButton} ${activeFilter === 'transfers' ? styles.active : ''}`}
+                onClick={() => handleFilterChange('transfers')}
+                aria-pressed={activeFilter === 'transfers'}
+              >
+                <Icon name="Users" size="sm" ariaHidden={true} />
+                <span className={styles.filterButtonText}>Transfers</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Media Type Group */}
+          <div className={styles.filterGroup}>
+            <span className={styles.filterLabel}>Media type:</span>
+            <div className={styles.buttonGroup} role="group" aria-label="Media type filters">
+              <button
+                className={`${styles.filterButton} ${activeMediaFilter === 'images' ? styles.active : ''}`}
+                onClick={() => handleMediaFilterChange('images')}
+                aria-pressed={activeMediaFilter === 'images'}
+              >
+                <Icon name="Image" size="sm" ariaHidden={true} />
+                <span className={styles.filterButtonText}>Images</span>
+              </button>
+              <button
+                className={`${styles.filterButton} ${activeMediaFilter === 'videos' ? styles.active : ''}`}
+                onClick={() => handleMediaFilterChange('videos')}
+                aria-pressed={activeMediaFilter === 'videos'}
+              >
+                <Icon name="Video" size="sm" ariaHidden={true} />
+                <span className={styles.filterButtonText}>Videos</span>
+              </button>
+              <button
+                className={`${styles.filterButton} ${activeMediaFilter === 'articles' ? styles.active : ''}`}
+                onClick={() => handleMediaFilterChange('articles')}
+                aria-pressed={activeMediaFilter === 'articles'}
+              >
+                <Icon name="Link" size="sm" ariaHidden={true} />
+                <span className={styles.filterButtonText}>Articles</span>
+              </button>
+              <button
+                className={`${styles.filterButton} ${activeMediaFilter === 'discussions' ? styles.active : ''}`}
+                onClick={() => handleMediaFilterChange('discussions')}
+                aria-pressed={activeMediaFilter === 'discussions'}
+              >
+                <Icon name="MessageSquare" size="sm" ariaHidden={true} />
+                <span className={styles.filterButtonText}>Discussions</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Expandable Flair Filter */}
+          {uniqueFlairs.length > 0 && (
+            <div className={styles.flairFilterExpandable}>
+              <button
+                className={styles.flairExpandButton}
+                onClick={() => setFlairSectionExpanded(!flairSectionExpanded)}
+                aria-expanded={flairSectionExpanded}
+                aria-controls="flair-filter-section"
+              >
+                <Icon
+                  name={flairSectionExpanded ? 'ChevronDown' : 'ChevronRight'}
+                  size="sm"
+                  ariaHidden={true}
+                />
+                <span className={styles.filterLabel}>
+                  Filter by flair
+                  {activeFlairFilters.length > 0 && ` (${activeFlairFilters.length} active)`}
+                </span>
+              </button>
+
+              {flairSectionExpanded && (
+                <div
+                  id="flair-filter-section"
+                  className={styles.flairFilterContent}
+                  role="group"
+                  aria-label="Flair filters"
+                >
+                  <div className={styles.flairFilterButtons}>
+                    {uniqueFlairs.map(flair => (
+                      <button
+                        key={flair}
+                        className={`${styles.filterButton} ${styles.flairPill} ${
+                          activeFlairFilters.includes(flair) ? styles.active : ''
+                        }`}
+                        onClick={() => handleToggleFlairFilter(flair)}
+                        aria-pressed={activeFlairFilters.includes(flair)}
+                      >
+                        {flair}
+                      </button>
+                    ))}
+                  </div>
+
+                  {activeFlairFilters.length > 0 && (
+                    <button
+                      className={styles.clearFlairFilters}
+                      onClick={() => {
+                        dispatch(clearFlairFilters());
+                        setAnnouncement('All flair filters cleared');
+                      }}
+                      aria-label="Clear all flair filters"
+                    >
+                      <Icon name="X" size="sm" ariaHidden={true} />
+                      Clear all
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
 
-export default SubredditFilter;
+export default React.memo(SubredditFilter);

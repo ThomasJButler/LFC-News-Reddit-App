@@ -13,8 +13,8 @@ import styles from './LoadingSpinner.module.css';
  */
 const LoadingSpinner = () => {
   return (
-    <div className={styles.spinnerContainer}>
-      <div className={styles.spinner}>
+    <div className={styles.spinnerContainer} role="status" aria-live="polite">
+      <div className={styles.spinner} aria-hidden="true">
         <div className={styles.bounce1}></div>
         <div className={styles.bounce2}></div>
         <div className={styles.bounce3}></div>

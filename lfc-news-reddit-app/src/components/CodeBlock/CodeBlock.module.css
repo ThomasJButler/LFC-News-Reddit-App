@@ -1,0 +1,112 @@
+/* WHY: CodeBlock component styles for enhanced code readability in posts/comments */
+
+.codeBlockWrapper {
+  margin: var(--spacing-md) 0;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  /* WHY: Use theme-aware background that adapts to all three LFC kit themes */
+  background-color: var(--bg-tertiary, #1e1e1e);
+  border: 1px solid var(--border-color);
+  /* WHY: Use theme transition for smooth color changes when switching themes */
+  transition: background-color var(--transition-theme),
+              border-color var(--transition-theme);
+}
+
+.codeHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-xs) var(--spacing-md);
+  /* WHY: Use overlay-subtle for consistent dark background across themes */
+  background-color: var(--overlay-subtle);
+  border-bottom: 1px solid var(--highlight-faint);
+}
+
+.languageBadge {
+  font-size: var(--font-size-xs);
+  font-family: var(--font-mono);
+  /* WHY: Use highlight-medium for semi-transparent text on dark backgrounds */
+  color: var(--highlight-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: var(--font-weight-semibold);
+}
+
+.copyButton {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background-color: transparent;
+  /* WHY: Use highlight-medium for readable button text */
+  color: var(--highlight-medium);
+  border: 1px solid var(--highlight-subtle);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+  font-family: var(--font-sans);
+  cursor: pointer;
+  /* WHY: Use fast transition for interactive feedback */
+  transition: background-color var(--transition-fast),
+              color var(--transition-fast),
+              border-color var(--transition-fast);
+}
+
+.copyButton:hover {
+  background-color: var(--highlight-faint);
+  color: var(--highlight-strong);
+  border-color: var(--highlight-light);
+}
+
+.copyButton:active {
+  background-color: var(--highlight-soft);
+}
+
+.copyText {
+  font-size: var(--font-size-xs);
+}
+
+/* WHY: Inline code styling that matches theme colors */
+.inlineCode {
+  background-color: var(--bg-secondary);
+  color: var(--accent);
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  border: 1px solid var(--border-color);
+  /* WHY: Use theme transition for color changes */
+  transition: background-color var(--transition-theme),
+              color var(--transition-theme),
+              border-color var(--transition-theme);
+}
+
+/* WHY: Mobile optimizations for better touch interaction and readability */
+@media (max-width: 767px) {
+  .codeHeader {
+    padding: var(--spacing-xs) var(--spacing-sm);
+  }
+
+  .copyText {
+    /* Hide copy text on very small screens to save space */
+    display: none;
+  }
+
+  .copyButton {
+    /* Ensure 44x44px touch target on mobile */
+    min-width: 44px;
+    min-height: 44px;
+    padding: var(--spacing-sm);
+  }
+
+  .languageBadge {
+    /* WHY: Using --font-size-xs for consistency (0.7rem -> 0.75rem) */
+    font-size: var(--font-size-xs);
+  }
+}
+
+/* WHY: Respect user's motion preferences for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .copyButton {
+    transition: none;
+  }
+}

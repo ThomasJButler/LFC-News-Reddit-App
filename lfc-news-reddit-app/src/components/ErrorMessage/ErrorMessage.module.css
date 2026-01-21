@@ -15,13 +15,13 @@
 
 .errorTitle {
   color: var(--text-primary);
-  font-size: 1.5rem;
+  font-size: var(--font-size-2xl);
   margin-bottom: var(--spacing-sm);
 }
 
 .errorMessage {
   color: var(--text-secondary);
-  font-size: 1rem;
+  font-size: var(--font-size-base);
   max-width: 400px;
   margin-bottom: var(--spacing-lg);
   line-height: 1.5;
@@ -33,10 +33,13 @@
   color: white;
   border: none;
   border-radius: var(--radius-sm);
-  font-size: 1rem;
+  font-size: var(--font-size-base);
   font-weight: 500;
   cursor: pointer;
-  transition: all var(--transition-fast);
+  /* WHY: Use theme transition for color changes, fast for transform */
+  transition: background-color var(--transition-theme),
+              transform var(--transition-fast),
+              box-shadow var(--transition-fast);
 }
 
 .retryButton:hover {

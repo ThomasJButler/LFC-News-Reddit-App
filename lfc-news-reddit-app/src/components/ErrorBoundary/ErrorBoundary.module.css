@@ -1,0 +1,198 @@
+/**
+ * Error Boundary Styles
+ * WHY: Provides visually distinct error UI that works across all three LFC themes
+ */
+
+.errorBoundary {
+  min-height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-xl);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: all var(--transition-theme);
+}
+
+.errorContent {
+  max-width: 600px;
+  text-align: center;
+  background-color: var(--bg-secondary);
+  padding: var(--spacing-xl);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-color);
+  transition: all var(--transition-theme);
+}
+
+.errorIcon {
+  /* WHY: Using --font-size-4xl for large icons (4rem -> 3.5rem) */
+  font-size: var(--font-size-4xl);
+  margin-bottom: var(--spacing-md);
+  /* WHY: Animation draws attention but isn't continuous (respects prefers-reduced-motion) */
+  animation: errorPulse 0.5s ease-out;
+}
+
+@keyframes errorPulse {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.errorTitle {
+  font-size: var(--font-size-2xl);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-sm);
+  transition: color var(--transition-theme);
+}
+
+.errorMessage {
+  font-size: var(--font-size-lg);
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-lg);
+  line-height: 1.6;
+  transition: color var(--transition-theme);
+}
+
+/* Error details - development only */
+.errorDetails {
+  margin: var(--spacing-lg) 0;
+  text-align: left;
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: var(--spacing-sm);
+  transition: all var(--transition-theme);
+}
+
+.errorDetails summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--text-primary);
+  padding: var(--spacing-xs);
+  user-select: none;
+  transition: color var(--transition-theme);
+}
+
+.errorDetails summary:hover {
+  color: var(--accent);
+}
+
+.errorStack {
+  margin-top: var(--spacing-sm);
+  padding: var(--spacing-md);
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
+  color: var(--text-primary);
+  white-space: pre-wrap;
+  word-break: break-word;
+  transition: all var(--transition-theme);
+}
+
+.errorActions {
+  display: flex;
+  gap: var(--spacing-md);
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: var(--spacing-lg);
+}
+
+.primaryButton {
+  background-color: var(--accent);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  /* WHY: 44x44px minimum for mobile touch targets (WCAG) */
+  min-height: 44px;
+  min-width: 120px;
+}
+
+.primaryButton:hover {
+  background-color: var(--accent-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.primaryButton:active {
+  transform: translateY(0);
+}
+
+.secondaryButton {
+  background-color: transparent;
+  color: var(--text-primary);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  /* WHY: 44x44px minimum for mobile touch targets (WCAG) */
+  min-height: 44px;
+  min-width: 120px;
+}
+
+.secondaryButton:hover {
+  background-color: var(--bg-tertiary);
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.secondaryButton:active {
+  transform: translateY(0);
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 767px) {
+  .errorBoundary {
+    padding: var(--spacing-md);
+    min-height: 300px;
+  }
+
+  .errorContent {
+    padding: var(--spacing-lg);
+  }
+
+  .errorIcon {
+    /* WHY: Using --font-size-3xl for mobile (3rem -> 1.875rem) */
+    font-size: var(--font-size-3xl);
+  }
+
+  .errorTitle {
+    font-size: var(--font-size-xl);
+  }
+
+  .errorMessage {
+    font-size: var(--font-size-md);
+  }
+
+  .errorActions {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
+
+  .primaryButton,
+  .secondaryButton {
+    width: 100%;
+  }
+}

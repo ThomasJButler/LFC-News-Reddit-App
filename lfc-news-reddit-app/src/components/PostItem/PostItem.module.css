@@ -6,7 +6,11 @@
   backdrop-filter: blur(20px);
   border-radius: var(--radius-lg);
   cursor: pointer;
-  transition: all var(--transition-normal);
+  /* WHY: Use theme transition for color/background changes, fast for transform */
+  transition: background-color var(--transition-theme),
+              border-color var(--transition-theme),
+              transform var(--transition-fast),
+              box-shadow var(--transition-fast);
   border: 1px solid var(--glass-border);
   box-shadow: var(--shadow-md);
   position: relative;
@@ -22,13 +26,13 @@
   height: 3px;
   background: var(--bg-gradient);
   opacity: 0;
-  transition: opacity var(--transition-normal);
+  transition: opacity var(--transition-fast);
 }
 
 .postItem:hover {
   background: var(--accent-ultra-light);
   border-color: var(--accent-light);
-  transform: translateY(-4px) scale(1.01);
+  transform: translateY(-2px);
   box-shadow: var(--shadow-theme);
 }
 
@@ -36,38 +40,23 @@
   opacity: 1;
 }
 
-.voteSection {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-width: 60px;
+/* WHY: Accessible focus indicator for keyboard navigation (WCAG 2.4.7) */
+.postItem:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
   background: var(--accent-ultra-light);
-  border-radius: var(--radius-lg);
-  padding: var(--spacing-md);
-  border: 1px solid var(--accent-light);
+  border-color: var(--accent-light);
 }
 
-.score {
-  font-weight: var(--font-weight-bold);
-  color: var(--accent);
-  font-size: var(--font-size-xl);
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  animation: scoreGlow 2s ease-in-out infinite alternate;
-}
-
-@keyframes scoreGlow {
-  0% { 
-    filter: drop-shadow(0 0 3px var(--accent)); 
-  }
-  100% { 
-    filter: drop-shadow(0 0 8px var(--accent)); 
-  }
+.postItem:focus-visible::before {
+  opacity: 1;
 }
 
 .contentSection {
   flex: 1;
   min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .postHeader {
@@ -75,7 +64,7 @@
   align-items: center;
   gap: var(--spacing-sm);
   margin-bottom: var(--spacing-xs);
-  font-size: 0.875rem;
+  font-size: var(--font-size-sm);
   color: var(--text-secondary);
   flex-wrap: wrap;
 }
@@ -96,7 +85,7 @@
 .spoiler {
   padding: 2px 6px;
   border-radius: var(--radius-sm);
-  font-size: 0.75rem;
+  font-size: var(--font-size-xs);
   font-weight: 500;
 }
 
@@ -110,19 +99,78 @@
   color: var(--bg-primary);
 }
 
+/* WHY: Flair badges help users identify post types at a glance */
+.flair {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: var(--spacing-xs);
+  transition: background-color var(--transition-theme),
+              color var(--transition-theme);
+}
+
+/* Match-related flairs (red) */
+.flairMatch {
+  background-color: var(--lfc-red);
+  color: white;
+}
+
+/* Transfer news (gold/yellow) */
+.flairTransfer {
+  background-color: var(--lfc-yellow);
+  color: var(--bg-primary);
+}
+
+/* Official sources (green) */
+.flairOfficial {
+  background-color: var(--lfc-green);
+  color: white;
+}
+
+/* Default discussion flair */
+.flairDefault {
+  background-color: var(--accent-light);
+  color: var(--accent);
+  border: 1px solid var(--accent);
+}
+
 .title {
   margin: var(--spacing-sm) 0;
-  font-size: 1.125rem;
+  font-size: var(--font-size-lg);
   font-weight: 600;
   color: var(--text-primary);
   line-height: 1.4;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+/* Media type icon indicator (WHY: provides visual distinction for different content types) */
+.mediaIcon {
+  color: var(--text-muted);
+  flex-shrink: 0;
+  margin-left: var(--spacing-xs);
+  opacity: 0.7;
+  transition: opacity var(--transition-fast);
 }
 
 .preview {
   color: var(--text-secondary);
-  font-size: 0.9375rem;
+  /* WHY: 0.9375rem rounds to base size for consistent typography scale */
+  font-size: var(--font-size-base);
   line-height: 1.5;
   margin: var(--spacing-sm) 0;
+  /* WHY: Line-clamp prevents preview from overflowing in virtualized cards */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .postFooter {
@@ -130,49 +178,145 @@
   align-items: center;
   gap: var(--spacing-md);
   margin-top: var(--spacing-sm);
-  font-size: 0.875rem;
+  font-size: var(--font-size-sm);
   color: var(--text-secondary);
 }
 
+/* WHY: Compact inline pills for cleaner footer layout without redundant boxes */
 .upvotes,
 .comments {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-sm);
+  transition: background-color var(--transition-theme);
 }
 
 .upvotes svg,
 .comments svg {
-  opacity: 0.7;
+  opacity: 0.8;
+  flex-shrink: 0;
 }
 
-.upvotes {
-  color: var(--theme-accent);
-  font-weight: var(--font-weight-medium);
+.comments {
+  color: var(--text-secondary);
 }
 
+/* Color-coded score ranges for visual hierarchy (WHY: helps identify hot posts at a glance) */
+.scoreLow {
+  /* <100: Subtle gray - low engagement */
+  color: var(--text-muted);
+}
+
+.scoreDefault {
+  /* 100-499: Default text color - normal engagement */
+  color: var(--text-secondary);
+}
+
+.scorePopular {
+  /* 500-999: Gold/yellow - popular post */
+  color: var(--lfc-yellow);
+  font-weight: var(--font-weight-semibold);
+}
+
+.scoreHot {
+  /* 1000+: LFC red - hot post! */
+  color: var(--lfc-red);
+  font-weight: var(--font-weight-bold);
+}
+
+/* WHY: Thumbnails provide visual context and help users identify content type
+   - Mobile-first: Show on all devices with appropriate sizing
+   - 16:9 aspect ratio container prevents layout shifts
+   - object-fit: cover ensures consistent appearance regardless of source image */
 .thumbnailSection {
-  display: none;
+  flex-shrink: 0;
+  width: 100%;
+  max-width: 120px;
 }
 
 .thumbnail {
-  width: 100px;
-  height: 100px;
+  width: 100%;
+  aspect-ratio: 16 / 9;
   object-fit: cover;
   border-radius: var(--radius-sm);
+  background-color: var(--bg-tertiary);
+  /* WHY: Use theme transition for background-color */
+  transition: background-color var(--transition-theme);
+}
+
+/* Mobile-first: Compact layout for small screens
+   WHY: column-reverse places thumbnail BEFORE content, matching Instagram/Twitter visual hierarchy
+   Users expect to see image preview first on mobile, then read the content */
+@media (max-width: 767px) {
+  .postItem {
+    flex-direction: column-reverse;
+    padding: var(--spacing-md);
+    gap: var(--spacing-sm);
+    /* Disable backdrop-filter on mobile for performance (GPU-intensive) */
+    backdrop-filter: none;
+    background: var(--bg-secondary);
+  }
+
+  .postFooter {
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+  }
+
+  .title {
+    font-size: var(--font-size-lg);
+    margin: var(--spacing-xs) 0;
+  }
+
+  /* WHY: Smaller thumbnails on mobile to preserve vertical space while still providing visual context */
+  .thumbnailSection {
+    max-width: 100px;
+  }
+}
+
+/* Extra small screens (320px) - most compact */
+@media (max-width: 374px) {
+  .postItem {
+    padding: var(--spacing-sm);
+    gap: var(--spacing-xs);
+  }
+
+  .title {
+    font-size: var(--font-size-base);
+  }
+
+  .preview {
+    font-size: var(--font-size-sm);
+  }
+
+  .postHeader {
+    font-size: var(--font-size-xs);
+  }
+
+  .postFooter {
+    font-size: var(--font-size-xs);
+  }
+
+  /* WHY: Even smaller thumbnails on extra small screens to maximize content space */
+  .thumbnailSection {
+    max-width: 80px;
+  }
 }
 
 @media (min-width: 768px) {
   .postItem {
     padding: var(--spacing-lg);
   }
-  
+
+  /* WHY: Larger thumbnails on desktop where screen space is less constrained */
   .thumbnailSection {
-    display: block;
+    max-width: 140px;
   }
-  
-  .thumbnail {
-    width: 120px;
-    height: 120px;
+
+  .title {
+    font-size: var(--font-size-xl);
   }
 }

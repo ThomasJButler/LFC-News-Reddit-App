@@ -1,7 +1,88 @@
+/* Wrapper for comment list with actions header */
+.commentListWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+/* Actions bar at top of comments (Collapse All / Expand All button) */
+.commentActions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-md);
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  gap: var(--spacing-md);
+}
+
+.collapseAllButton {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  background: var(--accent-ultra-light);
+  border: 1px solid var(--accent-light);
+  color: var(--accent);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  /* WHY: WCAG 2.5.5 - 44x44px minimum touch target */
+  min-height: 44px;
+  /* WHY: Use theme transition for color changes, fast for transform */
+  transition: background-color var(--transition-theme),
+              color var(--transition-theme),
+              border-color var(--transition-theme),
+              transform var(--transition-fast);
+}
+
+.collapseAllButton:hover {
+  background: var(--accent-light);
+  color: var(--theme-accent);
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.collapseAllButton:active {
+  transform: translateY(0);
+}
+
+.commentCount {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  font-weight: var(--font-weight-medium);
+}
+
 .commentList {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
+}
+
+/* Top-level comment wrapper with enhanced visual separation */
+/* WHY: Clear visual separation helps users distinguish between different conversation threads */
+.topLevelComment {
+  padding-bottom: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+  border-bottom: 2px solid var(--glass-border);
+}
+
+.topLevelComment:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+/* Container for virtualized comment list (when > 20 comments) */
+/* WHY: Position relative and overflow hidden prevent deeply nested comments from visually overlapping on mobile */
+.commentListContainer {
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  /* Height set dynamically by VariableSizeList */
 }
 
 .comment {
@@ -11,11 +92,23 @@
   border-radius: var(--radius-md);
   padding: var(--spacing-md);
   margin-bottom: var(--spacing-sm);
-  transition: all var(--transition-normal);
+  /* WHY: Use theme transition for color/background changes, fast for transform */
+  transition: background-color var(--transition-theme),
+              border-color var(--transition-theme),
+              transform var(--transition-fast),
+              box-shadow var(--transition-fast);
   position: relative;
   box-shadow: var(--shadow-sm);
 }
 
+/* Alternating background tints for depth clarity */
+/* WHY: Helps users visually track which level they're reading at in deeply nested threads */
+.commentOddDepth {
+  background: var(--bg-secondary);
+}
+
+/* Vertical thread line (colored by depth) */
+/* WHY: Reddit-style thread lines help users follow conversation branches */
 .comment::before {
   content: '';
   position: absolute;
@@ -23,10 +116,10 @@
   top: 0;
   bottom: 0;
   width: 3px;
-  background: var(--bg-gradient);
+  background: var(--thread-color, var(--accent));
   border-radius: var(--radius-sm);
-  opacity: 0;
-  transition: opacity var(--transition-normal);
+  opacity: 0.6;
+  transition: opacity var(--transition-fast);
 }
 
 .comment:hover {
@@ -45,7 +138,7 @@
   align-items: center;
   gap: var(--spacing-sm);
   margin-bottom: var(--spacing-sm);
-  font-size: 0.875rem;
+  font-size: var(--font-size-sm);
   color: var(--text-secondary);
   flex-wrap: wrap;
 }
@@ -56,14 +149,21 @@
   color: var(--accent);
   cursor: pointer;
   padding: var(--spacing-xs);
-  width: 24px;
-  height: 24px;
+  /* Updated: Minimum 44x44px touch target for accessibility (WCAG 2.5.5) */
+  min-width: 44px;
+  min-height: 44px;
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.75rem;
+  font-size: var(--font-size-sm);
   border-radius: var(--radius-full);
-  transition: all var(--transition-fast);
+  /* WHY: Use theme transition for color changes, fast for transform */
+  transition: background-color var(--transition-theme),
+              color var(--transition-theme),
+              transform var(--transition-fast),
+              box-shadow var(--transition-fast);
   font-weight: var(--font-weight-bold);
 }
 
@@ -72,6 +172,15 @@
   color: var(--theme-accent);
   transform: scale(1.1);
   box-shadow: var(--shadow-sm);
+}
+
+/* Reply count badge on collapse button */
+/* WHY: Shows users how many replies are hidden when a thread is collapsed */
+.replyCount {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  margin-left: 4px;
+  color: inherit;
 }
 
 .author {
@@ -88,7 +197,8 @@
   color: white;
   padding: 1px 4px;
   border-radius: var(--radius-sm);
-  font-size: 0.625rem;
+  /* WHY: Using --font-size-xs for consistency (0.625rem -> 0.75rem) */
+  font-size: var(--font-size-xs);
   margin-left: var(--spacing-xs);
   font-weight: 600;
 }
@@ -104,7 +214,7 @@
 .distinguished {
   padding: 2px 6px;
   border-radius: var(--radius-sm);
-  font-size: 0.75rem;
+  font-size: var(--font-size-xs);
   font-weight: 500;
 }
 
@@ -126,7 +236,8 @@
   word-break: break-word;
   overflow-wrap: break-word;
   hyphens: auto;
-  max-width: 100%;
+  /* Enforce maximum line length for readability (65-75 characters) */
+  max-width: 75ch;
 }
 
 .commentBody p {
@@ -150,8 +261,8 @@
   background-color: var(--bg-secondary);
   padding: 2px 4px;
   border-radius: var(--radius-sm);
-  font-family: monospace;
-  font-size: 0.875rem;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
 }
 
 .commentBody pre {
@@ -186,7 +297,7 @@
   height: auto;
   display: block;
   border-radius: var(--radius-md);
-  transition: transform var(--transition-normal);
+  transition: transform var(--transition-fast);
 }
 
 .commentGif:hover {
@@ -253,13 +364,38 @@
 
 /* Responsive media queries */
 @media (max-width: 767px) {
+  .commentActions {
+    padding: var(--spacing-sm);
+    gap: var(--spacing-sm);
+    /* Disable backdrop-filter on mobile for performance (GPU-intensive) */
+    backdrop-filter: none;
+  }
+
+  .collapseAllButton {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: var(--font-size-xs);
+  }
+
+  .commentCount {
+    font-size: var(--font-size-xs);
+  }
+
+  .topLevelComment {
+    padding-bottom: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+  }
+
   .comment {
     padding: var(--spacing-sm);
     margin-bottom: var(--spacing-xs);
+    /* Disable backdrop-filter on mobile for performance (GPU-intensive) */
+    backdrop-filter: none;
+    background: var(--bg-secondary);
   }
 
   .commentBody {
-    font-size: 0.9rem;
+    /* WHY: Using --font-size-sm for consistency (0.9rem -> 0.875rem) */
+    font-size: var(--font-size-sm);
     overflow-x: hidden;
   }
 
@@ -281,7 +417,8 @@
   }
 
   .commentHeader {
-    font-size: 0.8rem;
+    /* WHY: Using --font-size-sm for consistency (0.8rem -> 0.875rem) */
+    font-size: var(--font-size-sm);
     gap: var(--spacing-xs);
   }
 

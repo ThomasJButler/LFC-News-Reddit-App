@@ -2,7 +2,7 @@
 :root {
   /* Liverpool FC Kit Colors */
   --lfc-red: #C8102E;
-  --lfc-green: #00B2A9;
+  --lfc-green: #00A651;
   --lfc-yellow: #F6EB61;
   --lfc-white: #ffffff;
   
@@ -21,7 +21,8 @@
   /* Text Colors */
   --text-primary: #ffffff;
   --text-secondary: #b0b0b0;
-  --text-muted: #666666;
+  /* Fixed: Changed from #666666 (3.30:1) to #808080 (4.54:1) for WCAG AA compliance */
+  --text-muted: #808080;
   --text-accent: var(--theme-primary);
   
   /* Accent Colors */
@@ -41,6 +42,33 @@
   --shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.4);
   --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.5);
   --shadow-theme: 0 8px 25px rgba(200, 16, 46, 0.3);
+
+  /* WHY: Opacity-based overlays and effects for consistent theme-aware transparency */
+  /* Black transparencies for shadows, overlays, backgrounds */
+  --overlay-dark: rgba(0, 0, 0, 0.8);
+  --overlay-medium: rgba(0, 0, 0, 0.6);
+  --overlay-light: rgba(0, 0, 0, 0.3);
+  --overlay-subtle: rgba(0, 0, 0, 0.2);
+  --overlay-faint: rgba(0, 0, 0, 0.1);
+
+  /* White transparencies for highlights, borders, text */
+  --highlight-strong: rgba(255, 255, 255, 0.9);
+  --highlight-medium: rgba(255, 255, 255, 0.7);
+  --highlight-light: rgba(255, 255, 255, 0.3);
+  --highlight-subtle: rgba(255, 255, 255, 0.2);
+  --highlight-soft: rgba(255, 255, 255, 0.15);
+  --highlight-faint: rgba(255, 255, 255, 0.1);
+  --highlight-ultra-faint: rgba(255, 255, 255, 0.02);
+
+  /* Text shadows - WHY: Consistent shadow intensity across UI elements */
+  --text-shadow-strong: 0 2px 4px rgba(0, 0, 0, 0.5);
+  --text-shadow-medium: 0 2px 4px rgba(0, 0, 0, 0.4);
+  --text-shadow-normal: 0 2px 4px rgba(0, 0, 0, 0.3);
+  --text-shadow-light: 0 2px 4px rgba(0, 0, 0, 0.2);
+
+  /* Drop shadows for icons and images */
+  --drop-shadow-normal: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  --drop-shadow-light: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
   
   /* UI Colors */
   --border-color: rgba(255, 255, 255, 0.1);
@@ -78,16 +106,26 @@
   --font-size-lg: 1.125rem;
   --font-size-xl: 1.25rem;
   --font-size-2xl: 1.5rem;
-  --font-size-3xl: 2rem;
+  /* Fixed: Changed from 2rem (32px) to 1.875rem (30px) per spec */
+  --font-size-3xl: 1.875rem;
+  --font-size-4xl: 3.5rem;  /* WHY: For large desktop headings like Header title */
   --font-weight-light: 300;
   --font-weight-normal: 400;
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
   --font-weight-black: 900;
-  
-  /* Z-index */
+
+  /* Font Families - WHY: Consistent font stacks across the app for code and technical content */
+  --font-mono: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', 'Consolas', monospace;
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+               Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+
+  /* Z-index - WHY: Coordinated z-index system prevents stacking conflicts */
+  --z-filter: 99;        /* Below header (100), above content */
   --z-header: 100;
+  --z-bottom-nav: 150;   /* Mobile bottom navigation */
+  --z-pull-refresh: 100; /* Pull-to-refresh indicator */
   --z-dropdown: 200;
   --z-modal-overlay: 999;
   --z-modal: 1000;
@@ -105,33 +143,35 @@
   --theme-primary: #1a1a1a;
   --theme-secondary: #333333;
   --theme-accent: var(--lfc-red);
-  
+
   --bg-primary: #f8f9fa;
   --bg-secondary: #ffffff;
   --bg-tertiary: #e9ecef;
   --bg-glass: rgba(255, 255, 255, 0.9);
   --bg-gradient: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-  
+
   --text-primary: #1a1a1a;
-  --text-secondary: #6c757d;
-  --text-muted: #adb5bd;
+  /* Fixed: Changed from #6c757d (3.9:1) to #595959 (7.0:1) for WCAG AA compliance */
+  --text-secondary: #595959;
+  /* Fixed: Changed from #adb5bd (2.7:1) to #737373 (4.59:1) for WCAG AA compliance */
+  --text-muted: #737373;
   --text-accent: var(--lfc-red);
-  
+
   --accent: var(--lfc-red);
   --accent-hover: #a00d26;
   --accent-light: rgba(200, 16, 46, 0.1);
   --accent-ultra-light: rgba(200, 16, 46, 0.03);
-  
+
   --glass-bg: rgba(255, 255, 255, 0.7);
   --glass-border: rgba(26, 26, 26, 0.1);
   --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  
+
   --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
   --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.15);
   --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.2);
   --shadow-theme: 0 8px 25px rgba(200, 16, 46, 0.2);
-  
+
   --border-color: rgba(26, 26, 26, 0.1);
   --border-hover: rgba(26, 26, 26, 0.2);
 }
@@ -139,35 +179,73 @@
 /* Green Third Kit Theme */
 [data-theme="green"] {
   --theme-primary: var(--lfc-green);
-  --theme-secondary: #008a82;
+  --theme-secondary: #008544;
   --theme-accent: var(--lfc-white);
-  
+
   --bg-primary: #0a1a1a;
   --bg-secondary: #0f2625;
   --bg-tertiary: #1a3332;
   --bg-glass: rgba(15, 38, 37, 0.8);
   --bg-gradient: linear-gradient(135deg, var(--lfc-green) 0%, #008a82 100%);
-  
+
   --text-primary: #ffffff;
   --text-secondary: #b0d4d1;
-  --text-muted: #6b9996;
+  /* Fixed: Changed from #6b9996 (4.02:1) to #7faaa7 (4.67:1) for WCAG AA compliance */
+  --text-muted: #7faaa7;
   --text-accent: var(--lfc-green);
-  
+
   --accent: var(--lfc-green);
-  --accent-hover: #008a82;
-  --accent-light: rgba(0, 178, 169, 0.15);
-  --accent-ultra-light: rgba(0, 178, 169, 0.05);
-  
-  --glass-bg: rgba(0, 178, 169, 0.05);
-  --glass-border: rgba(0, 178, 169, 0.2);
+  --accent-hover: #008544;
+  --accent-light: rgba(0, 166, 81, 0.15);
+  --accent-ultra-light: rgba(0, 166, 81, 0.05);
+
+  --glass-bg: rgba(0, 166, 81, 0.05);
+  --glass-border: rgba(0, 166, 81, 0.2);
   --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-  
+
   --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
   --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
   --shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.5);
   --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.6);
-  --shadow-theme: 0 8px 25px rgba(0, 178, 169, 0.4);
-  
-  --border-color: rgba(0, 178, 169, 0.2);
-  --border-hover: rgba(0, 178, 169, 0.3);
+  --shadow-theme: 0 8px 25px rgba(0, 166, 81, 0.4);
+
+  --border-color: rgba(0, 166, 81, 0.2);
+  --border-hover: rgba(0, 166, 81, 0.3);
+}
+
+/* Night Mode - True OLED Dark Theme */
+/* WHY: OLED displays benefit from pure black (#000) to save battery and reduce eye strain */
+[data-theme="night"] {
+  --theme-primary: var(--lfc-red);
+  --theme-secondary: #a00d26;
+  --theme-accent: var(--lfc-white);
+
+  --bg-primary: #000000;
+  --bg-secondary: #0a0a0a;
+  --bg-tertiary: #151515;
+  --bg-glass: rgba(10, 10, 10, 0.9);
+  --bg-gradient: linear-gradient(135deg, var(--lfc-red) 0%, var(--theme-secondary) 100%);
+
+  --text-primary: #ffffff;
+  --text-secondary: #cccccc;
+  --text-muted: #888888;
+  --text-accent: var(--lfc-red);
+
+  --accent: var(--lfc-red);
+  --accent-hover: var(--theme-secondary);
+  --accent-light: rgba(200, 16, 46, 0.2);
+  --accent-ultra-light: rgba(200, 16, 46, 0.08);
+
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
+
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.7);
+  --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.8);
+  --shadow-theme: 0 8px 25px rgba(200, 16, 46, 0.5);
+
+  --border-color: rgba(255, 255, 255, 0.1);
+  --border-hover: rgba(255, 255, 255, 0.15);
 }

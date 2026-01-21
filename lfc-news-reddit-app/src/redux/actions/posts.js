@@ -130,3 +130,47 @@ export const setTimeRange = (timeRange) => ({
 export const sortByViral = () => ({
   type: types.SORT_BY_VIRAL
 });
+
+/**
+ * @param {string} filterType - Filter type: 'matchday', 'transfers', or null to clear
+ * @return {Object} Redux action to apply flair-based filtering
+ * @deprecated Use toggleFlairFilter for multi-select support
+ */
+export const setFlairFilter = (filterType) => ({
+  type: types.SET_FLAIR_FILTER,
+  payload: filterType
+});
+
+/**
+ * @return {Object} Redux action to clear all active flair filters
+ */
+export const clearFlairFilters = () => ({
+  type: types.CLEAR_FLAIR_FILTERS
+});
+
+/**
+ * Toggle a specific flair in the multi-select filter
+ * WHY: Allows users to filter by multiple flairs simultaneously (e.g., Tier 1 + Tier 2 + Highlights)
+ * @param {string} flairText - Exact flair text to toggle (e.g., "Tier 1", "Highlights")
+ * @return {Object} Redux action to toggle flair filter
+ */
+export const toggleFlairFilter = (flairText) => ({
+  type: types.TOGGLE_FLAIR_FILTER,
+  payload: flairText
+});
+
+/**
+ * @param {string} mediaType - Media type: 'images', 'videos', 'articles', 'discussions', or null to clear
+ * @return {Object} Redux action to apply media type filtering
+ */
+export const setMediaFilter = (mediaType) => ({
+  type: types.SET_MEDIA_FILTER,
+  payload: mediaType
+});
+
+/**
+ * @return {Object} Redux action to clear all active media filters
+ */
+export const clearMediaFilters = () => ({
+  type: types.CLEAR_MEDIA_FILTERS
+});

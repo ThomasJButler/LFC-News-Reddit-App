@@ -32,7 +32,7 @@
 .loadingText {
   margin-top: var(--spacing-md);
   color: var(--text-secondary);
-  font-size: 0.875rem;
+  font-size: var(--font-size-sm);
 }
 
 @keyframes sk-bouncedelay {

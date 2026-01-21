@@ -115,12 +115,20 @@ const tryProxy = async (proxy, url) => {
 
     console.log(`Trying ${proxy.name}:`, proxyUrl);
 
-    const fetchOptions = {};
+    // WHY: AbortController with 15-second timeout prevents indefinite hangs
+    // Allows moving to next proxy in fallback chain if request is too slow
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+    const fetchOptions = {
+      signal: controller.signal
+    };
     if (proxy.headers && Object.keys(proxy.headers).length > 0) {
       fetchOptions.headers = proxy.headers;
     }
 
     const response = await fetch(proxyUrl, fetchOptions);
+    clearTimeout(timeoutId);
 
     if (response.status === 429) {
       throw new Error('Rate limit exceeded');
@@ -151,6 +159,11 @@ const tryProxy = async (proxy, url) => {
     console.log(`Successfully fetched via ${proxy.name}`);
     return data;
   } catch (error) {
+    // WHY: Provide clear error message for timeout vs other failures
+    if (error.name === 'AbortError') {
+      console.log(`${proxy.name} timed out after 15 seconds`);
+      throw new Error('Request timeout');
+    }
     console.log(`${proxy.name} failed:`, error.message);
     throw error;
   }
@@ -244,7 +257,18 @@ const processPostData = (post) => {
     crosspostParent: data.crosspost_parent_list?.[0],
     stickied: data.stickied,
     over18: data.over_18,
-    spoiler: data.spoiler
+    spoiler: data.spoiler,
+    // WHY: Post flairs help users identify content type (Match Thread, Transfer News, etc.)
+    linkFlair: data.link_flair_text || null,
+    linkFlairBackgroundColor: data.link_flair_background_color || null,
+    linkFlairTextColor: data.link_flair_text_color || null,
+    // WHY: Gallery data needed for rendering multi-image posts
+    isGallery: data.is_gallery || false,
+    galleryData: data.gallery_data || null,
+    mediaMetadata: data.media_metadata || null,
+    postHint: data.post_hint || null,
+    // WHY: isSelf flag needed for media type filtering (text-only discussion posts)
+    isSelf: data.is_self || false
   };
 };
 
@@ -283,16 +307,8 @@ const processCommentData = (comment, level = 0) => {
  * @param {string} [timeRange='day'] - Time filter for 'top' and 'controversial': 'day', 'week', 'month', 'year'
  * @return {Promise<Object[]>} Array of normalised post objects
  */
-export const fetchPosts = async (subreddit = 'all', sortBy = 'hot', timeRange = 'day') => {
-  let url = `${BASE_URL}/r/`;
-  
-  if (subreddit === 'all') {
-    url += 'LiverpoolFC+liverpoolfcmedia';
-  } else {
-    url += subreddit;
-  }
-  
-  url += `/${sortBy}.json?limit=50`;
+export const fetchPosts = async (subreddit = 'LiverpoolFC', sortBy = 'hot', timeRange = 'day') => {
+  let url = `${BASE_URL}/r/${subreddit}/${sortBy}.json?limit=50`;
   
   if (sortBy === 'top' || sortBy === 'controversial') {
     url += `&t=${timeRange}`;
@@ -360,16 +376,8 @@ export const searchPosts = async (searchTerm, subreddit = 'all') => {
   if (!searchTerm.trim()) {
     return [];
   }
-  
-  let url = `${BASE_URL}/r/`;
-  
-  if (subreddit === 'all') {
-    url += 'LiverpoolFC+liverpoolfcmedia';
-  } else {
-    url += subreddit;
-  }
-  
-  url += `/search.json?q=${encodeURIComponent(searchTerm)}&restrict_sr=on&limit=50&sort=relevance`;
+
+  let url = `${BASE_URL}/r/${subreddit}/search.json?q=${encodeURIComponent(searchTerm)}&restrict_sr=on&limit=50&sort=relevance`;
   
   try {
     const data = await fetchFromReddit(url);

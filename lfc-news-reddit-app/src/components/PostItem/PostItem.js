@@ -5,11 +5,15 @@
  *              Handles thumbnail resolution selection and HTML entity decoding.
  */
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
 import { setCurrentPost } from '../../redux/actions/posts';
 import { fetchComments } from '../../redux/actions/comments';
+import { formatRelativeTime } from '../../utils/formatTime';
+import { stripMarkdown, decodeHtml } from '../../utils/markdown';
 import SpicyMeter from '../SpicyMeter/SpicyMeter';
+import Icon from '../Icon/Icon';
 import styles from './PostItem.module.css';
 
 /**
@@ -21,9 +25,47 @@ import styles from './PostItem.module.css';
 const PostItem = ({ post }) => {
   const dispatch = useDispatch();
 
+  /**
+   * WHY: Responsive preview lengths improve content scanability without overwhelming users
+   * Mobile (<768px): 150 chars - conserve vertical space
+   * Tablet (768-1023px): 200 chars - balanced preview
+   * Desktop (1024px+): 300 chars - detailed preview for wider screens
+   */
+  const [previewLength, setPreviewLength] = useState(200);
+
+  useEffect(() => {
+    const updatePreviewLength = () => {
+      const width = window.innerWidth;
+      if (width < 768) {
+        setPreviewLength(150);
+      } else if (width < 1024) {
+        setPreviewLength(200);
+      } else {
+        setPreviewLength(300);
+      }
+    };
+
+    // Set initial value
+    updatePreviewLength();
+
+    // Update on resize
+    window.addEventListener('resize', updatePreviewLength);
+    return () => window.removeEventListener('resize', updatePreviewLength);
+  }, []);
+
   const handleClick = () => {
+    // Save current scroll position before opening modal
+    sessionStorage.setItem('postListScrollPosition', window.scrollY.toString());
     dispatch(setCurrentPost(post));
     dispatch(fetchComments(post.id, post.subreddit));
+  };
+
+  // Handle keyboard navigation (Enter/Space) for accessibility
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleClick();
+    }
   };
 
   /**
@@ -35,25 +77,6 @@ const PostItem = ({ post }) => {
       return `${(score / 1000).toFixed(1)}k`;
     }
     return score.toString();
-  };
-
-  /**
-   * @param {number} timestamp - Unix timestamp in seconds
-   * @return {string} Human-readable relative time
-   */
-  const formatTime = (timestamp) => {
-    const now = Date.now() / 1000;
-    const diff = now - timestamp;
-    
-    if (diff < 3600) {
-      return `${Math.floor(diff / 60)}m ago`;
-    } else if (diff < 86400) {
-      return `${Math.floor(diff / 3600)}h ago`;
-    } else if (diff < 604800) {
-      return `${Math.floor(diff / 86400)}d ago`;
-    } else {
-      return new Date(timestamp * 1000).toLocaleDateString();
-    }
   };
 
   /**
@@ -96,42 +119,108 @@ const PostItem = ({ post }) => {
 
   const thumbnail = getThumbnail();
 
+  /**
+   * Determines score color class based on popularity ranges
+   * WHY: Visual hierarchy helps users quickly identify hot posts
+   * @param {number} score - Post score/upvotes
+   * @return {string} CSS class name for color styling
+   */
+  const getScoreClass = (score) => {
+    if (score >= 1000) return styles.scoreHot;      // 1000+: LFC red (hot!)
+    if (score >= 500) return styles.scorePopular;   // 500-999: Gold/yellow
+    if (score >= 100) return styles.scoreDefault;   // 100-499: Default text
+    return styles.scoreLow;                          // <100: Subtle gray
+  };
+
+  /**
+   * Determines flair style class based on flair text content
+   * WHY: Color-coded flairs help users quickly identify post types (matches, transfers, etc.)
+   * @param {string} flair - Flair text from Reddit
+   * @return {string} CSS class name for flair styling
+   */
+  const getFlairClass = (flair) => {
+    if (!flair) return '';
+    const lowerFlair = flair.toLowerCase();
+
+    // Match-related flairs (red)
+    if (lowerFlair.includes('match') || lowerFlair.includes('post-match') ||
+        lowerFlair.includes('pre-match') || lowerFlair.includes('rival watch')) {
+      return styles.flairMatch;
+    }
+
+    // Transfer news (gold)
+    if (lowerFlair.includes('transfer') || lowerFlair.includes('signing') ||
+        lowerFlair.includes('rumour') || lowerFlair.includes('rumor')) {
+      return styles.flairTransfer;
+    }
+
+    // Official sources (green)
+    if (lowerFlair.includes('official') || lowerFlair.includes('confirmed')) {
+      return styles.flairOfficial;
+    }
+
+    // Discussion (default accent)
+    return styles.flairDefault;
+  };
+
   return (
-    <article className={styles.postItem} onClick={handleClick}>
-      <div className={styles.voteSection}>
-        <span className={styles.score}>{formatScore(post.score)}</span>
-      </div>
-      
+    <article
+      className={styles.postItem}
+      onClick={handleClick}
+      onKeyDown={handleKeyDown}
+      tabIndex={0}
+      aria-label={`Post: ${post.title}`}
+    >
       <div className={styles.contentSection}>
         <div className={styles.postHeader}>
           <span className={styles.subreddit}>r/{post.subreddit}</span>
           <span className={styles.author}>u/{post.author}</span>
-          <span className={styles.time}>{formatTime(post.created)}</span>
+          <span className={styles.time}>{formatRelativeTime(post.created)}</span>
           {post.stickied && <span className={styles.stickied}>Pinned</span>}
           {post.spoiler && <span className={styles.spoiler}>Spoiler</span>}
         </div>
         
-        <h3 className={styles.title}>{post.title}</h3>
-        
+        {/* WHY: Flair badges help users quickly identify post type (Match Thread, Transfer, etc.) */}
+        {post.linkFlair && (
+          <span className={`${styles.flair} ${getFlairClass(post.linkFlair)}`}>
+            {post.linkFlair}
+          </span>
+        )}
+
+        <h2 className={styles.title}>
+          {post.title}
+          {/* Media type indicators (WHY: visual cues help users identify content type at a glance) */}
+          {post.isVideo && (
+            <Icon name="Video" size="sm" ariaHidden={true} className={styles.mediaIcon} />
+          )}
+          {post.isGallery && (
+            <Icon name="Images" size="sm" ariaHidden={true} className={styles.mediaIcon} />
+          )}
+          {post.postHint === 'image' && !post.isGallery && (
+            <Icon name="Image" size="sm" ariaHidden={true} className={styles.mediaIcon} />
+          )}
+          {post.postHint === 'link' && !post.isVideo && !post.isGallery && (
+            <Icon name="ExternalLink" size="sm" ariaHidden={true} className={styles.mediaIcon} />
+          )}
+        </h2>
+
         {post.selftext && (
           <p className={styles.preview}>
-            {post.selftext.substring(0, 200)}
-            {post.selftext.length > 200 && '...'}
+            {(() => {
+              const cleanText = stripMarkdown(decodeHtml(post.selftext));
+              return cleanText.substring(0, previewLength) + (cleanText.length > previewLength ? '...' : '');
+            })()}
           </p>
         )}
         
         <div className={styles.postFooter}>
-          <span className={styles.upvotes}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M7 14l5-5 5 5" />
-            </svg>
-            {formatScore(post.score)} upvotes
+          <span className={`${styles.upvotes} ${getScoreClass(post.score)}`}>
+            <Icon name="ArrowUp" size="sm" ariaHidden={true} />
+            {formatScore(post.score)}
           </span>
           <span className={styles.comments}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
-            </svg>
-            {post.numComments} comments
+            <Icon name="MessageCircle" size="sm" ariaHidden={true} />
+            {post.numComments}
           </span>
           <SpicyMeter score={post.score} />
         </div>
@@ -139,11 +228,73 @@ const PostItem = ({ post }) => {
       
       {thumbnail && (
         <div className={styles.thumbnailSection}>
-          <img src={thumbnail} alt="" className={styles.thumbnail} />
+          <img
+            src={thumbnail}
+            alt={`Thumbnail for: ${post.title}`}
+            className={styles.thumbnail}
+            loading="lazy"
+          />
         </div>
       )}
     </article>
   );
 };
 
-export default PostItem;
+PostItem.propTypes = {
+  // Reddit post object containing all post data
+  post: PropTypes.shape({
+    // Required identifiers
+    id: PropTypes.string.isRequired,
+    subreddit: PropTypes.string.isRequired,
+
+    // Content fields
+    title: PropTypes.string.isRequired,
+    selftext: PropTypes.string,
+    author: PropTypes.string.isRequired,
+
+    // Metrics
+    score: PropTypes.number.isRequired,
+    numComments: PropTypes.number.isRequired,
+    created: PropTypes.number.isRequired,
+
+    // Media and display properties
+    thumbnail: PropTypes.string,
+    url: PropTypes.string,
+    postHint: PropTypes.string,
+    isVideo: PropTypes.bool,
+    isGallery: PropTypes.bool,
+    galleryData: PropTypes.object,
+    mediaMetadata: PropTypes.object,
+
+    // Flags
+    stickied: PropTypes.bool,
+    spoiler: PropTypes.bool,
+
+    // Flair properties
+    linkFlair: PropTypes.string,
+    linkFlairBackgroundColor: PropTypes.string,
+    linkFlairTextColor: PropTypes.string,
+
+    // Preview images (complex nested structure)
+    preview: PropTypes.shape({
+      images: PropTypes.arrayOf(
+        PropTypes.shape({
+          source: PropTypes.shape({
+            url: PropTypes.string,
+            width: PropTypes.number,
+            height: PropTypes.number
+          }),
+          resolutions: PropTypes.arrayOf(
+            PropTypes.shape({
+              url: PropTypes.string,
+              width: PropTypes.number,
+              height: PropTypes.number
+            })
+          )
+        })
+      )
+    })
+  }).isRequired
+};
+
+export default React.memo(PostItem);

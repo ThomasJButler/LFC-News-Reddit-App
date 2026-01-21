@@ -25,6 +25,15 @@
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
     <title>LFC Reddit Viewer</title>
+    <!-- Prevent theme flash (FOUC) by applying saved theme before React loads -->
+    <script>
+      (function() {
+        var theme = localStorage.getItem('lfc-theme');
+        if (theme && theme !== 'red') {
+          document.documentElement.setAttribute('data-theme', theme);
+        }
+      })();
+    </script>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>

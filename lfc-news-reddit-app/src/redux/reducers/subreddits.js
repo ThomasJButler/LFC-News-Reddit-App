@@ -8,8 +8,8 @@
 import * as types from '../actions/types';
 
 const initialState = {
-  available: ['all', 'LiverpoolFC', 'liverpoolfcmedia'],
-  selected: 'all'
+  available: ['LiverpoolFC'],
+  selected: 'LiverpoolFC'
 };
 
 const subredditsReducer = (state = initialState, action) => {

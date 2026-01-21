@@ -1,0 +1,367 @@
+/* Shimmer animation for skeleton loading state */
+@keyframes shimmer {
+  0% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.6;
+  }
+}
+
+.skeletonContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  width: 100%;
+}
+
+.skeletonCard {
+  display: flex;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-lg);
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-md);
+  position: relative;
+  overflow: hidden;
+}
+
+/* All skeleton elements share the shimmer animation */
+.skeletonCard > *,
+.skeletonCard div[class*="skeleton"] {
+  animation: shimmer 1.5s infinite ease-in-out;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-sm);
+}
+
+/* Vote Section */
+.voteSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 60px;
+  background: var(--accent-ultra-light);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-md);
+  border: 1px solid var(--accent-light);
+}
+
+.skeletonScore {
+  width: 40px;
+  height: 24px;
+  background: var(--bg-secondary);
+}
+
+/* Content Section */
+.contentSection {
+  flex: 1;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.postHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
+.skeletonSubreddit {
+  width: 100px;
+  height: 14px;
+}
+
+.skeletonAuthor {
+  width: 80px;
+  height: 14px;
+}
+
+.skeletonTime {
+  width: 60px;
+  height: 14px;
+}
+
+/* Title placeholders with varying widths for natural look */
+.skeletonTitle {
+  width: 85%;
+  height: 20px;
+  margin-top: var(--spacing-xs);
+}
+
+.skeletonTitleSecond {
+  width: 65%;
+  height: 20px;
+}
+
+/* Footer Section */
+.postFooter {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-xs);
+}
+
+.skeletonFooterItem {
+  width: 80px;
+  height: 14px;
+}
+
+/* Thumbnail Section */
+.thumbnailSection {
+  display: none;
+}
+
+.skeletonThumbnail {
+  width: 100px;
+  height: 100px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-secondary);
+}
+
+/* Mobile-first: Compact layout for small screens */
+@media (max-width: 767px) {
+  .skeletonCard {
+    flex-direction: column;
+    padding: var(--spacing-md);
+    gap: var(--spacing-sm);
+    /* Disable backdrop-filter on mobile for performance (GPU-intensive) */
+    backdrop-filter: none;
+    background: var(--bg-secondary);
+  }
+
+  .voteSection {
+    flex-direction: row;
+    min-width: auto;
+    width: 100%;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    justify-content: flex-start;
+    gap: var(--spacing-sm);
+  }
+
+  .skeletonScore {
+    width: 50px;
+    height: 16px;
+  }
+
+  .skeletonTitle {
+    width: 90%;
+    height: 18px;
+  }
+
+  .skeletonTitleSecond {
+    width: 70%;
+    height: 18px;
+  }
+
+  .postFooter {
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+  }
+
+  .skeletonFooterItem {
+    width: 70px;
+    height: 12px;
+  }
+}
+
+/* Extra small screens (320px) - most compact */
+@media (max-width: 374px) {
+  .skeletonCard {
+    padding: var(--spacing-sm);
+    gap: var(--spacing-xs);
+  }
+
+  .voteSection {
+    padding: var(--spacing-xs);
+  }
+
+  .skeletonTitle {
+    height: 16px;
+  }
+
+  .skeletonTitleSecond {
+    height: 16px;
+  }
+
+  .skeletonSubreddit,
+  .skeletonAuthor,
+  .skeletonTime {
+    height: 12px;
+  }
+
+  .skeletonFooterItem {
+    width: 60px;
+    height: 12px;
+  }
+}
+
+/* Desktop layout - horizontal with thumbnail */
+@media (min-width: 768px) {
+  .skeletonCard {
+    padding: var(--spacing-lg);
+  }
+
+  .thumbnailSection {
+    display: block;
+  }
+
+  .skeletonThumbnail {
+    width: 120px;
+    height: 120px;
+  }
+
+  .skeletonTitle {
+    height: 22px;
+  }
+
+  .skeletonTitleSecond {
+    height: 22px;
+  }
+}
+
+/* Comments Skeleton Styles */
+.commentsSkeletonContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  width: 100%;
+}
+
+.commentSkeleton {
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: var(--spacing-sm);
+}
+
+/* All comment skeleton elements share the shimmer animation */
+.commentSkeleton div[class*="comment"] {
+  animation: shimmer 1.5s infinite ease-in-out;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-sm);
+}
+
+.commentHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-sm);
+}
+
+.commentAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--bg-secondary);
+  flex-shrink: 0;
+}
+
+.commentAuthor {
+  width: 80px;
+  height: 14px;
+  background: var(--bg-tertiary);
+}
+
+.commentTimestamp {
+  width: 60px;
+  height: 14px;
+  background: var(--bg-tertiary);
+}
+
+.commentBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.commentBodyLine {
+  height: 16px;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-sm);
+  animation: shimmer 1.5s infinite ease-in-out;
+}
+
+/* Nested comment indentation */
+.nestedComment {
+  margin-left: var(--spacing-md);
+  padding-left: var(--spacing-md);
+  border-left: 2px solid var(--glass-border);
+}
+
+/* Mobile-first: Adjust comment skeleton for small screens */
+@media (max-width: 767px) {
+  .commentSkeleton {
+    padding: var(--spacing-sm);
+    margin-bottom: var(--spacing-xs);
+    backdrop-filter: none;
+    background: var(--bg-secondary);
+  }
+
+  .commentAvatar {
+    width: 28px;
+    height: 28px;
+  }
+
+  .commentAuthor {
+    width: 70px;
+    height: 12px;
+  }
+
+  .commentTimestamp {
+    width: 50px;
+    height: 12px;
+  }
+
+  .commentBodyLine {
+    height: 14px;
+  }
+
+  .nestedComment {
+    margin-left: var(--spacing-sm);
+    padding-left: var(--spacing-sm);
+  }
+}
+
+/* Extra small screens */
+@media (max-width: 374px) {
+  .commentSkeleton {
+    padding: var(--spacing-xs);
+  }
+
+  .commentHeader {
+    gap: var(--spacing-xs);
+  }
+
+  .commentAvatar {
+    width: 24px;
+    height: 24px;
+  }
+
+  .commentAuthor {
+    width: 60px;
+    height: 12px;
+  }
+
+  .commentTimestamp {
+    width: 45px;
+    height: 12px;
+  }
+
+  .nestedComment {
+    margin-left: var(--spacing-xs);
+    padding-left: var(--spacing-xs);
+  }
+}
