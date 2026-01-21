@@ -441,7 +441,7 @@ Core post card implementation is complete with full visual polish. Only minor op
 ---
 
 ### 8. Micro-interaction Animations
-**Spec:** `specs/animation-refinements.md` | **Status:** ~30% | **Estimate:** 2-3 hours
+**Spec:** `specs/animation-refinements.md` | **Status:** ~80% | **Estimate:** 2-3 hours
 
 #### What's Already Done
 
@@ -457,8 +457,8 @@ Core post card implementation is complete with full visual polish. Only minor op
 
 #### Collapse Button Animation
 
-- [ ] Add chevron rotation (0 -> 90 degrees when collapsed)
-- [ ] Duration: 200ms ease-out
+- [x] Add chevron rotation (0 -> 90 degrees when collapsed) - DONE (implemented in CommentList.module.css)
+- [x] Duration: 200ms ease-out - DONE
 
 #### Button Press Feedback - COMPLETE
 
@@ -574,7 +574,7 @@ All empty states are implemented with helpful actions and Reddit integration.
 
 #### Build Verification
 
-- [ ] Verify `npm run build` completes without errors
+- [x] Verify `npm run build` completes without errors - DONE (verified January 2026)
 - [ ] Add `analyze` script with source-map-explorer
 - [ ] Install: `npm install -D source-map-explorer`
 
@@ -601,22 +601,22 @@ All empty states are implemented with helpful actions and Reddit integration.
    - Created `/src/utils/colorHash.js`
    - Integrated into CommentList
 
-2. **Staggered List Animations** (~2 hours)
+2. ~~**Staggered List Animations** - COMPLETE~~
    - PostList: fade + slide up, 50ms stagger
    - CommentList: fade only, 30ms stagger
 
-3. **Modal Exit Animations** (~1.5 hours)
+3. ~~**Modal Exit Animations** - COMPLETE~~
    - Add fadeOut/slideDown for PostDetail close
 
 #### P2 - Medium Priority (Polish)
-4. **Comment Action Bar** (~1.5 hours)
+4. ~~**Comment Action Bar** - COMPLETE~~
    - Reply/Share pill-style buttons
    - Chevron rotation on collapse
 
 5. ~~**Button Press Feedback** - COMPLETE~~
    - Added scale(0.97) on :active to all buttons globally
 
-6. **Thread Lines Clickable** (~1 hour)
+6. ~~**Thread Lines Clickable** - COMPLETE~~
    - Click to collapse entire branch
 
 #### P3 - Low Priority (Optional)
@@ -624,7 +624,7 @@ All empty states are implemented with helpful actions and Reddit integration.
    - Run Lighthouse audits
    - Verify build passes
 8. **Minor Post Card Tweaks** (trivial)
-   - Focus outline 2px → 3px
+   - Focus outline 2px → 3px - DONE
    - Optional overlays (gallery count, video duration)
 
 ---
