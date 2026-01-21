@@ -307,6 +307,10 @@ const CommentList = ({ comments }) => {
   const [collapsedState, setCollapsedState] = useState({});
   const [windowHeight, setWindowHeight] = useState(window.innerHeight);
 
+  // WHY: Track initial render to apply staggered animations only on first load
+  // This prevents re-animation when collapse/expand state changes
+  const [hasAnimated, setHasAnimated] = useState(false);
+
   // Handle window resize to update virtualization height
   // WHY: Virtualized list needs to know viewport height, must update on resize
   useEffect(() => {
@@ -317,6 +321,20 @@ const CommentList = ({ comments }) => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  /**
+   * Mark comments as animated after initial render completes
+   * WHY: Staggered animations should only run on initial load, not on collapse/expand changes
+   * The 650ms delay ensures all 15 staggered items have finished animating (15 * 30ms delay + 200ms animation)
+   */
+  useEffect(() => {
+    if (comments && comments.length > 0 && !hasAnimated) {
+      const timer = setTimeout(() => {
+        setHasAnimated(true);
+      }, 650);
+      return () => clearTimeout(timer);
+    }
+  }, [comments, hasAnimated]);
 
   // Flatten the comment tree based on collapsed state
   // WHY: useMemo prevents recalculation on every render, only when comments or collapsed state changes
@@ -426,11 +444,23 @@ const CommentList = ({ comments }) => {
           </span>
         </div>
         <div className={styles.commentList}>
-          {comments.map(comment => (
-            <div key={comment.id} className={styles.topLevelComment}>
-              <RecursiveComment comment={comment} />
-            </div>
-          ))}
+          {comments.map((comment, index) => {
+            // WHY: Apply staggered animation only for first 15 items and only on initial render
+            const shouldAnimate = !hasAnimated && index < 15;
+            const topLevelClasses = shouldAnimate
+              ? `${styles.topLevelComment} ${styles.topLevelCommentAnimated}`
+              : styles.topLevelComment;
+
+            return (
+              <div
+                key={comment.id}
+                className={topLevelClasses}
+                style={shouldAnimate ? { '--animation-order': index } : undefined}
+              >
+                <RecursiveComment comment={comment} />
+              </div>
+            );
+          })}
         </div>
       </div>
     );

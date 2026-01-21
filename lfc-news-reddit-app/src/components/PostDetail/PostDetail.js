@@ -33,6 +33,10 @@ const PostDetail = () => {
 
   // WHY: Swipe gestures removed per user preference - X button only for closing
 
+  // WHY: Track closing state to trigger exit animations before Redux state clears
+  // This allows CSS animations to complete (200ms) before modal is unmounted
+  const [isClosing, setIsClosing] = useState(false);
+
   // Reading mode state (WHY: provides distraction-free reading experience by hiding non-essential UI)
   const [readingMode, setReadingMode] = useState(false);
 
@@ -44,23 +48,33 @@ const PostDetail = () => {
 
   // WHY useCallback: Memoizes handleClose to prevent unnecessary re-renders of child components
   // and ensures stable reference for event listeners and dependencies in useEffect
+  // WHY: Two-phase close - trigger animation first (200ms), then clear Redux state
   const handleClose = useCallback(() => {
-    dispatch(clearCurrentPost());
-    dispatch(clearComments());
-    // Return focus to previously focused element when modal closes
-    if (previouslyFocusedElement.current) {
-      previouslyFocusedElement.current.focus();
-    }
-    // Restore scroll position after modal closes
-    // Use setTimeout to ensure modal has closed and DOM has updated
+    // If already closing, ignore additional close requests
+    if (isClosing) return;
+
+    // Phase 1: Trigger exit animation
+    setIsClosing(true);
+
+    // Phase 2: After animation completes (200ms), clear state and restore focus
     setTimeout(() => {
+      dispatch(clearCurrentPost());
+      dispatch(clearComments());
+      setIsClosing(false);
+
+      // Return focus to previously focused element when modal closes
+      if (previouslyFocusedElement.current) {
+        previouslyFocusedElement.current.focus();
+      }
+
+      // Restore scroll position after modal closes
       const savedScrollPosition = sessionStorage.getItem('postListScrollPosition');
       if (savedScrollPosition) {
         window.scrollTo(0, parseInt(savedScrollPosition, 10));
         sessionStorage.removeItem('postListScrollPosition');
       }
-    }, 0);
-  }, [dispatch]);
+    }, 200); // Match the exit animation duration
+  }, [dispatch, isClosing]);
 
   // WHY: Touch handlers removed - swipe gestures disabled per user preference
 
@@ -382,16 +396,27 @@ const PostDetail = () => {
     return null;
   };
 
+  // WHY: Dynamically build class names for exit animation state
+  const overlayClasses = isClosing
+    ? `${styles.modalOverlay} ${styles.modalOverlayExiting}`
+    : styles.modalOverlay;
+
+  const contentClasses = [
+    styles.modalContent,
+    readingMode ? styles.modalContentReadingMode : '',
+    isClosing ? styles.modalContentExiting : ''
+  ].filter(Boolean).join(' ');
+
   return (
     <div
-      className={styles.modalOverlay}
+      className={overlayClasses}
       onClick={handleClose}
       role="dialog"
       aria-modal="true"
       aria-labelledby="modal-title"
     >
       <div
-        className={`${styles.modalContent} ${readingMode ? styles.modalContentReadingMode : ''}`}
+        className={contentClasses}
         onClick={stopPropagation}
         ref={modalRef}
       >

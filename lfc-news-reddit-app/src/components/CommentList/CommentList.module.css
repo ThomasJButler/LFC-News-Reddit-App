@@ -1,3 +1,17 @@
+/* WHY: Staggered entry animation for top-level comments creates visual hierarchy
+   - 200ms duration (lighter than posts per spec)
+   - Fade only (no slide) for subtler effect
+   - 30ms stagger between items
+   - CSS custom property --animation-order allows dynamic delay calculation */
+@keyframes commentEnter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 /* Wrapper for comment list with actions header */
 .commentListWrapper {
   display: flex;
@@ -68,6 +82,13 @@
   padding-bottom: var(--spacing-md);
   margin-bottom: var(--spacing-md);
   border-bottom: 2px solid var(--glass-border);
+}
+
+/* WHY: Staggered entry animation for top-level comments
+   30ms stagger between items (per spec), up to 15 items (450ms max delay) */
+.topLevelCommentAnimated {
+  animation: commentEnter 200ms cubic-bezier(0.4, 0, 0.2, 1) backwards;
+  animation-delay: calc(var(--animation-order, 0) * 30ms);
 }
 
 .topLevelComment:last-child {
@@ -448,5 +469,14 @@
   
   .gifContainer {
     max-width: 100%;
+  }
+}
+
+/* WHY: Respect user's motion preferences for accessibility (WCAG 2.3.3)
+   Users with vestibular disorders may experience discomfort from animations */
+@media (prefers-reduced-motion: reduce) {
+  .topLevelCommentAnimated {
+    animation: none;
+    opacity: 1;
   }
 }

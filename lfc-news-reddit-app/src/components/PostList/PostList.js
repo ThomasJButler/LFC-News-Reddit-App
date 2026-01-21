@@ -100,6 +100,10 @@ const PostList = () => {
   const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_COUNT);
   const [windowHeight, setWindowHeight] = useState(window.innerHeight);
 
+  // WHY: Track initial render to apply staggered animations only on first load
+  // This prevents re-animation when filters change or user refreshes
+  const [hasAnimated, setHasAnimated] = useState(false);
+
   // Pull-to-refresh state
   const [pullDistance, setPullDistance] = useState(0);
   const [isPulling, setIsPulling] = useState(false);
@@ -158,6 +162,20 @@ const PostList = () => {
 
     return filtered;
   }, [posts, activeFilter, activeFlairFilters, activeMediaFilter]);
+
+  /**
+   * Mark posts as animated after initial render completes
+   * WHY: Staggered animations should only run on initial load, not on filter/search changes
+   * The 600ms delay ensures all 10 staggered items have finished animating (10 * 50ms delay + 300ms animation)
+   */
+  useEffect(() => {
+    if (filteredPosts.length > 0 && !hasAnimated) {
+      const timer = setTimeout(() => {
+        setHasAnimated(true);
+      }, 600);
+      return () => clearTimeout(timer);
+    }
+  }, [filteredPosts.length, hasAnimated]);
 
   /**
    * Clear search and show all posts for current subreddit
@@ -438,8 +456,12 @@ const PostList = () => {
             transition: isPulling ? 'none' : 'transform 0.3s ease-out'
           }}
         >
-          {visiblePosts.map(post => (
-            <PostItem key={post.id} post={post} />
+          {visiblePosts.map((post, index) => (
+            <PostItem
+              key={post.id}
+              post={post}
+              animationIndex={!hasAnimated ? index : undefined}
+            />
           ))}
         </div>
         {hasMore && (

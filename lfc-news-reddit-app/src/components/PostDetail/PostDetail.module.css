@@ -583,6 +583,7 @@
   color: var(--text-primary);
 }
 
+/* Entry animations */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -613,6 +614,49 @@
     transform: translateY(0);
     opacity: 1;
   }
+}
+
+/* Exit animations - WHY: Smooth exit transitions improve perceived quality (animation-refinements.md)
+   Overlay fades out (150ms), content slides down (200ms) before Redux state clears */
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+}
+
+/* WHY: Bottom sheet exit animation for mobile - slides back down to bottom */
+@keyframes slideDownToBottom {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+}
+
+/* Exit state classes - applied when modal is closing */
+.modalOverlayExiting {
+  animation: fadeOut 150ms ease-in forwards;
+}
+
+.modalContentExiting {
+  animation: slideDown 200ms ease-in forwards;
 }
 
 /* WHY: Reading mode provides distraction-free reading by increasing font size, centering content, and adding generous padding */
@@ -668,6 +712,11 @@
     border-radius: var(--radius-lg) var(--radius-lg) 0 0;
     /* WHY: Override slideUp animation with slideUpFromBottom on mobile */
     animation: slideUpFromBottom var(--transition-normal);
+  }
+
+  /* WHY: Mobile exit animation slides content back down to bottom of screen */
+  .modalContentExiting {
+    animation: slideDownToBottom 200ms ease-in forwards;
   }
 
   /* WHY: Drag handle hidden - swipe gestures removed, X button only */
@@ -750,5 +799,23 @@
   .galleryThumbnail {
     width: 70px;
     height: 70px;
+  }
+}
+
+/* WHY: Respect user's motion preferences for accessibility (WCAG 2.3.3)
+   Users with vestibular disorders may experience discomfort from animations */
+@media (prefers-reduced-motion: reduce) {
+  .modalOverlay,
+  .modalContent,
+  .modalOverlayExiting,
+  .modalContentExiting,
+  .galleryImage {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  .progressFill {
+    transition: none;
   }
 }

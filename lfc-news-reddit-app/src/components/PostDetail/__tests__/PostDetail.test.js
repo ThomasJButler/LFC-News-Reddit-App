@@ -230,6 +230,9 @@ describe('PostDetail Component', () => {
       const closeButton = screen.getByRole('button', { name: 'Close post detail' });
       fireEvent.click(closeButton);
 
+      // WHY: Modal close now has 200ms animation delay before Redux actions are dispatched
+      jest.advanceTimersByTime(200);
+
       expect(postsActions.clearCurrentPost).toHaveBeenCalled();
       expect(commentsActions.clearComments).toHaveBeenCalled();
     });
@@ -242,6 +245,9 @@ describe('PostDetail Component', () => {
 
       const modal = screen.getByRole('dialog');
       fireEvent.click(modal);
+
+      // WHY: Modal close now has 200ms animation delay before Redux actions are dispatched
+      jest.advanceTimersByTime(200);
 
       expect(postsActions.clearCurrentPost).toHaveBeenCalled();
       expect(commentsActions.clearComments).toHaveBeenCalled();
@@ -293,6 +299,9 @@ describe('PostDetail Component', () => {
       renderWithStore(storeState);
 
       fireEvent.keyDown(document, { key: 'Escape' });
+
+      // WHY: Modal close now has 200ms animation delay before Redux actions are dispatched
+      jest.advanceTimersByTime(200);
 
       expect(postsActions.clearCurrentPost).toHaveBeenCalled();
       expect(commentsActions.clearComments).toHaveBeenCalled();

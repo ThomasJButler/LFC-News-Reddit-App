@@ -1,3 +1,19 @@
+/* WHY: Staggered entry animation creates visual hierarchy and feels polished
+   - 300ms duration per spec (animation-refinements.md)
+   - Fade + slide up 20px for subtle movement
+   - Only first 10 items are staggered to avoid excessive delay
+   - CSS custom property --animation-order allows dynamic delay calculation */
+@keyframes postItemEnter {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .postItem {
   display: flex;
   gap: var(--spacing-lg);
@@ -15,6 +31,13 @@
   box-shadow: var(--shadow-md);
   position: relative;
   overflow: hidden;
+}
+
+/* WHY: Staggered entry animation - only applied when animation-order is set
+   50ms stagger between items (per spec), capped at 10 items (500ms max delay) */
+.postItemAnimated {
+  animation: postItemEnter 300ms cubic-bezier(0.4, 0, 0.2, 1) backwards;
+  animation-delay: calc(var(--animation-order, 0) * 50ms);
 }
 
 .postItem::before {
@@ -318,5 +341,15 @@
 
   .title {
     font-size: var(--font-size-xl);
+  }
+}
+
+/* WHY: Respect user's motion preferences for accessibility (WCAG 2.3.3)
+   Users with vestibular disorders may experience discomfort from animations */
+@media (prefers-reduced-motion: reduce) {
+  .postItemAnimated {
+    animation: none;
+    opacity: 1;
+    transform: none;
   }
 }

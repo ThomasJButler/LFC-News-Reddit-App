@@ -19,10 +19,11 @@ import styles from './PostItem.module.css';
 /**
  * @param {Object} props
  * @param {Object} props.post - Reddit post object
+ * @param {number} [props.animationIndex] - Optional index for staggered entry animation (0-9)
  * @return {JSX.Element}
  * @constructor
  */
-const PostItem = ({ post }) => {
+const PostItem = ({ post, animationIndex }) => {
   const dispatch = useDispatch();
 
   /**
@@ -163,9 +164,17 @@ const PostItem = ({ post }) => {
     return styles.flairDefault;
   };
 
+  // WHY: Apply staggered animation only for first 10 items and only when animationIndex is provided
+  // This prevents re-animation on filter changes while maintaining initial load polish
+  const shouldAnimate = typeof animationIndex === 'number' && animationIndex >= 0 && animationIndex < 10;
+  const postItemClasses = shouldAnimate
+    ? `${styles.postItem} ${styles.postItemAnimated}`
+    : styles.postItem;
+
   return (
     <article
-      className={styles.postItem}
+      className={postItemClasses}
+      style={shouldAnimate ? { '--animation-order': animationIndex } : undefined}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
       tabIndex={0}
@@ -241,6 +250,8 @@ const PostItem = ({ post }) => {
 };
 
 PostItem.propTypes = {
+  // Optional index for staggered entry animation (0-9 will animate, others won't)
+  animationIndex: PropTypes.number,
   // Reddit post object containing all post data
   post: PropTypes.shape({
     // Required identifiers
