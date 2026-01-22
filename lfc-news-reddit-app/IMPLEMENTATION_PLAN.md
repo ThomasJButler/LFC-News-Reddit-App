@@ -6,7 +6,7 @@
 
 ## Current Status
 
-**v1.1.22 tagged** - All P0-P3 work is complete.
+**v1.1.23 tagged** - All P0-P3 work is complete.
 
 The app is functionally complete with strong test coverage:
 - **Test Coverage**: 83.95% statements, 77.24% branches
@@ -128,6 +128,8 @@ npm run analyze
 - 30 `test.skip()` calls are intentional viewport filtering, not skipped tests
 - All animation features verified complete with reduced motion support
 - Icon component supports `xs` size (12px) for compact overlays
+- Spec files updated (v1.1.23) to consistently reference 3 themes (night mode removed)
+- npm audit shows 10 vulnerabilities (all in react-scripts transitive dependencies) - cannot fix without breaking react-scripts
 
 ---
 
