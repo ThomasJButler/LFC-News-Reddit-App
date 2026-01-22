@@ -7,7 +7,7 @@
  */
 
 const { test, expect } = require('@playwright/test');
-const { THEMES, setThemeDirect, screenshotName } = require('../helpers/theme');
+const { THEMES, setThemeDirect, screenshotName, getDynamicContentMasks } = require('../helpers/theme');
 
 test.describe('Component Visual Tests', () => {
   test.beforeEach(async ({ page }) => {
@@ -85,9 +85,13 @@ test.describe('Component Visual Tests', () => {
       test(`post card default in ${theme} theme`, async ({ page }, testInfo) => {
         await setThemeDirect(page, theme);
 
+        // WHY: Mask dynamic content to prevent flaky tests
+        const masks = getDynamicContentMasks(page);
+
         const postCard = page.locator('[class*="postItem"]').first();
         await expect(postCard).toHaveScreenshot(
-          screenshotName('post-card-default', theme, testInfo.project.name)
+          screenshotName('post-card-default', theme, testInfo.project.name),
+          { mask: masks }
         );
       });
 
@@ -102,8 +106,12 @@ test.describe('Component Visual Tests', () => {
         const postCard = page.locator('[class*="postItem"]').first();
         await postCard.focus();
 
+        // Mask dynamic content
+        const masks = getDynamicContentMasks(page);
+
         await expect(postCard).toHaveScreenshot(
-          screenshotName('post-card-focused', theme, testInfo.project.name)
+          screenshotName('post-card-focused', theme, testInfo.project.name),
+          { mask: masks }
         );
       });
     }

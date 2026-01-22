@@ -102,6 +102,32 @@ async function forEachTheme(page, testFn) {
   }
 }
 
+/**
+ * Returns an array of locators for dynamic content that should be masked in screenshots
+ * WHY: Timestamps, scores, and usernames change between test runs causing flaky visual tests.
+ *      Masking these elements ensures consistent screenshots while still testing layout and styling.
+ * @param {import('@playwright/test').Page} page - Playwright page object
+ * @returns {import('@playwright/test').Locator[]} Array of locators to mask
+ */
+function getDynamicContentMasks(page) {
+  return [
+    // Post list items
+    page.locator('[class*="time"]'),           // Relative timestamps ("2h ago")
+    page.locator('[class*="upvotes"]'),        // Upvote counts
+    page.locator('[class*="score"]'),          // Score displays
+    page.locator('[class*="comments"] span'),  // Comment counts in post cards
+    page.locator('[class*="author"]'),         // Author usernames
+
+    // Comment section
+    page.locator('[class*="commentMeta"]'),    // Comment metadata (author, time)
+    page.locator('[class*="commentScore"]'),   // Comment scores
+
+    // Post detail
+    page.locator('[class*="metaAuthor"]'),     // Post detail author
+    page.locator('[class*="metaTime"]'),       // Post detail timestamp
+  ];
+}
+
 module.exports = {
   THEMES,
   THEME_NAMES,
@@ -110,4 +136,5 @@ module.exports = {
   setThemeDirect,
   screenshotName,
   forEachTheme,
+  getDynamicContentMasks,
 };

@@ -258,11 +258,13 @@
 /* WHY: Thumbnails provide visual context and help users identify content type
    - Mobile-first: Show on all devices with appropriate sizing
    - 16:9 aspect ratio container prevents layout shifts
-   - object-fit: cover ensures consistent appearance regardless of source image */
+   - object-fit: cover ensures consistent appearance regardless of source image
+   - position: relative enables absolute positioning of video/gallery overlays */
 .thumbnailSection {
   flex-shrink: 0;
   width: 100%;
   max-width: 120px;
+  position: relative;
 }
 
 .thumbnail {
@@ -273,6 +275,54 @@
   background-color: var(--bg-tertiary);
   /* WHY: Use theme transition for background-color */
   transition: background-color var(--transition-theme);
+}
+
+/* WHY: Video duration overlay per post-card-polish.md spec
+   Semi-transparent dark background provides contrast for readability on any thumbnail
+   Positioned bottom-right as per spec, with play icon for visual context */
+.videoDuration {
+  position: absolute;
+  bottom: var(--spacing-xs);
+  right: var(--spacing-xs);
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px 6px;
+  background-color: rgba(0, 0, 0, 0.75);
+  color: white;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-xs);
+  line-height: 1;
+}
+
+.videoDuration svg {
+  width: 10px;
+  height: 10px;
+}
+
+/* WHY: Gallery indicator overlay per post-card-polish.md spec
+   Shows number of images in gallery to set user expectations
+   Same styling as video duration for visual consistency */
+.galleryOverlay {
+  position: absolute;
+  bottom: var(--spacing-xs);
+  right: var(--spacing-xs);
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px 6px;
+  background-color: rgba(0, 0, 0, 0.75);
+  color: white;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-xs);
+  line-height: 1;
+}
+
+.galleryOverlay svg {
+  width: 10px;
+  height: 10px;
 }
 
 /* Mobile-first: Compact layout for small screens

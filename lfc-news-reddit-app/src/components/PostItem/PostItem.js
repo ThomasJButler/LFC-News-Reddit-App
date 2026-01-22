@@ -11,6 +11,7 @@ import { useDispatch } from 'react-redux';
 import { setCurrentPost } from '../../redux/actions/posts';
 import { fetchComments } from '../../redux/actions/comments';
 import { formatRelativeTime } from '../../utils/formatTime';
+import { formatDuration } from '../../utils/formatDuration';
 import { stripMarkdown, decodeHtml } from '../../utils/markdown';
 import SpicyMeter from '../SpicyMeter/SpicyMeter';
 import Icon from '../Icon/Icon';
@@ -121,6 +122,34 @@ const PostItem = ({ post, animationIndex }) => {
   const thumbnail = getThumbnail();
 
   /**
+   * Extracts video duration from Reddit's media object
+   * WHY: Reddit provides duration in seconds at post.media.reddit_video.duration
+   * @return {number|null} Duration in seconds or null if not available
+   */
+  const getVideoDuration = () => {
+    if (post.isVideo && post.media?.reddit_video?.duration) {
+      return post.media.reddit_video.duration;
+    }
+    return null;
+  };
+
+  const videoDuration = getVideoDuration();
+
+  /**
+   * Gets gallery count from Reddit's gallery data
+   * WHY: Gallery posts contain multiple images - showing count helps users anticipate content
+   * @return {number|null} Number of images in gallery or null if not available
+   */
+  const getGalleryCount = () => {
+    if (post.isGallery && post.galleryData?.items) {
+      return post.galleryData.items.length;
+    }
+    return null;
+  };
+
+  const galleryCount = getGalleryCount();
+
+  /**
    * Determines score color class based on popularity ranges
    * WHY: Visual hierarchy helps users quickly identify hot posts
    * @param {number} score - Post score/upvotes
@@ -198,14 +227,9 @@ const PostItem = ({ post, animationIndex }) => {
 
         <h2 className={styles.title}>
           {post.title}
-          {/* Media type indicators (WHY: visual cues help users identify content type at a glance) */}
-          {post.isVideo && (
-            <Icon name="Video" size="sm" ariaHidden={true} className={styles.mediaIcon} />
-          )}
-          {post.isGallery && (
-            <Icon name="Images" size="sm" ariaHidden={true} className={styles.mediaIcon} />
-          )}
-          {post.postHint === 'image' && !post.isGallery && (
+          {/* Media type indicators for non-thumbnail content (WHY: visual cues for content without thumbnails) */}
+          {/* Video and gallery indicators moved to thumbnail overlay per post-card-polish.md spec */}
+          {post.postHint === 'image' && !post.isGallery && !thumbnail && (
             <Icon name="Image" size="sm" ariaHidden={true} className={styles.mediaIcon} />
           )}
           {post.postHint === 'link' && !post.isVideo && !post.isGallery && (
@@ -243,6 +267,20 @@ const PostItem = ({ post, animationIndex }) => {
             className={styles.thumbnail}
             loading="lazy"
           />
+          {/* WHY: Video duration overlay per post-card-polish.md spec - shows duration on thumbnail bottom-right */}
+          {post.isVideo && videoDuration && (
+            <span className={styles.videoDuration} aria-label={`Video duration: ${formatDuration(videoDuration)}`}>
+              <Icon name="Play" size="xs" ariaHidden={true} />
+              {formatDuration(videoDuration)}
+            </span>
+          )}
+          {/* WHY: Gallery indicator overlay per post-card-polish.md spec - shows image count on thumbnail bottom-right */}
+          {post.isGallery && (
+            <span className={styles.galleryOverlay} aria-label={galleryCount ? `Gallery with ${galleryCount} images` : 'Image gallery'}>
+              <Icon name="Images" size="xs" ariaHidden={true} />
+              {galleryCount && galleryCount > 1 && galleryCount}
+            </span>
+          )}
         </div>
       )}
     </article>

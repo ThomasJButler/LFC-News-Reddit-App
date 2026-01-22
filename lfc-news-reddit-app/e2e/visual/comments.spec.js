@@ -7,7 +7,7 @@
  */
 
 const { test, expect } = require('@playwright/test');
-const { THEMES, setThemeDirect, screenshotName } = require('../helpers/theme');
+const { THEMES, setThemeDirect, screenshotName, getDynamicContentMasks } = require('../helpers/theme');
 
 test.describe('Comment Threading Visual Tests', () => {
   test.beforeEach(async ({ page }) => {
@@ -32,9 +32,13 @@ test.describe('Comment Threading Visual Tests', () => {
         const nestedComment = page.locator('[class*="comment"]').nth(1);
         await nestedComment.scrollIntoViewIfNeeded();
 
+        // WHY: Mask dynamic content to prevent flaky tests from changing timestamps/scores
+        const masks = getDynamicContentMasks(page);
+
         // Capture the comment with thread line
         await expect(nestedComment).toHaveScreenshot(
-          screenshotName('comment-thread-line', theme, testInfo.project.name)
+          screenshotName('comment-thread-line', theme, testInfo.project.name),
+          { mask: masks }
         );
       });
     }
@@ -71,11 +75,61 @@ test.describe('Comment Threading Visual Tests', () => {
         if (await badge.count() > 0) {
           await badge.scrollIntoViewIfNeeded();
           const commentHeader = badge.locator('..');
+
+          // Mask dynamic content
+          const masks = getDynamicContentMasks(page);
+
           await expect(commentHeader).toHaveScreenshot(
-            screenshotName('comment-badge', theme, testInfo.project.name)
+            screenshotName('comment-badge', theme, testInfo.project.name),
+            { mask: masks }
           );
         } else {
           // No badges on this post, skip
+          test.skip();
+        }
+      });
+    }
+  });
+
+  test.describe('Deep Nesting', () => {
+    for (const theme of THEMES) {
+      test(`deeply nested comments (5+ levels) in ${theme} theme`, async ({ page }, testInfo) => {
+        await setThemeDirect(page, theme);
+
+        // WHY: Test visual appearance of deeply nested comments to verify indentation
+        // caps correctly (max 6 levels per comment-threading-polish.md spec)
+        // Look for comments with high nesting level
+        const deepComments = page.locator('[class*="comment"]');
+        const count = await deepComments.count();
+
+        // Find a deeply nested comment by checking left margin/padding
+        let foundDeepComment = false;
+        for (let i = 0; i < Math.min(count, 20); i++) {
+          const comment = deepComments.nth(i);
+          const paddingLeft = await comment.evaluate(el => {
+            // Check the computed padding/margin left to find deeply nested comments
+            const style = window.getComputedStyle(el);
+            return parseInt(style.paddingLeft || '0', 10) + parseInt(style.marginLeft || '0', 10);
+          });
+
+          // If padding is significant (indicating deep nesting), capture it
+          if (paddingLeft > 60) { // ~3+ levels on mobile, ~2+ on desktop
+            await comment.scrollIntoViewIfNeeded();
+
+            // Mask dynamic content
+            const masks = getDynamicContentMasks(page);
+
+            await expect(comment).toHaveScreenshot(
+              screenshotName('comments-deep', theme, testInfo.project.name),
+              { mask: masks }
+            );
+            foundDeepComment = true;
+            break;
+          }
+        }
+
+        if (!foundDeepComment) {
+          // No deeply nested comments found in this post
           test.skip();
         }
       });

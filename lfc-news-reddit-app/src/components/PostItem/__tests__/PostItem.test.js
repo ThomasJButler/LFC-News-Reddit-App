@@ -224,29 +224,49 @@ describe('PostItem Component', () => {
   });
 
   describe('Media Type Icons', () => {
-    it('shows video icon for video posts', () => {
-      const post = createMockPost({ isVideo: true });
-      const { container } = renderWithStore(post);
+    // WHY: Video and gallery icons moved to thumbnail overlay per post-card-polish.md spec
+    // These tests verify the overlay displays correctly with thumbnail present
+    it('shows video duration overlay for video posts with thumbnail', () => {
+      const post = createMockPost({
+        isVideo: true,
+        thumbnail: 'https://example.com/thumb.jpg',
+        media: {
+          reddit_video: {
+            duration: 204 // 3:24
+          }
+        }
+      });
+      renderWithStore(post);
 
-      // Video icon should be present (lucide-react icon)
-      const title = screen.getByRole('heading', { level: 2 });
-      expect(title.querySelector('svg')).toBeInTheDocument();
+      // Video duration overlay should show formatted time
+      const durationOverlay = screen.getByLabelText(/Video duration/i);
+      expect(durationOverlay).toBeInTheDocument();
+      expect(durationOverlay).toHaveTextContent('3:24');
     });
 
-    it('shows gallery icon for gallery posts', () => {
-      const post = createMockPost({ isGallery: true });
-      const { container } = renderWithStore(post);
+    it('shows gallery overlay for gallery posts with thumbnail', () => {
+      const post = createMockPost({
+        isGallery: true,
+        thumbnail: 'https://example.com/thumb.jpg',
+        galleryData: {
+          items: [{ id: '1' }, { id: '2' }, { id: '3' }]
+        }
+      });
+      renderWithStore(post);
 
-      const title = screen.getByRole('heading', { level: 2 });
-      expect(title.querySelector('svg')).toBeInTheDocument();
+      // Gallery overlay should show image count
+      const galleryOverlay = screen.getByLabelText(/Gallery with 3 images/i);
+      expect(galleryOverlay).toBeInTheDocument();
+      expect(galleryOverlay).toHaveTextContent('3');
     });
 
-    it('shows image icon for image posts', () => {
+    it('shows image icon in title for image posts without thumbnail', () => {
       const post = createMockPost({
         postHint: 'image',
-        isGallery: false
+        isGallery: false,
+        thumbnail: null
       });
-      const { container } = renderWithStore(post);
+      renderWithStore(post);
 
       const title = screen.getByRole('heading', { level: 2 });
       expect(title.querySelector('svg')).toBeInTheDocument();
@@ -258,10 +278,42 @@ describe('PostItem Component', () => {
         isVideo: false,
         isGallery: false
       });
-      const { container } = renderWithStore(post);
+      renderWithStore(post);
 
       const title = screen.getByRole('heading', { level: 2 });
       expect(title.querySelector('svg')).toBeInTheDocument();
+    });
+
+    it('does not show video overlay when no thumbnail present', () => {
+      const post = createMockPost({
+        isVideo: true,
+        thumbnail: null,
+        media: {
+          reddit_video: {
+            duration: 60
+          }
+        }
+      });
+      renderWithStore(post);
+
+      // No video overlay without thumbnail
+      const durationOverlay = screen.queryByLabelText(/Video duration/i);
+      expect(durationOverlay).not.toBeInTheDocument();
+    });
+
+    it('does not show gallery overlay when no thumbnail present', () => {
+      const post = createMockPost({
+        isGallery: true,
+        thumbnail: null,
+        galleryData: {
+          items: [{ id: '1' }, { id: '2' }]
+        }
+      });
+      renderWithStore(post);
+
+      // No gallery overlay without thumbnail
+      const galleryOverlay = screen.queryByLabelText(/Gallery/i);
+      expect(galleryOverlay).not.toBeInTheDocument();
     });
   });
 

@@ -20,8 +20,9 @@ const Icon = ({ name, size = 'md', className = '', ariaLabel, ariaHidden = false
   }
 
   // Map size prop to pixel values
-  // WHY: Three size tiers cover all use cases - inline text (sm), buttons/UI (md), prominent elements (lg)
+  // WHY: Four size tiers cover all use cases - overlays (xs), inline text (sm), buttons/UI (md), prominent elements (lg)
   const sizeMap = {
+    xs: 12,  // Thumbnail overlays, compact indicators
     sm: 16,  // Inline text icons
     md: 20,  // Buttons, UI elements (most common)
     lg: 32   // Empty states, prominent elements
@@ -46,8 +47,8 @@ const Icon = ({ name, size = 'md', className = '', ariaLabel, ariaHidden = false
 Icon.propTypes = {
   // Name of the Lucide icon (e.g., 'ArrowUp', 'MessageCircle', 'AlertCircle')
   name: PropTypes.string.isRequired,
-  // Size variant: 'sm' (16px), 'md' (20px), 'lg' (32px)
-  size: PropTypes.oneOf(['sm', 'md', 'lg']),
+  // Size variant: 'xs' (12px), 'sm' (16px), 'md' (20px), 'lg' (32px)
+  size: PropTypes.oneOf(['xs', 'sm', 'md', 'lg']),
   // Additional CSS classes to apply
   className: PropTypes.string,
   // Accessible label for screen readers (required if ariaHidden is false)

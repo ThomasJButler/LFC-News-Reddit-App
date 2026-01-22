@@ -7,7 +7,7 @@
  */
 
 const { test, expect } = require('@playwright/test');
-const { THEMES, setThemeDirect, screenshotName } = require('../helpers/theme');
+const { THEMES, setThemeDirect, screenshotName, getDynamicContentMasks } = require('../helpers/theme');
 
 test.describe('Home Page Visual Tests', () => {
   test.beforeEach(async ({ page }) => {
@@ -22,10 +22,14 @@ test.describe('Home Page Visual Tests', () => {
       test(`renders correctly in ${theme} theme`, async ({ page }, testInfo) => {
         await setThemeDirect(page, theme);
 
+        // WHY: Mask dynamic content (timestamps, scores, authors) to prevent flaky tests
+        // These values change between test runs but the visual layout should remain consistent
+        const masks = getDynamicContentMasks(page);
+
         // Take full page screenshot
         await expect(page).toHaveScreenshot(
           screenshotName('home-default', theme, testInfo.project.name),
-          { fullPage: true }
+          { fullPage: true, mask: masks }
         );
       });
     }
@@ -67,8 +71,12 @@ test.describe('Home Page Visual Tests', () => {
         // Wait for hover transition
         await page.waitForTimeout(350);
 
+        // Mask dynamic content within the post card
+        const masks = getDynamicContentMasks(page);
+
         await expect(postCard).toHaveScreenshot(
-          screenshotName('post-card-hover', theme, testInfo.project.name)
+          screenshotName('post-card-hover', theme, testInfo.project.name),
+          { mask: masks }
         );
       });
     }
@@ -109,6 +117,32 @@ test.describe('Home Page Visual Tests', () => {
         const mainContent = page.locator('[class*="postList"]').first();
         await expect(mainContent).toHaveScreenshot(
           screenshotName('search-empty', theme, testInfo.project.name)
+        );
+      });
+    }
+  });
+
+  test.describe('Error State', () => {
+    for (const theme of THEMES) {
+      test(`error state in ${theme} theme`, async ({ page }, testInfo) => {
+        // WHY: Test error state appearance by intercepting API requests and returning errors
+        // This ensures the error UI is consistent across themes
+        await page.route('**/reddit.com/**', route => {
+          route.abort('failed');
+        });
+
+        await setThemeDirect(page, theme);
+
+        // Navigate to trigger error
+        await page.goto('/');
+
+        // Wait for error state to render
+        await page.waitForSelector('[class*="error"], [class*="Error"]', { timeout: 15000 });
+
+        // Capture error state
+        const errorElement = page.locator('[class*="error"], [class*="Error"]').first();
+        await expect(errorElement).toHaveScreenshot(
+          screenshotName('home-error', theme, testInfo.project.name)
         );
       });
     }

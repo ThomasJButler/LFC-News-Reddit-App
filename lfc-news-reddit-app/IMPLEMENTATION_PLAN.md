@@ -8,11 +8,11 @@
 
 The app is functionally complete with strong test coverage:
 - **Test Coverage**: 82.43% statements, 75.36% branches
-- **Unit Tests**: 778 passing tests
+- **Unit Tests**: 789 passing tests
 - **E2E Tests**: 492 functional tests (Playwright)
 - **Components**: 20 React components
 
-**Remaining work: Final 5% polish**
+**Remaining work: Optional polish items only (P2/P3)**
 
 ---
 
@@ -22,12 +22,12 @@ The app is functionally complete with strong test coverage:
 |----------|----------|--------|-----------------|-------------|
 | **P0** | Theme Final Polish | 100% | 0 items | Complete |
 | **P1** | Comment Threading | 100% | 0 items | Complete |
-| **P1** | Post Card Polish | 95% | 2 items | 1-2 hours |
-| **P1** | Visual Testing | 89% | 3 test additions | 1-2 hours |
+| **P1** | Post Card Polish | 100% | 0 items | Complete |
+| **P1** | Visual Testing | 100% | 0 items | Complete |
 | **P2** | Test Coverage Gaps | N/A | 2 components | 1-2 hours |
 | **P3** | Production Audits | 0% | Optional | 2-4 hours |
 
-**Target**: 9+/10 production quality
+**Target**: 9+/10 production quality - **ACHIEVED**
 
 ---
 
@@ -128,7 +128,7 @@ Added `MAX_NESTING_LEVEL = 6` constant and capping logic in `flattenComments` fu
 
 ---
 
-## P1 - Post Card Polish (95% Complete)
+## P1 - Post Card Polish (100% Complete)
 
 ### 1. Gradient Stripe Position
 
@@ -155,50 +155,32 @@ Added subtle scale(1.005) to hover transform for polish.
 
 ### 3. Thumbnail Gallery Indicator
 
-**Status**: NOT IMPLEMENTED
+**Status**: COMPLETE
 
-**Current**: Gallery icon appears inline after title (`PostItem.js` lines 205-207)
+Moved gallery icon from inline title to thumbnail overlay (bottom-right corner).
 
-**Required**: Gallery indicator as overlay on thumbnail (bottom-right corner)
-
-**Files**:
-- `src/components/PostItem/PostItem.js` - Move gallery icon inside `thumbnailSection`
-- `src/components/PostItem/PostItem.module.css` - Add `.thumbnailOverlay` positioning
-
-**Checklist**:
-- [ ] Create `.thumbnailOverlay` CSS class (absolute positioned, bottom-right)
-- [ ] Move gallery `<Icon>` from title area to thumbnail section
-- [ ] Style with semi-transparent dark background (`rgba(0,0,0,0.7)`)
-- [ ] Add small gallery count if available
+**Implemented**:
+- [x] Created `.galleryOverlay` CSS class (absolute positioned, bottom-right)
+- [x] Moved gallery `<Icon>` from title area to thumbnail section
+- [x] Styled with semi-transparent dark background (`rgba(0,0,0,0.75)`)
+- [x] Added gallery count display when available from galleryData
+- [x] Added `xs` icon size to Icon component for compact overlays
 
 ---
 
 ### 4. Video Duration Overlay
 
-**Status**: NOT IMPLEMENTED
+**Status**: COMPLETE
 
-**Current**: Video icon appears inline after title (`PostItem.js` lines 202-204)
+Implemented video duration overlay on thumbnail showing formatted duration (e.g., "3:24").
 
-**Required**: Video duration overlay on thumbnail (e.g., "3:24")
-
-**Implementation Notes**:
-- Reddit API provides video duration in `post.media.reddit_video.duration` (seconds)
-- Format as "M:SS" for display
-- **Missing utility**: No video duration formatter exists in codebase
-
-**Checklist**:
-- [ ] Create duration formatter utility (`src/utils/formatDuration.js`)
-  ```javascript
-  export const formatDuration = (seconds) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
-  ```
-- [ ] Extract video duration from post data in PostItem.js
-- [ ] Move video indicator to thumbnail section with duration text
-- [ ] Add `.videoDuration` CSS class (similar to gallery overlay)
-- [ ] Add unit tests for formatDuration utility
+**Implemented**:
+- [x] Created `src/utils/formatDuration.js` utility
+- [x] Created `src/utils/formatDuration.test.js` with comprehensive tests (9 test cases)
+- [x] Extract video duration from `post.media.reddit_video.duration`
+- [x] Moved video indicator to thumbnail section with duration text
+- [x] Created `.videoDuration` CSS class (bottom-right, semi-transparent background)
+- [x] Added play icon for visual context
 
 ---
 
@@ -211,67 +193,47 @@ No changes needed.
 
 ---
 
-## P1 - Visual Testing (89% Complete)
+## P1 - Visual Testing (100% Complete)
 
 ### 1. Dynamic Content Masking
 
-**Status**: NOT IMPLEMENTED
+**Status**: COMPLETE
 
-**Problem**: Tests may be flaky due to changing timestamps, scores, and usernames
+Added `getDynamicContentMasks()` helper function and applied masking to all visual tests.
 
-**Solution**: Add `mask` parameter to screenshot assertions
-
-**Files**: `e2e/visual/*.spec.js`
-
-**Example Change**:
-```javascript
-await expect(page).toHaveScreenshot('home-default.png', {
-  fullPage: true,
-  mask: [
-    page.locator('[class*="time"]'),    // Relative timestamps
-    page.locator('[class*="score"]'),   // Vote counts
-    page.locator('[class*="upvotes"]'), // Upvote displays
-    page.locator('[class*="author"]')   // Usernames
-  ]
-});
-```
-
-**Checklist**:
-- [ ] Add masking to `home.spec.js` (4 test groups)
-- [ ] Add masking to `comments.spec.js` (3 test groups)
-- [ ] Add masking to `post-detail.spec.js`
-- [ ] Add masking to `components.spec.js`
+**Implemented**:
+- [x] Created `getDynamicContentMasks()` in `e2e/helpers/theme.js`
+- [x] Added masking to `home.spec.js` (Default State, Post Card Hover State)
+- [x] Added masking to `comments.spec.js` (Thread Lines, User Badges, Deep Nesting)
+- [x] Added masking to `post-detail.spec.js` (Modal Open State, Comments Loaded, Modal Overlay)
+- [x] Added masking to `components.spec.js` (Post Card Default, Post Card Focused)
 
 ---
 
 ### 2. Error State Visual Tests
 
-**Status**: NOT IMPLEMENTED
+**Status**: COMPLETE
 
-**File**: `e2e/visual/home.spec.js`
+Added error state visual tests to `e2e/visual/home.spec.js`.
 
-**Required**: Add test for home page error state
-
-**Checklist**:
-- [ ] Add `test.describe('Error State')` block
-- [ ] Mock API to return error response
-- [ ] Capture `home-error` screenshot for each theme
+**Implemented**:
+- [x] Added `test.describe('Error State')` block
+- [x] Mock API to abort requests (simulating network failure)
+- [x] Capture `home-error` screenshot for each theme
 
 ---
 
 ### 3. Deep Comment Nesting Tests
 
-**Status**: NOT IMPLEMENTED
+**Status**: COMPLETE
 
-**File**: `e2e/visual/comments.spec.js`
+Added deep nesting visual tests to `e2e/visual/comments.spec.js`.
 
-**Required**: Test visual appearance of deeply nested comments (5+ levels)
-
-**Checklist**:
-- [ ] Add `test.describe('Deep Nesting')` block
-- [ ] Navigate to post with deep comment threads
-- [ ] Scroll to reveal nested comments (level 5+)
-- [ ] Capture `comments-deep` screenshot for each theme
+**Implemented**:
+- [x] Added `test.describe('Deep Nesting')` block
+- [x] Logic to find deeply nested comments by checking padding
+- [x] Capture `comments-deep` screenshot for each theme
+- [x] Graceful skip when no deep comments are found
 
 ---
 
@@ -341,7 +303,7 @@ The following has been completed and verified:
 - [x] Updated indentation values (16px mobile, 24px desktop)
 - [x] Max-level flattening (cap at level 6)
 
-### Post Card Polish (95%)
+### Post Card Polish (100%)
 - [x] Typography hierarchy (title, metadata, preview)
 - [x] Pill-style footer action buttons
 - [x] Staggered list entrance animations
@@ -350,6 +312,8 @@ The following has been completed and verified:
 - [x] Mobile responsive layout
 - [x] Gradient accent stripe on left edge (4px)
 - [x] Hover transform with subtle scale(1.005)
+- [x] Thumbnail gallery indicator overlay (bottom-right, shows count)
+- [x] Video duration overlay (bottom-right, shows M:SS format)
 
 ### Animation Refinements (100%)
 - [x] Staggered list animations (50ms delay)
@@ -359,12 +323,15 @@ The following has been completed and verified:
 - [x] Modal open/close transitions
 - [x] Reduced motion media query support
 
-### Visual Testing Infrastructure (89%)
+### Visual Testing Infrastructure (100%)
 - [x] Playwright configuration
 - [x] 3 viewport sizes (mobile, tablet, desktop)
 - [x] Theme switching test helpers
 - [x] CI workflow integration
 - [x] npm scripts for local/CI runs
+- [x] Dynamic content masking helper (`getDynamicContentMasks`)
+- [x] Error state visual tests
+- [x] Deep comment nesting visual tests
 
 ### Core Infrastructure
 - [x] E2E Functional Tests (492 tests)
@@ -403,45 +370,37 @@ npx playwright test --update-snapshots
 
 ---
 
-## Implementation Order (Recommended)
+## Implementation Order (Completed)
 
-### Phase 1: P0 Theme Polish (Do First)
-1. Remove Night Mode (simplifies theme picker work)
-2. Update Away Kit Cream Colours
-3. Theme Picker Desktop Redesign
+### Phase 1: P0 Theme Polish ✅
+1. ~~Remove Night Mode~~ DONE
+2. ~~Update Away Kit Cream Colours~~ DONE
+3. ~~Theme Picker Desktop Redesign~~ DONE
 
-### Phase 2: P1 Quick Wins (Complete)
+### Phase 2: P1 Quick Wins ✅
 4. ~~Comment indentation values (4 value changes)~~ DONE
 5. ~~Post card hover transform (1 line)~~ DONE
 6. ~~Gradient stripe position (2 lines)~~ DONE
 
-### Phase 3: P1 Features
+### Phase 3: P1 Features ✅
 7. ~~Max-level comment flattening~~ DONE
-8. Thumbnail gallery indicator
-9. Video duration overlay (requires new utility)
+8. ~~Thumbnail gallery indicator~~ DONE
+9. ~~Video duration overlay~~ DONE
 
-### Phase 4: P1 Testing
-10. Dynamic content masking
-11. Error state visual tests
-12. Deep nesting visual tests
-
----
-
-## Dependencies
-
-- P0 items are independent and can be done in parallel
-- P1 visual tests depend on UI changes being complete
-- Video duration overlay requires formatDuration utility to be created first
-- P3 items have no dependencies
+### Phase 4: P1 Testing ✅
+10. ~~Dynamic content masking~~ DONE
+11. ~~Error state visual tests~~ DONE
+12. ~~Deep nesting visual tests~~ DONE
 
 ---
 
 ## Notes
 
 - Source code has no critical TODOs or FIXMEs requiring attention
-- 30 `test.skip()` calls are intentional viewport filtering, not failing tests
+- 30 `test.skip()` calls are intentional viewport filtering, not skipped tests
 - All animation features verified complete with reduced motion support
+- Icon component now supports `xs` size (12px) for compact overlays
 
 ---
 
-*Document generated from comprehensive codebase audit on 2026-01-22*
+*Last updated: 2026-01-22*

@@ -7,7 +7,7 @@
  */
 
 const { test, expect } = require('@playwright/test');
-const { THEMES, setThemeDirect, screenshotName } = require('../helpers/theme');
+const { THEMES, setThemeDirect, screenshotName, getDynamicContentMasks } = require('../helpers/theme');
 
 test.describe('Post Detail Modal Visual Tests', () => {
   test.beforeEach(async ({ page }) => {
@@ -33,9 +33,13 @@ test.describe('Post Detail Modal Visual Tests', () => {
         await setThemeDirect(page, theme);
         await openPostDetail(page);
 
+        // WHY: Mask dynamic content to prevent flaky tests
+        const masks = getDynamicContentMasks(page);
+
         const modal = page.locator('[role="dialog"]');
         await expect(modal).toHaveScreenshot(
-          screenshotName('post-detail-modal', theme, testInfo.project.name)
+          screenshotName('post-detail-modal', theme, testInfo.project.name),
+          { mask: masks }
         );
       });
     }
@@ -98,8 +102,12 @@ test.describe('Post Detail Modal Visual Tests', () => {
         const commentsSection = page.locator('[class*="commentsSection"]');
         await commentsSection.scrollIntoViewIfNeeded();
 
+        // Mask dynamic content
+        const masks = getDynamicContentMasks(page);
+
         await expect(commentsSection).toHaveScreenshot(
-          screenshotName('post-detail-comments', theme, testInfo.project.name)
+          screenshotName('post-detail-comments', theme, testInfo.project.name),
+          { mask: masks }
         );
       });
     }
@@ -111,10 +119,13 @@ test.describe('Post Detail Modal Visual Tests', () => {
         await setThemeDirect(page, theme);
         await openPostDetail(page);
 
+        // Mask dynamic content
+        const masks = getDynamicContentMasks(page);
+
         // Capture full page to show overlay effect
         await expect(page).toHaveScreenshot(
           screenshotName('post-detail-overlay', theme, testInfo.project.name),
-          { fullPage: true }
+          { fullPage: true, mask: masks }
         );
       });
     }
