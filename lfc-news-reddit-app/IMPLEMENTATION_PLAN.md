@@ -6,7 +6,7 @@
 
 ## Current Status
 
-**v1.1.25** - All P0-P3 work is complete plus minor bug fixes.
+**v1.1.26** - All P0-P3 work is complete plus minor bug fixes.
 
 The app is functionally complete with strong test coverage:
 - **Test Coverage**: 83.95% statements, 77.24% branches
@@ -15,6 +15,19 @@ The app is functionally complete with strong test coverage:
 - **Components**: 20 React components
 
 **All planned work complete - production ready**
+
+### Code Review Verification (v1.1.26)
+
+All specifications have been verified as complete through code review:
+
+- **Theme Final Polish**: 3 themes (red, white, green), visual button group with colour swatches, cream away colours, iOS zoom fix (16px font-size)
+- **Comment Threading**: Avatar system, user badges, thread lines, collapse animation, indentation (16px mobile/24px desktop), max-level flattening at level 6
+- **Post Card Polish**: Gradient stripe (4px left edge), hover scale(1.005), gallery/video overlays with count/duration, pill-style action buttons
+- **Toast Notifications**: 4 types (success, error, info, warning), swipe-to-dismiss, full accessibility support
+- **Skeleton Loaders**: 6 types (post, comment, header, etc.), shimmer animation, reduced motion support
+- **Animations**: Staggered list animations, modal transitions, button feedback, reduced motion support throughout
+
+**Note**: E2E tests cannot run in this environment due to missing Playwright browser dependencies, but all 850 unit tests pass successfully.
 
 ---
 
