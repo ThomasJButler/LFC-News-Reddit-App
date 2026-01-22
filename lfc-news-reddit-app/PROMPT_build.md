@@ -18,7 +18,7 @@
 9999999999999. When @IMPLEMENTATION_PLAN.md becomes large periodically clean out the items that are completed from the file using a subagent.
 99999999999999. If you find inconsistencies in the specs/* then use an Opus 4.5 subagent with 'ultrathink' requested to update the specs.
 999999999999999. IMPORTANT: Keep @AGENTS.md operational only — status updates and progress notes belong in `IMPLEMENTATION_PLAN.md`. A bloated AGENTS.md pollutes every future loop's context.
-9999999999999999. IMPORTANT: This is a React app using CSS modules. Follow existing patterns in src/components/* for new components. Use CSS custom properties from src/styles/variables.css for theming. All 4 themes (red, white, green, night) must work correctly.
+9999999999999999. IMPORTANT: This is a React app using CSS modules. Follow existing patterns in src/components/* for new components. Use CSS custom properties from src/styles/variables.css for theming. All 3 themes (red/Home, white/Away, green/Keeper) must work correctly.
 99999999999999999. IMPORTANT: Maintain WCAG AA accessibility. All interactive elements need focus states, proper ARIA labels, and 44x44px minimum touch targets on mobile.
 
 999999999999999999. IMPORTANT: Ensure that commit messages all are UK english, and contain no Co-Author. 
