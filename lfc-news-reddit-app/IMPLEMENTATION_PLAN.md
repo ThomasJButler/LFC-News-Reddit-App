@@ -6,7 +6,7 @@
 
 ## Current Status
 
-**v1.1.23 tagged** - All P0-P3 work is complete.
+**v1.1.24 tagged** - All P0-P3 work is complete.
 
 The app is functionally complete with strong test coverage:
 - **Test Coverage**: 83.95% statements, 77.24% branches
