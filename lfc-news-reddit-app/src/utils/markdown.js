@@ -70,8 +70,8 @@ export const stripMarkdown = (text) => {
     .replace(/_(.+?)_/g, '$1')           // Italic (alt)
     .replace(/~~(.+?)~~/g, '$1')         // Strikethrough
     .replace(/`(.+?)`/g, '$1')           // Inline code
+    .replace(/!\[.*?\]\(.+?\)/g, '')     // Images (WHY: must run before links regex to avoid leaving `!alt text`)
     .replace(/\[(.+?)\]\(.+?\)/g, '$1')  // Links
-    .replace(/!\[.*?\]\(.+?\)/g, '')     // Images
     .replace(/^\s*[-*+]\s+/gm, '')       // Unordered lists
     .replace(/^\s*\d+\.\s+/gm, '')       // Ordered lists
     .replace(/^\s*>\s*/gm, '')           // Blockquotes

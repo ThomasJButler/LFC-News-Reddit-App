@@ -203,26 +203,30 @@ describe('stripMarkdown', () => {
   });
 
   describe('image stripping', () => {
-    // Note: Current implementation has a bug where images are processed after links
-    // The link regex matches `[Alt text](url)` part first, leaving `!Alt text`
-    // This test documents current behaviour - ideally images should be fully removed
-    it('should attempt to remove images (current behaviour leaves exclamation mark)', () => {
-      // Bug: ![Alt text](url) -> !Alt text instead of empty string
-      // The images regex runs after the links regex which captures [Alt](url)
+    it('should remove images with alt text completely', () => {
+      // WHY: Images regex now runs before links regex, so ![alt](url) is fully removed
       const result = stripMarkdown('![Alt text](image.jpg)');
-      // Current behaviour - not ideal but testing what actually happens
-      expect(result).toBe('!Alt text');
+      expect(result).toBe('');
     });
 
     it('should remove images with empty alt', () => {
-      // Empty alt works because the link regex doesn't match empty brackets
       expect(stripMarkdown('![](image.jpg)')).toBe('');
     });
 
-    it('should handle images mixed with text (current behaviour)', () => {
+    it('should handle images mixed with text', () => {
       const result = stripMarkdown('Before ![img](url) after');
-      // Current behaviour leaves !img due to link regex running first
-      expect(result).toBe('Before !img after');
+      expect(result).toBe('Before  after');
+    });
+
+    it('should handle multiple images', () => {
+      const result = stripMarkdown('![one](1.jpg) ![two](2.jpg)');
+      expect(result).toBe('');
+    });
+
+    it('should handle images and links together', () => {
+      // WHY: Images removed first, then links converted to their text
+      const result = stripMarkdown('![img](pic.jpg) [link](url)');
+      expect(result).toBe('link');
     });
   });
 

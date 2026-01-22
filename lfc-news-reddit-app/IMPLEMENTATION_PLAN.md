@@ -6,7 +6,7 @@
 
 ## Current Status
 
-**v1.1.24 tagged** - All P0-P3 work is complete.
+**v1.1.25** - All P0-P3 work is complete plus minor bug fixes.
 
 The app is functionally complete with strong test coverage:
 - **Test Coverage**: 83.95% statements, 77.24% branches
@@ -89,6 +89,9 @@ All P0-P2 work has been completed and verified. Key accomplishments:
 - Staggered list animations, modal transitions, button feedback
 - E2E functional tests (492 tests)
 - React 18.3+ defaultProps migration complete
+
+### Bug Fixes
+- Fixed stripMarkdown image stripping bug where images with alt text (e.g., `![alt](url)`) left behind `!alt text` instead of being fully removed. The fix moves the images regex to run before the links regex.
 
 ---
 
