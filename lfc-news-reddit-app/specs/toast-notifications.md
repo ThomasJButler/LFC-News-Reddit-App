@@ -175,6 +175,6 @@ src/components/Toast/
 - [ ] Swipe to dismiss on mobile
 - [ ] Hover pauses timer on desktop
 - [ ] Proper ARIA attributes for accessibility
-- [ ] Works correctly in all 4 themes
+- [ ] Works correctly in all 3 themes
 - [ ] No layout shift when toasts appear/disappear
 - [ ] Max 3 toasts with proper queuing

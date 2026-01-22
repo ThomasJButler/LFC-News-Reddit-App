@@ -74,11 +74,10 @@ export default defineConfig({
 
 ### Theme Coverage
 
-Each visual test runs in all 4 themes:
+Each visual test runs in all 3 themes:
 - `red` (default - Anfield Red)
 - `white` (Away Day)
 - `green` (Keeper Kit)
-- `night` (OLED Dark)
 
 ### Pages/States to Capture
 
@@ -115,7 +114,7 @@ Each visual test runs in all 4 themes:
 
 Examples:
 - `home-loaded-mobile-red.png`
-- `detail-image-desktop-night.png`
+- `detail-image-desktop-green.png`
 - `comments-collapsed-tablet-white.png`
 
 ### Test File Structure
@@ -135,7 +134,7 @@ e2e/
 
 ```javascript
 // e2e/utils/themes.js
-export const themes = ['red', 'white', 'green', 'night'];
+export const themes = ['red', 'white', 'green'];
 
 export async function setTheme(page, theme) {
   await page.evaluate((t) => {
@@ -258,7 +257,7 @@ jobs:
 
 - [ ] Playwright configured with 3 viewport projects
 - [ ] Theme switching helper works correctly
-- [ ] Home page visual tests pass (4 themes × 3 viewports)
+- [ ] Home page visual tests pass (3 themes × 3 viewports)
 - [ ] Post detail visual tests pass
 - [ ] Comments visual tests pass
 - [ ] Component visual tests pass

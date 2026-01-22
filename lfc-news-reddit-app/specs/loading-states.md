@@ -134,7 +134,7 @@ Reserve spinner for:
 - [ ] Skeleton dimensions match actual content exactly
 - [ ] Shimmer animation is smooth (60fps)
 - [ ] Respects prefers-reduced-motion (pulse instead)
-- [ ] Works correctly in all 4 themes
+- [ ] Works correctly in all 3 themes
 - [ ] Empty states are helpful with clear actions
 - [ ] Error states are distinct from loading
 - [ ] No layout shift between skeleton and content

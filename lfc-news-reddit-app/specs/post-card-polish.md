@@ -97,6 +97,6 @@ Refine post card (PostItem) visual hierarchy for a cleaner, more scannable feed.
 - [ ] Thumbnails have consistent aspect ratio
 - [ ] Hover state provides subtle feedback
 - [ ] All content readable at 320px width
-- [ ] Consistent appearance across all 4 themes
+- [ ] Consistent appearance across all 3 themes
 - [ ] No layout shift during image load
 - [ ] Focus states meet WCAG 2.4.7

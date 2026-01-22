@@ -97,7 +97,7 @@ Improve comment threading visuals to match modern Reddit UI patterns while maint
 - [ ] Action bar uses pill-style buttons
 - [ ] Collapse animation is smooth (300ms)
 - [ ] Collapsed state shows summary with reply count
-- [ ] Works correctly in all 4 themes (red, white, green, night)
+- [ ] Works correctly in all 3 themes (red, white, green)
 - [ ] Maintains WCAG AA contrast in all states
 - [ ] Mobile touch targets >= 44x44px
 - [ ] Respects prefers-reduced-motion
