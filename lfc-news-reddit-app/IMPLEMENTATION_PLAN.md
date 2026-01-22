@@ -7,12 +7,12 @@
 ## Current Status
 
 The app is functionally complete with strong test coverage:
-- **Test Coverage**: 82.43% statements, 75.36% branches
-- **Unit Tests**: 789 passing tests
+- **Test Coverage**: 82.68% statements, 75.81% branches
+- **Unit Tests**: 848 passing tests
 - **E2E Tests**: 492 functional tests (Playwright)
 - **Components**: 20 React components
 
-**Remaining work: Optional polish items only (P2/P3)**
+**Remaining work: Optional P3 production audits only**
 
 ---
 
@@ -24,7 +24,7 @@ The app is functionally complete with strong test coverage:
 | **P1** | Comment Threading | 100% | 0 items | Complete |
 | **P1** | Post Card Polish | 100% | 0 items | Complete |
 | **P1** | Visual Testing | 100% | 0 items | Complete |
-| **P2** | Test Coverage Gaps | N/A | 2 components | 1-2 hours |
+| **P2** | Test Coverage Gaps | 100% | 0 items | Complete |
 | **P3** | Production Audits | 0% | Optional | 2-4 hours |
 
 **Target**: 9+/10 production quality - **ACHIEVED**
@@ -237,22 +237,27 @@ Added deep nesting visual tests to `e2e/visual/comments.spec.js`.
 
 ---
 
-## P2 - Test Coverage Gaps
+## P2 - Test Coverage Gaps (100% Complete)
 
 ### Components with Low Coverage
 
-Current overall coverage: 82.43% statements, 75.36% branches (exceeds 80% target)
+**Status**: COMPLETE
 
-| Component | Coverage | Priority | Notes |
-|-----------|----------|----------|-------|
-| CodeBlock | 16.66% | Low | No dedicated tests - simple wrapper component |
-| SpicyMeter | High coverage | Low | No dedicated test file but tested via integration |
+All P2 test coverage gaps have been addressed:
 
-**Note**: These are non-critical as overall coverage exceeds targets. The 30 `test.skip()` calls in the test suite are intentional viewport filtering, not skipped tests.
+| Component | Previous | Current | Notes |
+|-----------|----------|---------|-------|
+| CodeBlock | 16.66% | 100% | Added comprehensive test suite with 28 tests |
+| SpicyMeter | 90.9% | 100% | Added dedicated test suite with 31 tests |
 
-**Checklist** (Optional):
-- [ ] Add `CodeBlock.test.js` with basic render tests
-- [ ] Add `SpicyMeter.test.js` with prop validation tests
+**Updated Coverage** (2026-01-22):
+- Statements: 82.68% (exceeds 80% target)
+- Branches: 75.81% (exceeds 75% target)
+- Tests: 848 passing
+
+**Implemented**:
+- [x] Add `CodeBlock.test.js` - Tests inline code, syntax highlighting, copy functionality, language detection, accessibility
+- [x] Add `SpicyMeter.test.js` - Tests all spiciness levels, boundary values, chili rendering, accessibility
 
 ---
 
