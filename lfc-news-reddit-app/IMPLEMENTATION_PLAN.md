@@ -10,7 +10,7 @@
 
 The app is functionally complete with strong test coverage:
 - **Test Coverage**: 83.95% statements, 77.24% branches
-- **Unit Tests**: 848 passing tests
+- **Unit Tests**: 850 passing tests
 - **E2E Tests**: 492 functional tests (Playwright)
 - **Components**: 20 React components
 
