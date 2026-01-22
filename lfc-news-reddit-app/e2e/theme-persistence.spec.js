@@ -45,26 +45,28 @@ test.describe('Theme Persistence', () => {
       });
     }
 
-    test('theme switcher dropdown opens and closes correctly', async ({ page }) => {
+    test('theme buttons are visible and clickable', async ({ page }) => {
       await page.goto('/');
       await page.waitForSelector('[class*="postItem"]', { timeout: 15000 });
 
-      // Find theme switcher button
-      const themeSwitcher = page.getByRole('button', { name: /Theme/i });
-      await expect(themeSwitcher).toBeVisible();
+      // Find theme buttons - they're always visible (no dropdown)
+      const homeButton = page.getByRole('button', { name: 'Anfield Red theme' });
+      const awayButton = page.getByRole('button', { name: 'Away Day theme' });
+      const keeperButton = page.getByRole('button', { name: 'Keeper Kit theme' });
 
-      // Click to open
-      await themeSwitcher.click();
+      await expect(homeButton).toBeVisible();
+      await expect(awayButton).toBeVisible();
+      await expect(keeperButton).toBeVisible();
 
-      // Dropdown should be visible - look for theme option buttons
-      const whiteOption = page.getByRole('button', { name: /white/i });
-      await expect(whiteOption).toBeVisible();
-
-      // Click outside or select an option to close
-      await whiteOption.click();
+      // Click a button to change theme
+      await awayButton.click();
 
       // Wait for transition
       await page.waitForTimeout(400);
+
+      // Verify theme changed
+      const theme = await page.evaluate(() => document.documentElement.getAttribute('data-theme'));
+      expect(theme).toBe('white');
     });
   });
 
@@ -126,8 +128,8 @@ test.describe('Theme Persistence', () => {
       await page.goto('/');
       await page.waitForSelector('[class*="postItem"]', { timeout: 15000 });
 
-      // Set night theme
-      await setTheme(page, 'night');
+      // Set white theme
+      await setTheme(page, 'white');
       await page.waitForTimeout(500);
 
       // Perform search
@@ -136,9 +138,9 @@ test.describe('Theme Persistence', () => {
       await searchInput.press('Enter');
       await page.waitForTimeout(1500);
 
-      // Theme should still be night
+      // Theme should still be white
       const currentTheme = await getTheme(page);
-      expect(currentTheme).toBe('night');
+      expect(currentTheme).toBe('white');
     });
   });
 
@@ -152,17 +154,17 @@ test.describe('Theme Persistence', () => {
         return getComputedStyle(document.documentElement).getPropertyValue('--bg-primary');
       });
 
-      // Switch to night theme
-      await setTheme(page, 'night');
+      // Switch to white theme
+      await setTheme(page, 'white');
       await page.waitForTimeout(500);
 
       // Get new background color
-      const nightBg = await page.evaluate(() => {
+      const whiteBg = await page.evaluate(() => {
         return getComputedStyle(document.documentElement).getPropertyValue('--bg-primary');
       });
 
       // Colours should be different
-      expect(nightBg).not.toBe(initialBg);
+      expect(whiteBg).not.toBe(initialBg);
     });
 
     test('all theme variables are defined', async ({ page }) => {
@@ -193,26 +195,17 @@ test.describe('Theme Persistence', () => {
     });
   });
 
-  test.describe('Theme Keyboard Shortcuts', () => {
-    test('theme switcher is keyboard accessible', async ({ page }) => {
+  test.describe('Theme Keyboard Navigation', () => {
+    test('theme buttons are keyboard accessible', async ({ page }) => {
       await page.goto('/');
       await page.waitForSelector('[class*="postItem"]', { timeout: 15000 });
 
-      // Find and focus theme switcher
-      const themeSwitcher = page.getByRole('button', { name: /Theme/i });
-      await themeSwitcher.focus();
-      await expect(themeSwitcher).toBeFocused();
+      // Find and focus keeper theme button
+      const keeperButton = page.getByRole('button', { name: 'Keeper Kit theme' });
+      await keeperButton.focus();
+      await expect(keeperButton).toBeFocused();
 
-      // Press Enter to open
-      await page.keyboard.press('Enter');
-      await page.waitForTimeout(300);
-
-      // Options should be visible
-      const greenOption = page.getByRole('button', { name: /green/i });
-      await expect(greenOption).toBeVisible();
-
-      // Tab to green option and select
-      await greenOption.focus();
+      // Press Enter to select
       await page.keyboard.press('Enter');
       await page.waitForTimeout(400);
 
@@ -252,8 +245,8 @@ test.describe('Theme Persistence', () => {
       await page.goto('/');
       await page.waitForSelector('[class*="postItem"]', { timeout: 15000 });
 
-      // Set night theme
-      await setTheme(page, 'night');
+      // Set green theme
+      await setTheme(page, 'green');
       await page.waitForTimeout(500);
 
       // Check search bar uses theme
@@ -276,8 +269,8 @@ test.describe('Theme Persistence', () => {
 
       // Set theme immediately
       await page.evaluate(() => {
-        document.documentElement.setAttribute('data-theme', 'night');
-        localStorage.setItem('lfc-theme', 'night');
+        document.documentElement.setAttribute('data-theme', 'green');
+        localStorage.setItem('lfc-theme', 'green');
       });
 
       // Check skeleton uses theme colours

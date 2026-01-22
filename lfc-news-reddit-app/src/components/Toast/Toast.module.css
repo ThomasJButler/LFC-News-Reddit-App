@@ -425,12 +425,6 @@
   box-shadow: var(--shadow-md);
 }
 
-/* Night theme adjustments for better contrast */
-[data-theme="night"] .toast {
-  background: var(--bg-secondary);
-  border-color: var(--border-color);
-}
-
 /* Green theme adjustments */
 [data-theme="green"] .toast {
   background: var(--bg-secondary);

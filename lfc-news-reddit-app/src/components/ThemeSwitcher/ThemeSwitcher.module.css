@@ -1,10 +1,17 @@
-/* Theme switcher - compact dropdown style */
+/**
+ * Theme Switcher Styles
+ * WHY: Visual button group with colour swatches provides clearer theme selection
+ * than a dropdown, allowing users to see all options at once with kit colour previews.
+ */
+
+/* Container - horizontal layout */
 .themeSwitcher {
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
 }
 
+/* Label with palette icon */
 .themeLabel {
   display: flex;
   align-items: center;
@@ -15,55 +22,97 @@
   white-space: nowrap;
 }
 
-.selectWrapper {
-  position: relative;
+/* Button group container */
+.themeButtons {
   display: flex;
+  gap: var(--spacing-xs);
+}
+
+/* Individual theme button */
+.themeButton {
+  display: flex;
+  flex-direction: column;
   align-items: center;
-}
-
-.colorIndicator {
-  position: absolute;
-  left: var(--spacing-sm);
-  width: 12px;
-  height: 12px;
-  border-radius: var(--radius-full);
-  border: 1px solid var(--border-color);
-  pointer-events: none;
-  z-index: 1;
-}
-
-.themeSelect {
+  justify-content: center;
+  gap: 4px;
   padding: var(--spacing-xs) var(--spacing-sm);
-  padding-left: calc(var(--spacing-sm) + 20px);
-  background-color: var(--bg-secondary);
-  color: var(--text-primary);
-  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  border: 2px solid var(--border-color);
   border-radius: var(--radius-sm);
-  font-size: var(--font-size-sm);
   cursor: pointer;
+  transition: transform var(--transition-fast),
+              border-color var(--transition-fast),
+              background-color var(--transition-fast);
+  /* WHY: 44px minimum touch target for WCAG accessibility */
   min-height: 44px;
-  min-width: 140px;
-  transition: border-color var(--transition-fast),
-              background-color var(--transition-theme);
+  min-width: 60px;
 }
 
-.themeSelect:hover {
-  background-color: var(--bg-tertiary);
+/* Colour swatch circle */
+.colorSwatch {
+  width: 18px;
+  height: 18px;
+  border-radius: var(--radius-full);
+  /* WHY: Border makes light colours visible against light backgrounds */
+  border: 1px solid var(--border-color);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
-.themeSelect:focus {
-  outline: none;
+/* Theme name label */
+.themeName {
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  color: var(--text-secondary);
+  line-height: 1;
+}
+
+/* Hover state */
+.themeButton:hover {
+  background: var(--bg-tertiary);
+  transform: scale(1.05);
+}
+
+/* Active/selected state */
+.themeButton.active {
   border-color: var(--accent);
+  background: var(--accent-light);
 }
 
-.themeSelect:focus-visible {
+.themeButton.active .themeName {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* Focus state for keyboard navigation */
+.themeButton:focus {
+  outline: none;
+}
+
+.themeButton:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 
-/* Mobile: Hide theme switcher - BottomNav handles it */
+/* Active press state */
+.themeButton:active {
+  transform: scale(0.97);
+}
+
+/* Mobile: Hide theme switcher - BottomNav handles theme cycling */
 @media (max-width: 767px) {
   .themeSwitcher {
     display: none;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .themeButton {
+    transition: none;
+  }
+
+  .themeButton:hover,
+  .themeButton:active {
+    transform: none;
   }
 }

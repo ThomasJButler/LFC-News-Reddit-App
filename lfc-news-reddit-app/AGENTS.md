@@ -48,7 +48,7 @@ npx playwright test --project=chromium
 
 ### Theming
 - CSS variables defined in: `src/styles/variables.css`
-- 4 themes: red (default), white, green, night
+- 3 themes matching LFC kits: red/Home (default), white/Away, green/Keeper
 - Theme applied via `data-theme` attribute on `<html>` element
 - Always use CSS custom properties: `var(--color-primary)`, `var(--bg-primary)`, etc.
 

@@ -402,8 +402,8 @@ test.describe('Error Recovery', () => {
 
       // Set theme
       await page.evaluate(() => {
-        document.documentElement.setAttribute('data-theme', 'night');
-        localStorage.setItem('lfc-theme', 'night');
+        document.documentElement.setAttribute('data-theme', 'green');
+        localStorage.setItem('lfc-theme', 'green');
       });
 
       // Simulate an error and reload
@@ -418,7 +418,7 @@ test.describe('Error Recovery', () => {
       const theme = await page.evaluate(
         () => document.documentElement.getAttribute('data-theme')
       );
-      expect(theme).toBe('night');
+      expect(theme).toBe('green');
     });
 
     test('preserves scroll position after modal close on error', async ({ page }) => {

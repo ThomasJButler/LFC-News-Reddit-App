@@ -8,9 +8,10 @@
 
 /**
  * Available themes in the application
+ * WHY: Only 3 themes matching Liverpool FC kits - Home (red), Away (white/cream), Keeper (green)
  * @type {string[]}
  */
-const THEMES = ['red', 'white', 'green', 'night'];
+const THEMES = ['red', 'white', 'green'];
 
 /**
  * Theme display names for test descriptions
@@ -20,28 +21,37 @@ const THEME_NAMES = {
   red: 'Red (Default)',
   white: 'White',
   green: 'Green',
-  night: 'Night',
 };
 
 /**
- * Sets the theme on the page by clicking the theme switcher
+ * Sets the theme on the page by clicking the appropriate theme button
  * @param {import('@playwright/test').Page} page - Playwright page object
- * @param {string} theme - Theme name to set ('red', 'white', 'green', 'night')
+ * @param {string} theme - Theme name to set ('red', 'white', 'green')
  */
 async function setTheme(page, theme) {
-  // Open theme switcher if not already open
-  const themeSwitcher = page.getByRole('button', { name: /Theme/i });
-  await themeSwitcher.click();
+  // Map theme IDs to button names
+  const themeButtonNames = {
+    red: 'Anfield Red theme',
+    white: 'Away Day theme',
+    green: 'Keeper Kit theme'
+  };
 
-  // Select the theme option
-  const themeOption = page.getByRole('button', { name: new RegExp(theme, 'i') });
-  await themeOption.click();
+  // Click the theme button directly (no dropdown to open)
+  const themeButton = page.getByRole('button', { name: themeButtonNames[theme] });
+  await themeButton.click();
 
   // Wait for theme to be applied
-  await page.waitForFunction(
-    (expectedTheme) => document.documentElement.getAttribute('data-theme') === expectedTheme,
-    theme
-  );
+  if (theme === 'red') {
+    // Red theme removes the data-theme attribute
+    await page.waitForFunction(
+      () => !document.documentElement.hasAttribute('data-theme')
+    );
+  } else {
+    await page.waitForFunction(
+      (expectedTheme) => document.documentElement.getAttribute('data-theme') === expectedTheme,
+      theme
+    );
+  }
 }
 
 /**

@@ -2,6 +2,7 @@
  * @author Tom Butler
  * @date 2025-10-22
  * @description Theme switcher for Liverpool FC colour schemes (red, white, green).
+ *              Uses visual button group with colour swatches for desktop.
  *              Persists selection to localStorage and applies via data attributes.
  */
 
@@ -15,18 +16,15 @@ import styles from './ThemeSwitcher.module.css';
  */
 const ThemeSwitcher = () => {
   // WHY: LFC-branded theme names connect with fans emotionally (kit references)
+  // WHY: Only 3 themes matching Liverpool FC kits - Home (red), Away (white/cream), Keeper (green)
   const themes = [
-    { id: 'red', name: 'Anfield Red', shortName: 'Anfield', color: '#C8102E', description: 'Home Kit' },
-    { id: 'white', name: 'Away Day', shortName: 'Away', color: '#ffffff', description: 'Away Kit' },
-    { id: 'green', name: 'Keeper Kit', shortName: 'Keeper', color: '#00A651', description: 'Goalkeeper' },
-    { id: 'night', name: 'Night Mode', shortName: 'Night', color: '#000000', description: 'OLED Dark' }
+    { id: 'red', name: 'Anfield Red', shortName: 'Home', color: '#C8102E', description: 'Home Kit' },
+    { id: 'white', name: 'Away Day', shortName: 'Away', color: '#f5f0e8', description: 'Away Kit' },
+    { id: 'green', name: 'Keeper Kit', shortName: 'Keeper', color: '#00A651', description: 'Goalkeeper' }
   ];
 
-  // WHY: System preference detection provides better UX for users who prefer dark mode
+  // WHY: Default to red (home kit) as the primary LFC theme
   const getSystemPreference = () => {
-    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      return 'night';
-    }
     return 'red';
   };
 
@@ -42,7 +40,7 @@ const ThemeSwitcher = () => {
   useEffect(() => {
     applyTheme(currentTheme);
   }, [currentTheme]);
-  
+
   const applyTheme = (theme) => {
     const root = document.documentElement;
     if (theme === 'red') {
@@ -51,39 +49,37 @@ const ThemeSwitcher = () => {
       root.setAttribute('data-theme', theme);
     }
   };
-  
+
   const handleThemeChange = (themeId) => {
     setCurrentTheme(themeId);
     localStorage.setItem('lfc-theme', themeId);
   };
-  
-  const currentThemeData = themes.find(t => t.id === currentTheme) || themes[0];
 
   return (
-    <div className={styles.themeSwitcher}>
-      <label className={styles.themeLabel} htmlFor="theme-select">
+    <div className={styles.themeSwitcher} role="group" aria-label="Theme selection">
+      <span className={styles.themeLabel}>
         <Icon name="Palette" size="sm" ariaHidden={true} />
         Theme:
-      </label>
-      <div className={styles.selectWrapper}>
-        <span
-          className={styles.colorIndicator}
-          style={{ backgroundColor: currentThemeData.color }}
-          aria-hidden="true"
-        />
-        <select
-          id="theme-select"
-          className={styles.themeSelect}
-          value={currentTheme}
-          onChange={(e) => handleThemeChange(e.target.value)}
-          aria-label="Select theme"
-        >
-          {themes.map(theme => (
-            <option key={theme.id} value={theme.id}>
-              {theme.name}
-            </option>
-          ))}
-        </select>
+      </span>
+      <div className={styles.themeButtons}>
+        {themes.map(theme => (
+          <button
+            key={theme.id}
+            type="button"
+            className={`${styles.themeButton} ${currentTheme === theme.id ? styles.active : ''}`}
+            onClick={() => handleThemeChange(theme.id)}
+            aria-pressed={currentTheme === theme.id}
+            aria-label={`${theme.name} theme`}
+            title={theme.description}
+          >
+            <span
+              className={styles.colorSwatch}
+              style={{ backgroundColor: theme.color }}
+              aria-hidden="true"
+            />
+            <span className={styles.themeName}>{theme.shortName}</span>
+          </button>
+        ))}
       </div>
     </div>
   );

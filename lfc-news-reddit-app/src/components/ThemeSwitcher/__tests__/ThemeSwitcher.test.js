@@ -4,11 +4,11 @@
  * @description Tests for ThemeSwitcher component.
  *              WHY: Theme switching is essential for user experience and accessibility.
  *              These tests verify correct theme application, localStorage persistence,
- *              system preference detection, and proper DOM manipulation.
+ *              and proper DOM manipulation using the button-based theme picker.
  */
 
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ThemeSwitcher from '../ThemeSwitcher';
 
@@ -56,22 +56,30 @@ describe('ThemeSwitcher Component', () => {
   });
 
   describe('Rendering', () => {
-    it('renders theme select dropdown', () => {
+    it('renders theme button group', () => {
       window.matchMedia = mockMatchMedia(false);
       render(<ThemeSwitcher />);
 
-      const select = screen.getByRole('combobox', { name: 'Select theme' });
-      expect(select).toBeInTheDocument();
+      const themeGroup = screen.getByRole('group', { name: 'Theme selection' });
+      expect(themeGroup).toBeInTheDocument();
     });
 
-    it('renders all four theme options', () => {
+    it('renders all three theme buttons', () => {
       window.matchMedia = mockMatchMedia(false);
       render(<ThemeSwitcher />);
 
-      expect(screen.getByText('Anfield Red')).toBeInTheDocument();
-      expect(screen.getByText('Away Day')).toBeInTheDocument();
-      expect(screen.getByText('Keeper Kit')).toBeInTheDocument();
-      expect(screen.getByText('Night Mode')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Anfield Red theme' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Away Day theme' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Keeper Kit theme' })).toBeInTheDocument();
+    });
+
+    it('renders theme names as labels', () => {
+      window.matchMedia = mockMatchMedia(false);
+      render(<ThemeSwitcher />);
+
+      expect(screen.getByText('Home')).toBeInTheDocument();
+      expect(screen.getByText('Away')).toBeInTheDocument();
+      expect(screen.getByText('Keeper')).toBeInTheDocument();
     });
 
     it('renders label with palette icon', () => {
@@ -81,13 +89,14 @@ describe('ThemeSwitcher Component', () => {
       expect(screen.getByText('Theme:')).toBeInTheDocument();
     });
 
-    it('renders color indicator', () => {
+    it('renders color swatches for each theme', () => {
       window.matchMedia = mockMatchMedia(false);
       render(<ThemeSwitcher />);
 
-      // Check for color indicator element
-      const colorIndicator = document.querySelector('[aria-hidden="true"]');
-      expect(colorIndicator).toBeInTheDocument();
+      // Check for color swatch elements
+      const colorSwatches = document.querySelectorAll('[aria-hidden="true"]');
+      // At least 3 swatches (one per theme) plus the icon
+      expect(colorSwatches.length).toBeGreaterThanOrEqual(3);
     });
   });
 
@@ -98,18 +107,19 @@ describe('ThemeSwitcher Component', () => {
 
       render(<ThemeSwitcher />);
 
-      const select = screen.getByRole('combobox', { name: 'Select theme' });
-      expect(select).toHaveValue('green');
+      const greenButton = screen.getByRole('button', { name: 'Keeper Kit theme' });
+      expect(greenButton).toHaveAttribute('aria-pressed', 'true');
     });
 
-    it('uses night theme when system prefers dark mode and no saved theme', () => {
+    it('uses red theme as default regardless of system preference', () => {
       localStorageMock.getItem.mockReturnValueOnce(null);
       window.matchMedia = mockMatchMedia(true); // prefers-color-scheme: dark
 
       render(<ThemeSwitcher />);
 
-      const select = screen.getByRole('combobox', { name: 'Select theme' });
-      expect(select).toHaveValue('night');
+      // WHY: Red is always the default - no night mode in the app
+      const redButton = screen.getByRole('button', { name: 'Anfield Red theme' });
+      expect(redButton).toHaveAttribute('aria-pressed', 'true');
     });
 
     it('uses red theme when system prefers light mode and no saved theme', () => {
@@ -118,8 +128,8 @@ describe('ThemeSwitcher Component', () => {
 
       render(<ThemeSwitcher />);
 
-      const select = screen.getByRole('combobox', { name: 'Select theme' });
-      expect(select).toHaveValue('red');
+      const redButton = screen.getByRole('button', { name: 'Anfield Red theme' });
+      expect(redButton).toHaveAttribute('aria-pressed', 'true');
     });
   });
 
@@ -150,29 +160,20 @@ describe('ThemeSwitcher Component', () => {
 
       expect(document.documentElement.getAttribute('data-theme')).toBe('green');
     });
-
-    it('applies night theme by setting data-theme attribute', () => {
-      localStorageMock.getItem.mockReturnValueOnce('night');
-      window.matchMedia = mockMatchMedia(false);
-
-      render(<ThemeSwitcher />);
-
-      expect(document.documentElement.getAttribute('data-theme')).toBe('night');
-    });
   });
 
   describe('Theme Switching', () => {
-    it('changes theme when user selects a different option', async () => {
+    it('changes theme when user clicks a different button', async () => {
       const user = userEvent.setup();
       localStorageMock.getItem.mockReturnValueOnce('red');
       window.matchMedia = mockMatchMedia(false);
 
       render(<ThemeSwitcher />);
 
-      const select = screen.getByRole('combobox', { name: 'Select theme' });
-      await user.selectOptions(select, 'night');
+      const greenButton = screen.getByRole('button', { name: 'Keeper Kit theme' });
+      await user.click(greenButton);
 
-      expect(document.documentElement.getAttribute('data-theme')).toBe('night');
+      expect(document.documentElement.getAttribute('data-theme')).toBe('green');
     });
 
     it('persists theme selection to localStorage', async () => {
@@ -182,85 +183,154 @@ describe('ThemeSwitcher Component', () => {
 
       render(<ThemeSwitcher />);
 
-      const select = screen.getByRole('combobox', { name: 'Select theme' });
-      await user.selectOptions(select, 'green');
+      const greenButton = screen.getByRole('button', { name: 'Keeper Kit theme' });
+      await user.click(greenButton);
 
       expect(localStorageMock.setItem).toHaveBeenCalledWith('lfc-theme', 'green');
     });
 
     it('removes data-theme attribute when switching back to red', async () => {
       const user = userEvent.setup();
-      localStorageMock.getItem.mockReturnValueOnce('night');
+      localStorageMock.getItem.mockReturnValueOnce('green');
       window.matchMedia = mockMatchMedia(false);
 
       render(<ThemeSwitcher />);
 
-      // Verify night theme is initially applied
-      expect(document.documentElement.getAttribute('data-theme')).toBe('night');
+      // Verify green theme is initially applied
+      expect(document.documentElement.getAttribute('data-theme')).toBe('green');
 
-      const select = screen.getByRole('combobox', { name: 'Select theme' });
-      await user.selectOptions(select, 'red');
+      const redButton = screen.getByRole('button', { name: 'Anfield Red theme' });
+      await user.click(redButton);
 
       expect(document.documentElement.hasAttribute('data-theme')).toBe(false);
     });
-  });
 
-  describe('Accessibility', () => {
-    it('select has accessible label', () => {
-      window.matchMedia = mockMatchMedia(false);
-      render(<ThemeSwitcher />);
-
-      const select = screen.getByRole('combobox', { name: 'Select theme' });
-      expect(select).toHaveAttribute('aria-label', 'Select theme');
-    });
-
-    it('label has correct htmlFor attribute', () => {
-      window.matchMedia = mockMatchMedia(false);
-      render(<ThemeSwitcher />);
-
-      const label = screen.getByText('Theme:').closest('label');
-      expect(label).toHaveAttribute('for', 'theme-select');
-    });
-
-    it('select has correct id matching label', () => {
-      window.matchMedia = mockMatchMedia(false);
-      render(<ThemeSwitcher />);
-
-      const select = screen.getByRole('combobox', { name: 'Select theme' });
-      expect(select).toHaveAttribute('id', 'theme-select');
-    });
-  });
-
-  describe('Color Indicator', () => {
-    it('shows correct color for red theme', () => {
-      localStorageMock.getItem.mockReturnValueOnce('red');
-      window.matchMedia = mockMatchMedia(false);
-
-      render(<ThemeSwitcher />);
-
-      // Find the color indicator span
-      const colorIndicators = document.querySelectorAll('[style*="background-color"]');
-      const redIndicator = Array.from(colorIndicators).find(
-        el => el.style.backgroundColor === 'rgb(200, 16, 46)' ||
-              el.style.backgroundColor === '#C8102E' ||
-              el.style.backgroundColor.includes('200')
-      );
-      expect(colorIndicators.length).toBeGreaterThan(0);
-    });
-
-    it('shows correct color for night theme', async () => {
+    it('updates aria-pressed when theme changes', async () => {
       const user = userEvent.setup();
       localStorageMock.getItem.mockReturnValueOnce('red');
       window.matchMedia = mockMatchMedia(false);
 
       render(<ThemeSwitcher />);
 
-      const select = screen.getByRole('combobox', { name: 'Select theme' });
-      await user.selectOptions(select, 'night');
+      const redButton = screen.getByRole('button', { name: 'Anfield Red theme' });
+      const whiteButton = screen.getByRole('button', { name: 'Away Day theme' });
 
-      // After selecting night theme, check the color indicator updated
-      const colorIndicators = document.querySelectorAll('[style*="background-color"]');
-      expect(colorIndicators.length).toBeGreaterThan(0);
+      // Initially red is pressed
+      expect(redButton).toHaveAttribute('aria-pressed', 'true');
+      expect(whiteButton).toHaveAttribute('aria-pressed', 'false');
+
+      // Click white
+      await user.click(whiteButton);
+
+      // Now white is pressed
+      expect(redButton).toHaveAttribute('aria-pressed', 'false');
+      expect(whiteButton).toHaveAttribute('aria-pressed', 'true');
+    });
+  });
+
+  describe('Accessibility', () => {
+    it('theme group has accessible label', () => {
+      window.matchMedia = mockMatchMedia(false);
+      render(<ThemeSwitcher />);
+
+      const themeGroup = screen.getByRole('group', { name: 'Theme selection' });
+      expect(themeGroup).toBeInTheDocument();
+    });
+
+    it('each button has aria-pressed attribute', () => {
+      window.matchMedia = mockMatchMedia(false);
+      render(<ThemeSwitcher />);
+
+      const buttons = screen.getAllByRole('button');
+      buttons.forEach(button => {
+        expect(button).toHaveAttribute('aria-pressed');
+      });
+    });
+
+    it('each button has aria-label', () => {
+      window.matchMedia = mockMatchMedia(false);
+      render(<ThemeSwitcher />);
+
+      expect(screen.getByLabelText('Anfield Red theme')).toBeInTheDocument();
+      expect(screen.getByLabelText('Away Day theme')).toBeInTheDocument();
+      expect(screen.getByLabelText('Keeper Kit theme')).toBeInTheDocument();
+    });
+
+    it('all buttons have type="button"', () => {
+      window.matchMedia = mockMatchMedia(false);
+      render(<ThemeSwitcher />);
+
+      const buttons = screen.getAllByRole('button');
+      buttons.forEach(button => {
+        expect(button).toHaveAttribute('type', 'button');
+      });
+    });
+  });
+
+  describe('Color Swatches', () => {
+    it('shows correct color for red theme', () => {
+      localStorageMock.getItem.mockReturnValueOnce('red');
+      window.matchMedia = mockMatchMedia(false);
+
+      render(<ThemeSwitcher />);
+
+      // Find the color swatch elements
+      const colorSwatches = document.querySelectorAll('[style*="background-color"]');
+      expect(colorSwatches.length).toBeGreaterThan(0);
+    });
+
+    it('shows correct color for green theme button', async () => {
+      const user = userEvent.setup();
+      localStorageMock.getItem.mockReturnValueOnce('red');
+      window.matchMedia = mockMatchMedia(false);
+
+      render(<ThemeSwitcher />);
+
+      const greenButton = screen.getByRole('button', { name: 'Keeper Kit theme' });
+      await user.click(greenButton);
+
+      // Check the color swatch elements exist
+      const colorSwatches = document.querySelectorAll('[style*="background-color"]');
+      expect(colorSwatches.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe('Keyboard Navigation', () => {
+    it('buttons are focusable', async () => {
+      window.matchMedia = mockMatchMedia(false);
+      render(<ThemeSwitcher />);
+
+      const redButton = screen.getByRole('button', { name: 'Anfield Red theme' });
+      redButton.focus();
+      expect(redButton).toHaveFocus();
+    });
+
+    it('can select theme with Enter key', async () => {
+      const user = userEvent.setup();
+      window.matchMedia = mockMatchMedia(false);
+      localStorageMock.getItem.mockReturnValueOnce('red');
+
+      render(<ThemeSwitcher />);
+
+      const greenButton = screen.getByRole('button', { name: 'Keeper Kit theme' });
+      greenButton.focus();
+      await user.keyboard('{Enter}');
+
+      expect(document.documentElement.getAttribute('data-theme')).toBe('green');
+    });
+
+    it('can select theme with Space key', async () => {
+      const user = userEvent.setup();
+      window.matchMedia = mockMatchMedia(false);
+      localStorageMock.getItem.mockReturnValueOnce('red');
+
+      render(<ThemeSwitcher />);
+
+      const whiteButton = screen.getByRole('button', { name: 'Away Day theme' });
+      whiteButton.focus();
+      await user.keyboard(' ');
+
+      expect(document.documentElement.getAttribute('data-theme')).toBe('white');
     });
   });
 });

@@ -73,13 +73,13 @@ const BottomNav = () => {
 
   /**
    * Handle Theme button click
-   * WHY: Cycle through 4 LFC themes (red → white → green → night)
+   * WHY: Cycle through 3 LFC kit themes (red → white → green)
    * Matches ThemeSwitcher pattern but optimized for mobile single-tap cycling
    */
   const handleThemeClick = () => {
-    const themes = ['red', 'white', 'green', 'night'];
+    const themes = ['red', 'white', 'green'];
     const currentIndex = themes.indexOf(currentTheme);
-    const nextTheme = themes[(currentIndex + 1) % 4];
+    const nextTheme = themes[(currentIndex + 1) % 3];
 
     setCurrentTheme(nextTheme);
     localStorage.setItem('lfc-theme', nextTheme);

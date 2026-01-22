@@ -200,27 +200,22 @@ describe('BottomNav Component', () => {
       fireEvent.click(themeButton);
       expect(localStorageMock.setItem).toHaveBeenCalledWith('lfc-theme', 'green');
 
-      // Third click: green -> night
-      fireEvent.click(themeButton);
-      expect(localStorageMock.setItem).toHaveBeenCalledWith('lfc-theme', 'night');
-
-      // Fourth click: night -> red
+      // Third click: green -> red (only 3 themes now)
       fireEvent.click(themeButton);
       expect(localStorageMock.setItem).toHaveBeenCalledWith('lfc-theme', 'red');
     });
 
     it('removes data-theme attribute when cycling to red theme', () => {
       localStorageMock.store['lfc-theme'] = 'red';
-      document.documentElement.setAttribute('data-theme', 'night');
+      document.documentElement.setAttribute('data-theme', 'green');
 
       renderWithStore(store);
 
       const themeButton = screen.getByText('Theme').closest('button');
 
-      // Click 4 times to cycle through and back to red
+      // Click 3 times to cycle through and back to red (only 3 themes)
       fireEvent.click(themeButton); // white
       fireEvent.click(themeButton); // green
-      fireEvent.click(themeButton); // night
       fireEvent.click(themeButton); // red
 
       expect(document.documentElement.hasAttribute('data-theme')).toBe(false);
