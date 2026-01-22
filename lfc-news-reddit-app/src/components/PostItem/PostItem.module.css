@@ -40,22 +40,25 @@
   animation-delay: calc(var(--animation-order, 0) * 50ms);
 }
 
+/* WHY: Per post-card-polish.md spec, gradient accent stripe on LEFT edge (4px)
+   Stripe opacity increases on hover to provide visual feedback */
 .postItem::before {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
-  right: 0;
-  height: 3px;
+  bottom: 0;
+  width: 4px;
   background: var(--bg-gradient);
   opacity: 0;
   transition: opacity var(--transition-fast);
 }
 
+/* WHY: Per post-card-polish.md spec, subtle scale(1.005) on hover for polish */
 .postItem:hover {
   background: var(--accent-ultra-light);
   border-color: var(--accent-light);
-  transform: translateY(-2px);
+  transform: translateY(-2px) scale(1.005);
   box-shadow: var(--shadow-theme);
 }
 

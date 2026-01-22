@@ -8,7 +8,7 @@
 
 The app is functionally complete with strong test coverage:
 - **Test Coverage**: 82.43% statements, 75.36% branches
-- **Unit Tests**: 773 passing tests
+- **Unit Tests**: 778 passing tests
 - **E2E Tests**: 492 functional tests (Playwright)
 - **Components**: 20 React components
 
@@ -21,8 +21,8 @@ The app is functionally complete with strong test coverage:
 | Priority | Category | Status | Remaining Items | Est. Effort |
 |----------|----------|--------|-----------------|-------------|
 | **P0** | Theme Final Polish | 100% | 0 items | Complete |
-| **P1** | Comment Threading | 95% | 2 items | 1-2 hours |
-| **P1** | Post Card Polish | 90% | 4 items | 2-3 hours |
+| **P1** | Comment Threading | 100% | 0 items | Complete |
+| **P1** | Post Card Polish | 95% | 2 items | 1-2 hours |
 | **P1** | Visual Testing | 89% | 3 test additions | 1-2 hours |
 | **P2** | Test Coverage Gaps | N/A | 2 components | 1-2 hours |
 | **P3** | Production Audits | 0% | Optional | 2-4 hours |
@@ -94,111 +94,62 @@ font-size: 16px;
 
 ---
 
-## P1 - Comment Threading Polish (95% Complete)
+## P1 - Comment Threading Polish (100% Complete)
 
 ### 1. Indentation Values
 
-**Status**: NEEDS UPDATE
+**Status**: COMPLETE
 
-**Current** (`src/components/CommentList/CommentList.js` lines 97-99):
-```javascript
-const levelIndent = isMobile
-  ? Math.min(comment.level * 12, 40)  // Mobile: 12px per level, max 40px
-  : Math.min(comment.level * 20, 100);  // Desktop: 20px per level, max 100px
-```
-
-**Required** (per spec):
+Updated indentation values per spec (`src/components/CommentList/CommentList.js` lines 97-99):
 ```javascript
 const levelIndent = isMobile
   ? Math.min(comment.level * 16, 64)  // Mobile: 16px per level, max 64px (4 levels)
   : Math.min(comment.level * 24, 120);  // Desktop: 24px per level, max 120px (5 levels)
 ```
 
-**Checklist**:
-- [ ] Change mobile indent from `12` to `16` (line 98)
-- [ ] Change mobile max from `40` to `64` (line 98)
-- [ ] Change desktop indent from `20` to `24` (line 99)
-- [ ] Change desktop max from `100` to `120` (line 99)
+**Implemented**:
+- [x] Changed mobile indent from `12` to `16`
+- [x] Changed mobile max from `40` to `64`
+- [x] Changed desktop indent from `20` to `24`
+- [x] Changed desktop max from `100` to `120`
 
 ---
 
 ### 2. Max-Level Flattening
 
-**Status**: NOT IMPLEMENTED
+**Status**: COMPLETE
 
-**Current Behavior**: Only caps pixel indent, doesn't flatten comments at depth 6+
+Added `MAX_NESTING_LEVEL = 6` constant and capping logic in `flattenComments` function.
 
-**Required**: Flatten threads beyond depth 6 (show at level 6 indent regardless of actual depth)
-
-**File**: `src/components/CommentList/CommentList.js`
-
-**Change in `flattenComments` function** (lines 61-77):
-- [ ] Add `maxLevel` constant (value: 6)
-- [ ] In traverse function, cap level at maxLevel: `Math.min(level, maxLevel)`
-- [ ] This ensures comments at depth 7, 8, 9+ all render at depth 6 indent
-
-**Implementation**:
-```javascript
-const MAX_NESTING_LEVEL = 6;
-
-// In traverse function:
-flat.push({ ...comment, level: Math.min(level, MAX_NESTING_LEVEL) });
-```
+**Implemented**:
+- [x] Added `MAX_NESTING_LEVEL = 6` constant
+- [x] Comments at depth 7, 8, 9+ now render at depth 6 indent
+- [x] Logic: `Math.min(level, MAX_NESTING_LEVEL)` in traverse function
 
 ---
 
-## P1 - Post Card Polish (90% Complete)
+## P1 - Post Card Polish (95% Complete)
 
 ### 1. Gradient Stripe Position
 
-**Status**: NEEDS UPDATE
+**Status**: COMPLETE
 
-**File**: `src/components/PostItem/PostItem.module.css`
+Updated gradient accent stripe from top (horizontal) to left edge (vertical 4px) per spec.
 
-**Current** (lines 43-53):
-```css
-.postItem::before {
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;  /* TOP stripe */
-}
-```
-
-**Required**:
-```css
-.postItem::before {
-  top: 0;
-  left: 0;
-  bottom: 0;
-  width: 4px;  /* LEFT stripe */
-}
-```
-
-**Checklist**:
-- [ ] Change `right: 0` to `bottom: 0` (line 48)
-- [ ] Change `height: 3px` to `width: 4px` (line 49)
+**Implemented** (`src/components/PostItem/PostItem.module.css` lines 43-56):
+- [x] Changed `right: 0` to `bottom: 0`
+- [x] Changed `height: 3px` to `width: 4px`
 
 ---
 
 ### 2. Hover Transform
 
-**Status**: NEEDS UPDATE
+**Status**: COMPLETE
 
-**File**: `src/components/PostItem/PostItem.module.css`
+Added subtle scale(1.005) to hover transform for polish.
 
-**Current** (line 58):
-```css
-transform: translateY(-2px);
-```
-
-**Required**:
-```css
-transform: translateY(-2px) scale(1.005);
-```
-
-**Checklist**:
-- [ ] Add `scale(1.005)` to hover transform (line 58)
+**Implemented** (`src/components/PostItem/PostItem.module.css` line 61):
+- [x] Transform now: `translateY(-2px) scale(1.005)`
 
 ---
 
@@ -380,21 +331,25 @@ The following has been completed and verified:
 - [x] Empty state handling
 - [x] Test coverage
 
-### Comment Threading (95%)
+### Comment Threading (100%)
 - [x] Avatar system with initials fallback
 - [x] User badges (OP badge, Mod badge)
 - [x] Thread lines (3px width, clickable to collapse)
 - [x] Collapse animation (300ms ease-out)
 - [x] Action bar with pill-style Reply/Share buttons
 - [x] Full keyboard accessibility
+- [x] Updated indentation values (16px mobile, 24px desktop)
+- [x] Max-level flattening (cap at level 6)
 
-### Post Card Polish (90%)
+### Post Card Polish (95%)
 - [x] Typography hierarchy (title, metadata, preview)
 - [x] Pill-style footer action buttons
 - [x] Staggered list entrance animations
 - [x] Metadata bar with timestamps
 - [x] Focus states and keyboard navigation
 - [x] Mobile responsive layout
+- [x] Gradient accent stripe on left edge (4px)
+- [x] Hover transform with subtle scale(1.005)
 
 ### Animation Refinements (100%)
 - [x] Staggered list animations (50ms delay)
@@ -455,13 +410,13 @@ npx playwright test --update-snapshots
 2. Update Away Kit Cream Colours
 3. Theme Picker Desktop Redesign
 
-### Phase 2: P1 Quick Wins
-4. Comment indentation values (4 value changes)
-5. Post card hover transform (1 line)
-6. Gradient stripe position (2 lines)
+### Phase 2: P1 Quick Wins (Complete)
+4. ~~Comment indentation values (4 value changes)~~ DONE
+5. ~~Post card hover transform (1 line)~~ DONE
+6. ~~Gradient stripe position (2 lines)~~ DONE
 
 ### Phase 3: P1 Features
-7. Max-level comment flattening
+7. ~~Max-level comment flattening~~ DONE
 8. Thumbnail gallery indicator
 9. Video duration overlay (requires new utility)
 

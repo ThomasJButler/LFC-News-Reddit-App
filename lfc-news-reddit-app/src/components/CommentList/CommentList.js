@@ -52,18 +52,26 @@ const countReplies = (comment) => {
 };
 
 /**
+ * Maximum nesting level for visual display
+ * WHY: Per comment-threading-polish.md spec, flatten threads beyond depth 6
+ * Comments at depth 7, 8, 9+ all render at depth 6 indent to prevent excessive nesting
+ */
+const MAX_NESTING_LEVEL = 6;
+
+/**
  * Flatten a nested comment tree into a linear array for virtualization
  * WHY: react-window can only render linear lists, so we convert the tree structure
  * @param {Object[]} comments - Array of comment objects with nested replies
  * @param {Object} collapsedState - Map of comment IDs to collapsed state
- * @return {Object[]} Flattened array of comments with their level preserved
+ * @return {Object[]} Flattened array of comments with their level preserved (capped at MAX_NESTING_LEVEL)
  */
 const flattenComments = (comments, collapsedState = {}) => {
   const flattened = [];
 
   const traverse = (commentList, level = 0) => {
     commentList.forEach(comment => {
-      flattened.push({ ...comment, level });
+      // Cap level at MAX_NESTING_LEVEL to prevent excessive visual nesting
+      flattened.push({ ...comment, level: Math.min(level, MAX_NESTING_LEVEL) });
 
       // Only include replies if this comment is not collapsed
       if (!collapsedState[comment.id] && comment.replies && comment.replies.length > 0) {
@@ -90,13 +98,13 @@ const Comment = ({ comment, onToggleCollapse, collapsed, postId, subreddit }) =>
   // WHY: Track copy state to show feedback when user copies permalink
   const [copied, setCopied] = useState(false);
   // Cap indentation based on screen size to prevent excessive nesting pushing content off-screen
-  // WHY mobile optimization: 100px is 31% of 320px screen width, too much horizontal space
-  // Mobile (< 768px): Max 40px indent (12.5% of 320px screen)
-  // Desktop (>= 768px): Max 100px indent (comfortable for wide screens)
+  // WHY: Per comment-threading-polish.md spec, indent 16px mobile / 24px desktop
+  // Mobile (< 768px): 16px per level, max 64px (4 levels visible indent)
+  // Desktop (>= 768px): 24px per level, max 120px (5 levels visible indent)
   const isMobile = window.innerWidth < 768;
   const levelIndent = isMobile
-    ? Math.min(comment.level * 12, 40)
-    : Math.min(comment.level * 20, 100);
+    ? Math.min(comment.level * 16, 64)
+    : Math.min(comment.level * 24, 120);
 
   // Show collapse button and count of hidden replies
   const hasReplies = comment.replies && comment.replies.length > 0;
