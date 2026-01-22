@@ -104,9 +104,6 @@ npm test -- --coverage --watchAll=false
 # Build check
 npm run build
 
-# Lint check
-npm run lint
-
 # Visual regression tests (requires dev server running)
 npm run test:e2e:visual
 
