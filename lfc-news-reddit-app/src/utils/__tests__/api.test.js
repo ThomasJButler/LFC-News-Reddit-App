@@ -685,6 +685,124 @@ describe('API Module', () => {
       const calledUrl = global.fetch.mock.calls[0][0];
       expect(calledUrl).toContain('restrict_sr=on');
     });
+
+    it('should default to LiverpoolFC when no subreddit provided', async () => {
+      global.fetch.mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        headers: { get: () => 'application/json' },
+        json: () => Promise.resolve(mockSearchData)
+      });
+
+      const postsPromise = searchPosts('Salah');
+      jest.runAllTimers();
+      await postsPromise;
+
+      const calledUrl = global.fetch.mock.calls[0][0];
+      expect(calledUrl).toContain('/r/LiverpoolFC/search.json');
+    });
+
+    it('should default to LiverpoolFC when undefined subreddit passed', async () => {
+      global.fetch.mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        headers: { get: () => 'application/json' },
+        json: () => Promise.resolve(mockSearchData)
+      });
+
+      const postsPromise = searchPosts('Salah', undefined);
+      jest.runAllTimers();
+      await postsPromise;
+
+      const calledUrl = global.fetch.mock.calls[0][0];
+      expect(calledUrl).toContain('/r/LiverpoolFC/search.json');
+    });
+
+    it('should default to LiverpoolFC when null subreddit passed', async () => {
+      global.fetch.mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        headers: { get: () => 'application/json' },
+        json: () => Promise.resolve(mockSearchData)
+      });
+
+      const postsPromise = searchPosts('Salah', null);
+      jest.runAllTimers();
+      await postsPromise;
+
+      const calledUrl = global.fetch.mock.calls[0][0];
+      expect(calledUrl).toContain('/r/LiverpoolFC/search.json');
+    });
+
+    it('should block unauthorized subreddits and default to LiverpoolFC', async () => {
+      global.fetch.mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        headers: { get: () => 'application/json' },
+        json: () => Promise.resolve(mockSearchData)
+      });
+
+      // Attempt to search in r/gambling - should be blocked
+      const postsPromise = searchPosts('test', 'gambling');
+      jest.runAllTimers();
+      await postsPromise;
+
+      const calledUrl = global.fetch.mock.calls[0][0];
+      expect(calledUrl).toContain('/r/LiverpoolFC/search.json');
+      expect(calledUrl).not.toContain('/r/gambling/');
+    });
+
+    it('should block "all" subreddit and default to LiverpoolFC', async () => {
+      global.fetch.mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        headers: { get: () => 'application/json' },
+        json: () => Promise.resolve(mockSearchData)
+      });
+
+      // Attempt to search in r/all - should be blocked
+      const postsPromise = searchPosts('test', 'all');
+      jest.runAllTimers();
+      await postsPromise;
+
+      const calledUrl = global.fetch.mock.calls[0][0];
+      expect(calledUrl).toContain('/r/LiverpoolFC/search.json');
+      expect(calledUrl).not.toContain('/r/all/');
+    });
+
+    it('should block random subreddits and default to LiverpoolFC', async () => {
+      global.fetch.mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        headers: { get: () => 'application/json' },
+        json: () => Promise.resolve(mockSearchData)
+      });
+
+      // Attempt to search in r/mildlyinteresting - should be blocked
+      const postsPromise = searchPosts('test', 'mildlyinteresting');
+      jest.runAllTimers();
+      await postsPromise;
+
+      const calledUrl = global.fetch.mock.calls[0][0];
+      expect(calledUrl).toContain('/r/LiverpoolFC/search.json');
+      expect(calledUrl).not.toContain('/r/mildlyinteresting/');
+    });
+
+    it('should handle empty string subreddit by defaulting to LiverpoolFC', async () => {
+      global.fetch.mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        headers: { get: () => 'application/json' },
+        json: () => Promise.resolve(mockSearchData)
+      });
+
+      const postsPromise = searchPosts('test', '');
+      jest.runAllTimers();
+      await postsPromise;
+
+      const calledUrl = global.fetch.mock.calls[0][0];
+      expect(calledUrl).toContain('/r/LiverpoolFC/search.json');
+    });
   });
 
   describe('proxy fallback behaviour', () => {

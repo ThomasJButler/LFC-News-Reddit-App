@@ -250,6 +250,87 @@ test.describe('Happy Path - Core User Journeys', () => {
       // Input should be empty
       await expect(searchInput).toHaveValue('');
     });
+
+    test('search only returns posts from r/LiverpoolFC subreddit', async ({ page }) => {
+      // This test verifies the critical security fix: search should ONLY return
+      // posts from r/LiverpoolFC, not from other subreddits like r/gambling, r/all, etc.
+
+      // Intercept the Reddit API search request to verify it targets LiverpoolFC
+      let searchUrl = null;
+      await page.route('**/reddit.com/**/search.json**', async (route) => {
+        searchUrl = route.request().url();
+        await route.continue();
+      });
+
+      await page.goto('/');
+      await page.waitForSelector('[class*="postItem"]', { timeout: 15000 });
+
+      // Perform a search
+      const searchInput = page.getByPlaceholder('Search posts...');
+      await searchInput.fill('test');
+      await searchInput.press('Enter');
+
+      // Wait for the search request to be made
+      await page.waitForTimeout(2000);
+
+      // Verify the API was called with LiverpoolFC subreddit
+      if (searchUrl) {
+        // The URL should contain /r/LiverpoolFC/search.json
+        expect(searchUrl).toContain('/r/LiverpoolFC/search.json');
+        // The URL should NOT contain /r/all/ or any other subreddit
+        expect(searchUrl).not.toContain('/r/all/');
+        expect(searchUrl).not.toContain('/r/undefined/');
+        // Should have restrict_sr=on to limit results to the subreddit
+        expect(searchUrl).toContain('restrict_sr=on');
+      }
+
+      // If results are shown, verify they are all from r/LiverpoolFC
+      const posts = page.locator('[class*="postItem"]');
+      const postCount = await posts.count();
+
+      if (postCount > 0) {
+        // Check each visible post's subreddit indicator
+        for (let i = 0; i < Math.min(postCount, 5); i++) {
+          const post = posts.nth(i);
+          const subredditText = await post.locator('[class*="subreddit"]').textContent();
+
+          // Subreddit should be r/LiverpoolFC (or LiverpoolFC without prefix)
+          expect(subredditText?.toLowerCase()).toContain('liverpoolfc');
+        }
+      }
+    });
+
+    test('search does not leak to other subreddits', async ({ page }) => {
+      // Regression test: previously, the bug caused searches to go to r/all
+      // or r/undefined, showing posts from random subreddits like r/gambling
+
+      let requestsMade = [];
+      await page.route('**/*', async (route) => {
+        const url = route.request().url();
+        if (url.includes('reddit.com') && url.includes('search')) {
+          requestsMade.push(url);
+        }
+        await route.continue();
+      });
+
+      await page.goto('/');
+      await page.waitForSelector('[class*="postItem"]', { timeout: 15000 });
+
+      // Search for something that could match posts in many subreddits
+      const searchInput = page.getByPlaceholder('Search posts...');
+      await searchInput.fill('slot');  // This was showing r/gambling posts before
+      await searchInput.press('Enter');
+
+      await page.waitForTimeout(2000);
+
+      // Verify all search requests only target LiverpoolFC
+      for (const url of requestsMade) {
+        expect(url).toContain('LiverpoolFC');
+        expect(url).not.toContain('/r/gambling');
+        expect(url).not.toContain('/r/all');
+        expect(url).not.toContain('/r/undefined');
+      }
+    });
   });
 
   test.describe('Sort and Filter', () => {

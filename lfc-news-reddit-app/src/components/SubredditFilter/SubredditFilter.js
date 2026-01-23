@@ -3,6 +3,7 @@
  * @date 2025-10-22
  * @description Filter controls for subreddit selection, sort method, and time range.
  *              Viral/spiciness sort uses client-side scoring instead of API request.
+ *              Redesigned with collapsible unified card layout.
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
@@ -23,6 +24,26 @@ const SubredditFilter = () => {
   const { items: posts, sortBy, timeRange, activeFilter, activeFlairFilters, activeMediaFilter } = useSelector(state => state.posts);
   const [announcement, setAnnouncement] = useState('');
   const [flairSectionExpanded, setFlairSectionExpanded] = useState(false);
+
+  // Collapsible filter panel state - collapsed by default
+  const [isExpanded, setIsExpanded] = useState(() => {
+    const saved = localStorage.getItem('lfc-filters-expanded');
+    return saved !== null ? saved === 'true' : false;
+  });
+
+  // Persist collapse state to localStorage
+  useEffect(() => {
+    localStorage.setItem('lfc-filters-expanded', String(isExpanded));
+  }, [isExpanded]);
+
+  // Count active filters for badge display when collapsed
+  const activeFilterCount = useMemo(() => {
+    let count = 0;
+    if (activeFilter) count++;
+    if (activeMediaFilter) count++;
+    count += activeFlairFilters.length;
+    return count;
+  }, [activeFilter, activeMediaFilter, activeFlairFilters]);
 
   /**
    * Collect unique flairs from loaded posts
@@ -167,18 +188,42 @@ const SubredditFilter = () => {
         </div>
       )}
 
-      {/* Main filter layout: Sort section + Filters card */}
-      <div className={styles.filterLayout}>
-        {/* Sort Section */}
-        <div className={styles.sortSection}>
-          <div className={styles.sortFilter}>
+      {/* Unified Filter Card */}
+      <div className={styles.filterCard}>
+        {/* Header Row - Always Visible */}
+        <div className={styles.filterHeader}>
+          {/* Collapse Toggle */}
+          <button
+            className={styles.collapseToggle}
+            onClick={() => setIsExpanded(!isExpanded)}
+            aria-expanded={isExpanded}
+            aria-controls="filter-body"
+          >
+            <Icon
+              name={isExpanded ? 'ChevronDown' : 'ChevronRight'}
+              size="sm"
+              ariaHidden={true}
+            />
+            <span className={styles.collapseLabel}>Filters</span>
+            {!isExpanded && activeFilterCount > 0 && (
+              <span className={styles.filterBadge}>{activeFilterCount}</span>
+            )}
+          </button>
+
+          {/* Theme Switcher */}
+          <div className={styles.headerTheme}>
+            <ThemeSwitcher />
+          </div>
+
+          {/* Sort Control */}
+          <div className={styles.sortControl}>
             <Icon
               name={getSortIcon()}
               size="sm"
               className={`${styles.sortIcon} ${sortBy === 'viral' ? styles.viralIcon : ''}`}
               ariaHidden={true}
             />
-            <label className={styles.filterLabel} htmlFor="sort-select">Sort by:</label>
+            <label className={styles.sortLabel} htmlFor="sort-select">Sort:</label>
             <select
               id="sort-select"
               className={styles.sortSelect}
@@ -191,16 +236,13 @@ const SubredditFilter = () => {
               <option value="rising">Rising</option>
               <option value="viral">Viral (Spicy)</option>
             </select>
-          </div>
-
-          {sortBy === 'top' && (
-            <div className={styles.timeRangeFilter}>
-              <label className={styles.filterLabel} htmlFor="time-select">Time:</label>
+            {sortBy === 'top' && (
               <select
                 id="time-select"
                 className={styles.sortSelect}
                 value={timeRange}
                 onChange={(e) => handleTimeRangeChange(e.target.value)}
+                aria-label="Time range"
               >
                 <option value="hour">Hour</option>
                 <option value="day">Day</option>
@@ -209,139 +251,141 @@ const SubredditFilter = () => {
                 <option value="year">Year</option>
                 <option value="all">All Time</option>
               </select>
-            </div>
-          )}
-
-          {/* Theme Switcher */}
-          <div className={styles.themeSection}>
-            <ThemeSwitcher />
+            )}
           </div>
         </div>
 
-        {/* Filters Card - Quick filters + Media type combined */}
-        <div className={styles.filtersCard}>
-          {/* Quick Filters Group */}
-          <div className={styles.filterGroup}>
-            <span className={styles.filterLabel}>Quick filters:</span>
-            <div className={styles.buttonGroup} role="group" aria-label="Content filters">
-              <button
-                className={`${styles.filterButton} ${activeFilter === 'matchday' ? styles.active : ''}`}
-                onClick={() => handleFilterChange('matchday')}
-                aria-pressed={activeFilter === 'matchday'}
-              >
-                <Icon name="Trophy" size="sm" ariaHidden={true} />
-                <span className={styles.filterButtonText}>Match Day</span>
-              </button>
-              <button
-                className={`${styles.filterButton} ${activeFilter === 'transfers' ? styles.active : ''}`}
-                onClick={() => handleFilterChange('transfers')}
-                aria-pressed={activeFilter === 'transfers'}
-              >
-                <Icon name="Users" size="sm" ariaHidden={true} />
-                <span className={styles.filterButtonText}>Transfers</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Media Type Group */}
-          <div className={styles.filterGroup}>
-            <span className={styles.filterLabel}>Media type:</span>
-            <div className={styles.buttonGroup} role="group" aria-label="Media type filters">
-              <button
-                className={`${styles.filterButton} ${activeMediaFilter === 'images' ? styles.active : ''}`}
-                onClick={() => handleMediaFilterChange('images')}
-                aria-pressed={activeMediaFilter === 'images'}
-              >
-                <Icon name="Image" size="sm" ariaHidden={true} />
-                <span className={styles.filterButtonText}>Images</span>
-              </button>
-              <button
-                className={`${styles.filterButton} ${activeMediaFilter === 'videos' ? styles.active : ''}`}
-                onClick={() => handleMediaFilterChange('videos')}
-                aria-pressed={activeMediaFilter === 'videos'}
-              >
-                <Icon name="Video" size="sm" ariaHidden={true} />
-                <span className={styles.filterButtonText}>Videos</span>
-              </button>
-              <button
-                className={`${styles.filterButton} ${activeMediaFilter === 'articles' ? styles.active : ''}`}
-                onClick={() => handleMediaFilterChange('articles')}
-                aria-pressed={activeMediaFilter === 'articles'}
-              >
-                <Icon name="Link" size="sm" ariaHidden={true} />
-                <span className={styles.filterButtonText}>Articles</span>
-              </button>
-              <button
-                className={`${styles.filterButton} ${activeMediaFilter === 'discussions' ? styles.active : ''}`}
-                onClick={() => handleMediaFilterChange('discussions')}
-                aria-pressed={activeMediaFilter === 'discussions'}
-              >
-                <Icon name="MessageSquare" size="sm" ariaHidden={true} />
-                <span className={styles.filterButtonText}>Discussions</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Expandable Flair Filter */}
-          {uniqueFlairs.length > 0 && (
-            <div className={styles.flairFilterExpandable}>
-              <button
-                className={styles.flairExpandButton}
-                onClick={() => setFlairSectionExpanded(!flairSectionExpanded)}
-                aria-expanded={flairSectionExpanded}
-                aria-controls="flair-filter-section"
-              >
-                <Icon
-                  name={flairSectionExpanded ? 'ChevronDown' : 'ChevronRight'}
-                  size="sm"
-                  ariaHidden={true}
-                />
-                <span className={styles.filterLabel}>
-                  Filter by flair
-                  {activeFlairFilters.length > 0 && ` (${activeFlairFilters.length} active)`}
-                </span>
-              </button>
-
-              {flairSectionExpanded && (
-                <div
-                  id="flair-filter-section"
-                  className={styles.flairFilterContent}
-                  role="group"
-                  aria-label="Flair filters"
+        {/* Collapsible Body */}
+        {isExpanded && (
+          <div id="filter-body" className={styles.filterBody}>
+            {/* Quick Filters Row */}
+            <div className={styles.filterRow}>
+              <span className={styles.filterLabel}>Quick:</span>
+              <div className={styles.filterButtons} role="group" aria-label="Content filters">
+                <button
+                  className={`${styles.filterButton} ${activeFilter === 'matchday' ? styles.active : ''}`}
+                  onClick={() => handleFilterChange('matchday')}
+                  aria-pressed={activeFilter === 'matchday'}
                 >
-                  <div className={styles.flairFilterButtons}>
-                    {uniqueFlairs.map(flair => (
-                      <button
-                        key={flair}
-                        className={`${styles.filterButton} ${styles.flairPill} ${
-                          activeFlairFilters.includes(flair) ? styles.active : ''
-                        }`}
-                        onClick={() => handleToggleFlairFilter(flair)}
-                        aria-pressed={activeFlairFilters.includes(flair)}
-                      >
-                        {flair}
-                      </button>
-                    ))}
-                  </div>
+                  <Icon name="Trophy" size="sm" ariaHidden={true} />
+                  <span className={styles.filterButtonText}>Match Day</span>
+                </button>
+                <button
+                  className={`${styles.filterButton} ${activeFilter === 'transfers' ? styles.active : ''}`}
+                  onClick={() => handleFilterChange('transfers')}
+                  aria-pressed={activeFilter === 'transfers'}
+                >
+                  <Icon name="Users" size="sm" ariaHidden={true} />
+                  <span className={styles.filterButtonText}>Transfers</span>
+                </button>
+              </div>
+            </div>
 
-                  {activeFlairFilters.length > 0 && (
-                    <button
-                      className={styles.clearFlairFilters}
-                      onClick={() => {
-                        dispatch(clearFlairFilters());
-                        setAnnouncement('All flair filters cleared');
-                      }}
-                      aria-label="Clear all flair filters"
+            {/* Media Type Row */}
+            <div className={styles.filterRow}>
+              <span className={styles.filterLabel}>Media:</span>
+              <div className={styles.filterButtons} role="group" aria-label="Media type filters">
+                <button
+                  className={`${styles.filterButton} ${activeMediaFilter === 'images' ? styles.active : ''}`}
+                  onClick={() => handleMediaFilterChange('images')}
+                  aria-pressed={activeMediaFilter === 'images'}
+                >
+                  <Icon name="Image" size="sm" ariaHidden={true} />
+                  <span className={styles.filterButtonText}>Images</span>
+                </button>
+                <button
+                  className={`${styles.filterButton} ${activeMediaFilter === 'videos' ? styles.active : ''}`}
+                  onClick={() => handleMediaFilterChange('videos')}
+                  aria-pressed={activeMediaFilter === 'videos'}
+                >
+                  <Icon name="Video" size="sm" ariaHidden={true} />
+                  <span className={styles.filterButtonText}>Videos</span>
+                </button>
+                <button
+                  className={`${styles.filterButton} ${activeMediaFilter === 'articles' ? styles.active : ''}`}
+                  onClick={() => handleMediaFilterChange('articles')}
+                  aria-pressed={activeMediaFilter === 'articles'}
+                >
+                  <Icon name="Link" size="sm" ariaHidden={true} />
+                  <span className={styles.filterButtonText}>Articles</span>
+                </button>
+                <button
+                  className={`${styles.filterButton} ${activeMediaFilter === 'discussions' ? styles.active : ''}`}
+                  onClick={() => handleMediaFilterChange('discussions')}
+                  aria-pressed={activeMediaFilter === 'discussions'}
+                >
+                  <Icon name="MessageSquare" size="sm" ariaHidden={true} />
+                  <span className={styles.filterButtonText}>Discussions</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Flair Filter Row */}
+            {uniqueFlairs.length > 0 && (
+              <div className={styles.filterRow}>
+                <span className={styles.filterLabel}>Flair:</span>
+                <div className={styles.flairFilterSection}>
+                  <button
+                    className={styles.flairExpandButton}
+                    onClick={() => setFlairSectionExpanded(!flairSectionExpanded)}
+                    aria-expanded={flairSectionExpanded}
+                    aria-controls="flair-filter-section"
+                  >
+                    <Icon
+                      name={flairSectionExpanded ? 'ChevronDown' : 'ChevronRight'}
+                      size="sm"
+                      ariaHidden={true}
+                    />
+                    <span>
+                      Filter by flair
+                      {activeFlairFilters.length > 0 && (
+                        <span className={styles.flairCount}> ({activeFlairFilters.length} active)</span>
+                      )}
+                    </span>
+                  </button>
+
+                  {flairSectionExpanded && (
+                    <div
+                      id="flair-filter-section"
+                      className={styles.flairFilterContent}
+                      role="group"
+                      aria-label="Flair filters"
                     >
-                      <Icon name="X" size="sm" ariaHidden={true} />
-                      Clear all
-                    </button>
+                      <div className={styles.flairFilterButtons}>
+                        {uniqueFlairs.map(flair => (
+                          <button
+                            key={flair}
+                            className={`${styles.filterButton} ${styles.flairPill} ${
+                              activeFlairFilters.includes(flair) ? styles.active : ''
+                            }`}
+                            onClick={() => handleToggleFlairFilter(flair)}
+                            aria-pressed={activeFlairFilters.includes(flair)}
+                          >
+                            {flair}
+                          </button>
+                        ))}
+                      </div>
+
+                      {activeFlairFilters.length > 0 && (
+                        <button
+                          className={styles.clearFlairFilters}
+                          onClick={() => {
+                            dispatch(clearFlairFilters());
+                            setAnnouncement('All flair filters cleared');
+                          }}
+                          aria-label="Clear all flair filters"
+                        >
+                          <Icon name="X" size="sm" ariaHidden={true} />
+                          Clear all
+                        </button>
+                      )}
+                    </div>
                   )}
                 </div>
-              )}
-            </div>
-          )}
-        </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

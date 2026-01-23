@@ -16,7 +16,7 @@ import styles from './SearchBar.module.css';
  */
 const SearchBar = () => {
   const dispatch = useDispatch();
-  const { selectedSubreddit } = useSelector(state => state.subreddits);
+  const { selected: selectedSubreddit } = useSelector(state => state.subreddits);
   const { searchTerm: currentSearchTerm, loading } = useSelector(state => state.posts);
   const [inputValue, setInputValue] = useState(currentSearchTerm);
 
