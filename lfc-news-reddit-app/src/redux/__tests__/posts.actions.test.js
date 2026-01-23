@@ -299,7 +299,7 @@ describe('Posts Action Creators', () => {
         const store = mockStore({});
         await store.dispatch(actions.fetchPosts());
 
-        expect(api.fetchPosts).toHaveBeenCalledWith('all', 'hot', 'day');
+        expect(api.fetchPosts).toHaveBeenCalledWith('LiverpoolFC', 'hot', 'day');
       });
     });
 
@@ -398,7 +398,7 @@ describe('Posts Action Creators', () => {
         const store = mockStore({});
         await store.dispatch(actions.searchPosts('test'));
 
-        expect(api.searchPosts).toHaveBeenCalledWith('test', 'all');
+        expect(api.searchPosts).toHaveBeenCalledWith('test', 'LiverpoolFC');
       });
     });
   });

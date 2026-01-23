@@ -9,12 +9,12 @@ import * as types from './types';
 import * as api from '../../utils/api';
 
 /**
- * @param {string} [subreddit='all'] - Subreddit to fetch from or 'all' for combined feeds
+ * @param {string} [subreddit='LiverpoolFC'] - Subreddit to fetch from (only LiverpoolFC is allowed)
  * @param {string} [sortBy='hot'] - Sort method: 'hot', 'new', 'top', 'controversial'
  * @param {string} [timeRange='day'] - Time filter for top/controversial sorts
  * @return {Function} Thunk action that dispatches fetch lifecycle actions
  */
-export const fetchPosts = (subreddit = 'all', sortBy = 'hot', timeRange = 'day') => {
+export const fetchPosts = (subreddit = 'LiverpoolFC', sortBy = 'hot', timeRange = 'day') => {
   return async (dispatch) => {
     dispatch({ type: types.FETCH_POSTS_REQUEST });
     
@@ -58,10 +58,10 @@ export const fetchPostDetails = (postId) => {
 
 /**
  * @param {string} searchTerm - Search query string
- * @param {string} [subreddit='all'] - Subreddit to search within
+ * @param {string} [subreddit='LiverpoolFC'] - Subreddit to search within (only LiverpoolFC is allowed)
  * @return {Function} Thunk action that searches posts and updates search term
  */
-export const searchPosts = (searchTerm, subreddit = 'all') => {
+export const searchPosts = (searchTerm, subreddit = 'LiverpoolFC') => {
   return async (dispatch) => {
     dispatch({ type: types.SEARCH_POSTS_REQUEST });
     dispatch({ type: types.SET_SEARCH_TERM, payload: searchTerm });

@@ -57,7 +57,7 @@ describe('SearchBar Component', () => {
     // Create a fresh store for each test
     store = mockStore({
       subreddits: {
-        selectedSubreddit: 'LiverpoolFC'
+        selected: 'LiverpoolFC'
       },
       posts: {
         searchTerm: '',
@@ -214,7 +214,7 @@ describe('SearchBar Component', () => {
     it('shows loading spinner when loading with input value', () => {
       const loadingStore = mockStore({
         subreddits: {
-          selectedSubreddit: 'LiverpoolFC'
+          selected: 'LiverpoolFC'
         },
         posts: {
           searchTerm: 'test',
@@ -240,7 +240,7 @@ describe('SearchBar Component', () => {
     it('disables search button when loading', () => {
       const loadingStore = mockStore({
         subreddits: {
-          selectedSubreddit: 'LiverpoolFC'
+          selected: 'LiverpoolFC'
         },
         posts: {
           searchTerm: 'test',
@@ -276,6 +276,93 @@ describe('SearchBar Component', () => {
 
       const form = container.querySelector('form');
       expect(form).toBeInTheDocument();
+    });
+  });
+
+  describe('Subreddit Filtering Security', () => {
+    it('always passes LiverpoolFC subreddit to searchPosts action', () => {
+      renderWithStore(store);
+
+      const input = screen.getByPlaceholderText('Search posts...');
+      fireEvent.change(input, { target: { value: 'Salah goal' } });
+
+      const form = input.closest('form');
+      fireEvent.submit(form);
+
+      // Verify searchPosts was called with LiverpoolFC subreddit
+      expect(postsActions.searchPosts).toHaveBeenCalledWith('Salah goal', 'LiverpoolFC');
+    });
+
+    it('uses correct Redux state property (selected) for subreddit', () => {
+      // This test verifies the fix for the bug where 'selectedSubreddit' was used
+      // instead of 'selected', which caused undefined to be passed to search
+      const storeWithCorrectState = mockStore({
+        subreddits: {
+          available: ['LiverpoolFC'],
+          selected: 'LiverpoolFC'  // This is the correct property name
+        },
+        posts: {
+          searchTerm: '',
+          loading: false
+        }
+      });
+
+      render(
+        <Provider store={storeWithCorrectState}>
+          <SearchBar />
+        </Provider>
+      );
+
+      const input = screen.getByPlaceholderText('Search posts...');
+      fireEvent.change(input, { target: { value: 'test search' } });
+      fireEvent.submit(input.closest('form'));
+
+      // Verify the subreddit is correctly read from state
+      expect(postsActions.searchPosts).toHaveBeenCalledWith('test search', 'LiverpoolFC');
+    });
+
+    it('passes LiverpoolFC to fetchPosts when clearing search', () => {
+      renderWithStore(store);
+
+      const input = screen.getByPlaceholderText('Search posts...');
+      fireEvent.change(input, { target: { value: 'test' } });
+
+      const clearButton = screen.getByRole('button', { name: 'Clear search' });
+      fireEvent.click(clearButton);
+
+      // Verify fetchPosts was called with LiverpoolFC
+      expect(postsActions.fetchPosts).toHaveBeenCalledWith('LiverpoolFC');
+    });
+
+    it('does not search other subreddits', () => {
+      // Create a store that might have an incorrect subreddit somehow
+      const malformedStore = mockStore({
+        subreddits: {
+          available: ['LiverpoolFC'],
+          selected: 'LiverpoolFC'
+        },
+        posts: {
+          searchTerm: '',
+          loading: false
+        }
+      });
+
+      render(
+        <Provider store={malformedStore}>
+          <SearchBar />
+        </Provider>
+      );
+
+      const input = screen.getByPlaceholderText('Search posts...');
+      fireEvent.change(input, { target: { value: 'gambling slots' } });
+      fireEvent.submit(input.closest('form'));
+
+      // Verify that even with a search for gambling content, it only searches LiverpoolFC
+      const [searchTerm, subreddit] = postsActions.searchPosts.mock.calls[0];
+      expect(subreddit).toBe('LiverpoolFC');
+      expect(subreddit).not.toBe('gambling');
+      expect(subreddit).not.toBe('all');
+      expect(subreddit).not.toBe(undefined);
     });
   });
 });
