@@ -1,13 +1,17 @@
+/**
+ * SubredditFilter Styles - Unified Collapsible Card Design
+ * WHY: Single unified card with collapsible body provides cleaner, more professional UX
+ */
+
 .filterContainer {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
   padding: var(--spacing-md) 0;
-  border-bottom: 1px solid var(--border-color);
   margin-bottom: var(--spacing-lg);
   max-width: 100%;
   overflow: hidden;
-  /* WHY sticky: Filter bar stays visible while browsing posts for easy access to filtering controls */
+  /* WHY sticky: Filter bar stays visible while browsing posts */
   position: sticky;
   top: 0;
   z-index: var(--z-filter);
@@ -15,63 +19,8 @@
   transition: background-color var(--transition-theme);
 }
 
-/* Main filter layout: Sort section + Filters card side by side on desktop */
-.filterLayout {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
-}
-
-/* Sort section - standalone on the left */
-.sortSection {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-md);
-  background-color: var(--bg-secondary);
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-color);
-}
-
-/* Theme switcher section within sort card */
-.themeSection {
-  margin-top: var(--spacing-sm);
-  padding-top: var(--spacing-sm);
-  border-top: 1px solid var(--border-color);
-}
-
-/* Combined filters card - Quick filters + Media type */
-.filtersCard {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
-  padding: var(--spacing-md);
-  background-color: var(--bg-secondary);
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-color);
-  flex: 1;
-}
-
-.filtersCardHeader {
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
-  color: var(--text-primary);
-  margin: 0;
-  padding-bottom: var(--spacing-xs);
-  border-bottom: 1px solid var(--border-color);
-}
-
-/* Filter group within the card */
-.filterGroup {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xs);
-}
-
-.subredditFilter,
-.sortFilter,
-.timeRangeFilter,
-.flairFilterContainer {
+/* Subreddit selector (when multiple available) */
+.subredditFilter {
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
@@ -79,12 +28,164 @@
   max-width: 100%;
 }
 
+/* ==========================================
+   UNIFIED FILTER CARD
+   ========================================== */
+
+.filterCard {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  transition: background-color var(--transition-theme),
+              border-color var(--transition-theme);
+}
+
+/* ==========================================
+   HEADER ROW - Always Visible
+   ========================================== */
+
+.filterHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+  min-height: 56px;
+}
+
+/* Collapse Toggle Button */
+.collapseToggle {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  min-height: 44px;
+  transition: background-color var(--transition-fast),
+              color var(--transition-theme);
+}
+
+.collapseToggle:hover {
+  background-color: var(--bg-tertiary);
+}
+
+.collapseToggle:active {
+  transform: scale(0.97);
+}
+
+.collapseLabel {
+  white-space: nowrap;
+}
+
+/* Active Filter Badge */
+.filterBadge {
+  background-color: var(--accent);
+  color: white;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  margin-left: var(--spacing-xs);
+  min-width: 20px;
+  text-align: center;
+}
+
+/* Theme Switcher in Header */
+.headerTheme {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+/* Sort Control Group */
+.sortControl {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  margin-left: auto;
+}
+
+.sortLabel {
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.sortIcon {
+  color: var(--text-secondary);
+  flex-shrink: 0;
+  transition: color var(--transition-theme);
+}
+
+.viralIcon {
+  color: var(--accent);
+}
+
+.sortSelect {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  min-height: 40px;
+  transition: background-color var(--transition-theme),
+              color var(--transition-theme),
+              border-color var(--transition-theme);
+}
+
+.sortSelect:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+/* ==========================================
+   COLLAPSIBLE BODY
+   ========================================== */
+
+.filterBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  border-top: 1px solid var(--border-color);
+  background-color: var(--bg-secondary);
+  transition: background-color var(--transition-theme),
+              border-color var(--transition-theme);
+}
+
+/* ==========================================
+   FILTER ROWS - Uniform Pattern
+   ========================================== */
+
+.filterRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  min-height: 44px;
+}
+
 .filterLabel {
   color: var(--text-secondary);
   font-size: var(--font-size-sm);
   font-weight: 500;
-  min-width: 80px;
+  min-width: 50px;
   flex-shrink: 0;
+  transition: color var(--transition-theme);
+}
+
+.filterButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
 }
 
 .buttonGroup {
@@ -94,24 +195,27 @@
   max-width: 100%;
 }
 
+/* ==========================================
+   FILTER BUTTONS
+   ========================================== */
+
 .filterButton {
   padding: var(--spacing-xs) var(--spacing-sm);
-  background-color: var(--bg-secondary);
+  background-color: var(--bg-tertiary);
   color: var(--text-secondary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
   font-size: var(--font-size-sm);
   cursor: pointer;
-  /* WHY: Use theme transition for color changes */
-  transition: background-color var(--transition-theme),
-              color var(--transition-theme),
-              border-color var(--transition-theme);
-  /* Updated: Minimum 44px height for touch targets (WCAG 2.5.5) */
-  min-height: 44px;
+  min-height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: var(--spacing-xs);
+  transition: background-color var(--transition-fast),
+              color var(--transition-fast),
+              border-color var(--transition-fast),
+              transform var(--transition-fast);
 }
 
 .filterButtonText {
@@ -119,12 +223,12 @@
 }
 
 .filterButton:hover {
-  background-color: var(--bg-tertiary);
+  background-color: var(--bg-secondary);
   color: var(--text-primary);
+  border-color: var(--border-hover);
 }
 
 .filterButton:active {
-  /* WHY: scale(0.97) provides tactile press feedback per animation-refinements.md spec */
   transform: scale(0.97);
 }
 
@@ -134,68 +238,15 @@
   border-color: var(--accent);
 }
 
-.sortSelect {
-  padding: var(--spacing-xs) var(--spacing-sm);
-  background-color: var(--bg-secondary);
-  color: var(--text-primary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  font-size: var(--font-size-sm);
-  cursor: pointer;
-  min-width: 120px;
-  /* Updated: Minimum 44px height for touch targets (WCAG 2.5.5) */
-  min-height: 44px;
-}
+/* ==========================================
+   FLAIR FILTER SECTION
+   ========================================== */
 
-.sortSelect:focus {
-  outline: none;
-  border-color: var(--accent);
-}
-
-/* Sort icon styling */
-.sortIcon {
-  color: var(--text-secondary);
-  flex-shrink: 0;
-  /* WHY: Use theme transition for smooth color changes when switching themes */
-  transition: color var(--transition-theme);
-}
-
-/* Viral icon gets accent color to match the spicy theme */
-.viralIcon {
-  color: var(--accent);
-}
-
-/* Mobile: horizontal scrolling for filters to save vertical space */
-@media (max-width: 767px) {
-  .buttonGroup {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-  }
-
-  .buttonGroup::-webkit-scrollbar {
-    display: none;
-  }
-
-  .filterButton {
-    flex-shrink: 0;
-    white-space: nowrap;
-  }
-
-  /* Hide theme switcher on mobile - uses BottomNav instead */
-  .themeSection {
-    display: none;
-  }
-}
-
-/* Expandable flair filter section - WHY: Shows dynamic flairs from posts */
-.flairFilterExpandable {
+.flairFilterSection {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
-  width: 100%;
+  flex: 1;
 }
 
 .flairExpandButton {
@@ -208,9 +259,8 @@
   color: var(--text-secondary);
   font-size: var(--font-size-sm);
   cursor: pointer;
-  min-height: 44px;
-  /* WHY: Use theme transition for smooth color changes when switching themes */
-  transition: color var(--transition-theme);
+  min-height: 40px;
+  transition: color var(--transition-fast);
 }
 
 .flairExpandButton:hover {
@@ -218,8 +268,12 @@
 }
 
 .flairExpandButton:active {
-  /* WHY: scale(0.97) provides tactile press feedback per animation-refinements.md spec */
   transform: scale(0.97);
+}
+
+.flairCount {
+  color: var(--accent);
+  font-weight: var(--font-weight-medium);
 }
 
 .flairFilterContent {
@@ -238,12 +292,9 @@
 }
 
 .flairPill {
-  /* WHY: 44px min-height meets WCAG 2.5.5 touch target requirement for accessibility */
   padding: var(--spacing-xs) var(--spacing-sm);
   font-size: var(--font-size-xs);
-  min-height: 44px;
-  display: flex;
-  align-items: center;
+  min-height: 36px;
 }
 
 .clearFlairFilters {
@@ -259,70 +310,116 @@
   font-size: var(--font-size-xs);
   cursor: pointer;
   min-height: 36px;
-  /* WHY: Use theme transition for smooth color changes when switching themes */
-  transition: background-color var(--transition-theme),
-              color var(--transition-theme),
-              border-color var(--transition-theme);
+  transition: background-color var(--transition-fast),
+              color var(--transition-fast),
+              border-color var(--transition-fast);
 }
 
 .clearFlairFilters:hover {
-  background-color: var(--bg-secondary);
+  background-color: var(--bg-tertiary);
   color: var(--text-primary);
   border-color: var(--accent);
 }
 
 .clearFlairFilters:active {
-  /* WHY: scale(0.97) provides tactile press feedback per animation-refinements.md spec */
   transform: scale(0.97);
 }
 
-@media (min-width: 768px) {
-  /* Desktop: 2-column grid layout */
-  .filterLayout {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    gap: var(--spacing-lg);
-    align-items: start;
-  }
+/* ==========================================
+   MOBILE RESPONSIVE
+   ========================================== */
 
-  .sortSection {
-    min-width: 140px;
-  }
-
-  .filtersCard {
-    flex-direction: row;
+@media (max-width: 767px) {
+  .filterHeader {
     flex-wrap: wrap;
-    align-items: flex-start;
-    gap: var(--spacing-lg);
-  }
-
-  .filtersCardHeader {
-    width: 100%;
-    font-size: var(--font-size-base);
-  }
-
-  .filterGroup {
-    flex-direction: row;
-    align-items: center;
     gap: var(--spacing-sm);
+    padding: var(--spacing-sm);
+  }
+
+  .collapseToggle {
+    order: 1;
+  }
+
+  .sortControl {
+    order: 2;
+    margin-left: auto;
+  }
+
+  /* Hide theme switcher on mobile - BottomNav handles it */
+  .headerTheme {
+    display: none;
+  }
+
+  .filterButtons {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding-bottom: var(--spacing-xs);
+  }
+
+  .filterButtons::-webkit-scrollbar {
+    display: none;
+  }
+
+  .filterButton {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  .filterRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-xs);
+  }
+
+  .filterLabel {
+    min-width: auto;
+  }
+
+  .flairFilterSection {
+    width: 100%;
+  }
+}
+
+/* ==========================================
+   DESKTOP RESPONSIVE
+   ========================================== */
+
+@media (min-width: 768px) {
+  .filterHeader {
+    padding: var(--spacing-sm) var(--spacing-lg);
+  }
+
+  .filterBody {
+    padding: var(--spacing-md) var(--spacing-lg);
   }
 
   .filterButton {
     padding: var(--spacing-sm) var(--spacing-md);
     font-size: var(--font-size-base);
+    min-height: 44px;
   }
 
   .filterLabel {
     font-size: var(--font-size-base);
+    min-width: 60px;
   }
 
   .sortSelect {
     font-size: var(--font-size-base);
-    min-width: 150px;
+    min-width: 120px;
+    min-height: 44px;
+  }
+
+  .collapseToggle {
+    font-size: var(--font-size-base);
   }
 
   .flairExpandButton {
     font-size: var(--font-size-base);
+    min-height: 44px;
   }
 
   .flairPill {
@@ -333,5 +430,38 @@
   .clearFlairFilters {
     font-size: var(--font-size-sm);
     min-height: 44px;
+  }
+}
+
+/* ==========================================
+   FOCUS STATES - Accessibility
+   ========================================== */
+
+.collapseToggle:focus-visible,
+.filterButton:focus-visible,
+.sortSelect:focus-visible,
+.flairExpandButton:focus-visible,
+.clearFlairFilters:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ==========================================
+   REDUCED MOTION
+   ========================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .collapseToggle,
+  .filterButton,
+  .flairExpandButton,
+  .clearFlairFilters {
+    transition: none;
+  }
+
+  .collapseToggle:active,
+  .filterButton:active,
+  .flairExpandButton:active,
+  .clearFlairFilters:active {
+    transform: none;
   }
 }
