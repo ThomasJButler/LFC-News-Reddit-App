@@ -7,6 +7,7 @@
 
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import CodeBlock from '../components/CodeBlock/CodeBlock';
 
 /**
  * @param {string} content - Markdown content to render
@@ -21,15 +22,24 @@ export const renderMarkdown = (content) => {
       children: content,
       remarkPlugins: [remarkGfm],
       components: {
-        a: ({ href, children }) => (
-          <a href={href} target="_blank" rel="noopener noreferrer">
+        a: ({ href, children }) => {
+          // Extract text content for aria-label (WHY: screen readers need descriptive label for external links)
+          const linkText = typeof children === 'string' ? children : 'link';
+          return (
+            <a
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`${linkText} (opens in new tab)`}
+            >
+              {children}
+            </a>
+          );
+        },
+        code: ({ inline, className, children }) => (
+          <CodeBlock inline={inline} className={className}>
             {children}
-          </a>
-        ),
-        code: ({ inline, children }) => (
-          inline ? 
-            <code className="inline-code">{children}</code> :
-            <pre className="code-block"><code>{children}</code></pre>
+          </CodeBlock>
         )
       }
     }
@@ -44,4 +54,28 @@ export const decodeHtml = (html) => {
   const txt = document.createElement('textarea');
   txt.innerHTML = html;
   return txt.value;
+};
+
+/**
+ * @param {string} text - Markdown text to strip
+ * @return {string} Plain text with markdown formatting removed
+ */
+export const stripMarkdown = (text) => {
+  if (!text) return '';
+  return text
+    .replace(/#{1,6}\s*/g, '')           // Headers
+    .replace(/\*\*(.+?)\*\*/g, '$1')     // Bold
+    .replace(/\*(.+?)\*/g, '$1')         // Italic
+    .replace(/__(.+?)__/g, '$1')         // Bold (alt)
+    .replace(/_(.+?)_/g, '$1')           // Italic (alt)
+    .replace(/~~(.+?)~~/g, '$1')         // Strikethrough
+    .replace(/`(.+?)`/g, '$1')           // Inline code
+    .replace(/!\[.*?\]\(.+?\)/g, '')     // Images (WHY: must run before links regex to avoid leaving `!alt text`)
+    .replace(/\[(.+?)\]\(.+?\)/g, '$1')  // Links
+    .replace(/^\s*[-*+]\s+/gm, '')       // Unordered lists
+    .replace(/^\s*\d+\.\s+/gm, '')       // Ordered lists
+    .replace(/^\s*>\s*/gm, '')           // Blockquotes
+    .replace(/\n{2,}/g, ' ')             // Multiple newlines
+    .replace(/\n/g, ' ')                 // Single newlines
+    .trim();
 };

@@ -1,76 +1,118 @@
+/**
+ * Theme Switcher Styles
+ * WHY: Visual button group with colour swatches provides clearer theme selection
+ * than a dropdown, allowing users to see all options at once with kit colour previews.
+ */
+
+/* Container - horizontal layout */
 .themeSwitcher {
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
 }
 
-.themeButton {
+/* Label with palette icon */
+.themeLabel {
   display: flex;
   align-items: center;
+  gap: var(--spacing-xs);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* Button group container */
+.themeButtons {
+  display: flex;
+  gap: var(--spacing-xs);
+}
+
+/* Individual theme button */
+.themeButton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
-  width: 60px;
-  height: 32px;
-  border-radius: var(--radius-md);
+  gap: 4px;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: var(--bg-secondary);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition: transform var(--transition-fast),
+              border-color var(--transition-fast),
+              background-color var(--transition-fast);
+  /* WHY: 44px minimum touch target for WCAG accessibility */
+  min-height: 44px;
+  min-width: 60px;
+}
+
+/* Colour swatch circle */
+.colorSwatch {
+  width: 18px;
+  height: 18px;
+  border-radius: var(--radius-full);
+  /* WHY: Border makes light colours visible against light backgrounds */
+  border: 1px solid var(--border-color);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Theme name label */
+.themeName {
   font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-bold);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  outline: none;
-  position: relative;
-  overflow: hidden;
+  font-weight: 500;
+  color: var(--text-secondary);
+  line-height: 1;
 }
 
-.buttonText {
-  color: white;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-  position: relative;
-  z-index: 2;
-}
-
+/* Hover state */
 .themeButton:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  background: var(--bg-tertiary);
+  transform: scale(1.05);
 }
 
+/* Active/selected state */
+.themeButton.active {
+  border-color: var(--accent);
+  background: var(--accent-light);
+}
+
+.themeButton.active .themeName {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* Focus state for keyboard navigation */
+.themeButton:focus {
+  outline: none;
+}
+
+.themeButton:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Active press state */
 .themeButton:active {
-  transform: translateY(0);
+  transform: scale(0.97);
 }
 
-.themeButton::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
-  transform: translateX(-100%);
-  transition: transform 0.6s;
-}
-
-.themeButton:hover::before {
-  transform: translateX(100%);
-}
-
-/* Mobile responsive */
+/* Mobile: Hide theme switcher - BottomNav handles theme cycling */
 @media (max-width: 767px) {
   .themeSwitcher {
-    gap: var(--spacing-xs);
-  }
-  
-  .themeButton {
-    width: 50px;
-    height: 28px;
-    font-size: 10px;
+    display: none;
   }
 }
 
-@media (min-width: 768px) {
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
   .themeButton {
-    width: 70px;
-    height: 36px;
-    font-size: var(--font-size-sm);
+    transition: none;
+  }
+
+  .themeButton:hover,
+  .themeButton:active {
+    transform: none;
   }
 }

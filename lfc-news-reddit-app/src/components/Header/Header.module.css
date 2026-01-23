@@ -16,10 +16,17 @@
   margin: 0 auto;
   padding: 0 var(--spacing-lg);
   display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+/* Row 1: Title/branding on left, Search on right */
+.headerRow {
+  display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
   gap: var(--spacing-lg);
+  flex-wrap: wrap;
 }
 
 .titleSection {
@@ -30,16 +37,10 @@
 
 .brandingSection {
   display: flex;
-  align-items: center;
-  gap: var(--spacing-md);
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-xs);
   margin-bottom: var(--spacing-xs);
-}
-
-.logo {
-  width: 48px;
-  height: 48px;
-  object-fit: contain;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 }
 
 .titleGroup {
@@ -53,12 +54,13 @@
   font-weight: var(--font-weight-black);
   margin: 0;
   letter-spacing: -1px;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  /* WHY: Use text-shadow-normal for title emphasis */
+  text-shadow: var(--text-shadow-normal);
   background: linear-gradient(45deg, var(--theme-accent), var(--theme-primary));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  animation: titleGlow 3s ease-in-out infinite alternate;
+  /* Removed: titleGlow animation - distracting infinite animation (spec violation) */
 }
 
 .subtitle {
@@ -66,9 +68,41 @@
   opacity: 0.9;
   margin-top: var(--spacing-xs);
   font-weight: var(--font-weight-medium);
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  /* WHY: Use text-shadow-normal for consistent text effects */
+  text-shadow: var(--text-shadow-normal);
   letter-spacing: 0.5px;
   text-transform: uppercase;
+}
+
+.tagline {
+  font-size: var(--font-size-xs);
+  opacity: 0.7;
+  margin-top: var(--spacing-xxs);
+  font-weight: var(--font-weight-medium);
+  font-style: italic;
+  color: var(--theme-accent);
+  /* WHY: Use text-shadow-light for subtle tagline shadow */
+  text-shadow: var(--text-shadow-light);
+  letter-spacing: 0.3px;
+  transition: opacity var(--transition-theme);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+/* WHY: Liverbird icon adds LFC branding accent to YNWA tagline */
+.liverbirdIcon {
+  color: var(--theme-accent);
+  opacity: 0.6;
+  transition: opacity var(--transition-theme),
+              color var(--transition-theme),
+              transform var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.tagline:hover .liverbirdIcon {
+  opacity: 1;
+  transform: translateY(-1px);
 }
 
 .developerLink {
@@ -79,15 +113,20 @@
   opacity: 0.8;
   font-weight: var(--font-weight-medium);
   transition: all var(--transition-fast);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  /* WHY: Use text-shadow-normal for link shadows */
+  text-shadow: var(--text-shadow-normal);
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-xs);
 }
 
-.developerLink::before {
-  content: "👨‍💻";
-  font-size: 0.8em;
+/* WHY: Icon component used instead of emoji for consistency with iconography spec */
+.developerIcon {
+  color: var(--theme-accent);
+  opacity: 0.8;
+  transition: opacity var(--transition-fast),
+              color var(--transition-fast),
+              transform var(--transition-fast);
 }
 
 .developerLink:hover {
@@ -95,54 +134,104 @@
   color: var(--theme-primary);
   text-decoration: underline;
   transform: translateY(-1px);
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+  /* WHY: Use text-shadow-medium for stronger hover emphasis */
+  text-shadow: var(--text-shadow-medium);
 }
 
-.headerActions {
+.developerLink:hover .developerIcon {
+  opacity: 1;
+  color: var(--theme-primary);
+  transform: translateY(-1px);
+}
+
+.searchWrapper {
   display: flex;
   align-items: center;
-  gap: var(--spacing-lg);
-  flex-wrap: wrap;
+  flex-shrink: 0;
 }
 
-@keyframes titleGlow {
-  0% {
-    filter: drop-shadow(0 0 5px rgba(200, 16, 46, 0.3));
-  }
-  100% {
-    filter: drop-shadow(0 0 15px rgba(200, 16, 46, 0.6));
-  }
-}
+/* Removed: titleGlow keyframe animation
+ * This infinite animation was distracting and violated the distraction-free spec.
+ */
 
 /* Mobile first responsive design */
 @media (max-width: 767px) {
   .header {
-    padding: var(--spacing-md) 0;
+    padding: var(--spacing-sm) 0;
+    /* Disable backdrop-filter on mobile for performance (GPU-intensive) */
+    backdrop-filter: none;
+    background: var(--theme-primary);
   }
-  
+
   .container {
-    padding: 0 var(--spacing-md);
-    gap: var(--spacing-md);
+    padding: 0 var(--spacing-sm);
+    gap: var(--spacing-sm);
+  }
+
+  .headerRow {
     flex-direction: column;
     text-align: center;
+    gap: var(--spacing-sm);
   }
-  
+
   .title {
-    font-size: var(--font-size-2xl);
+    font-size: var(--font-size-xl);
   }
-  
+
   .subtitle {
     font-size: var(--font-size-xs);
   }
-  
-  .headerActions {
-    width: 100%;
+
+  .tagline {
+    font-size: var(--font-size-xs);
     justify-content: center;
-    gap: var(--spacing-md);
   }
-  
+
+  .developerLink {
+    font-size: var(--font-size-xs);
+    justify-content: center;
+  }
+
+  .searchWrapper {
+    width: 100%;
+  }
+
   .titleSection {
-    margin-bottom: var(--spacing-sm);
+    margin-bottom: 0;
+  }
+
+  .brandingSection {
+    align-items: center;
+    margin-bottom: 0;
+  }
+}
+
+/* Extra small screens (320px) - most compact */
+@media (max-width: 374px) {
+  .header {
+    padding: var(--spacing-xs) 0;
+  }
+
+  .container {
+    padding: 0 var(--spacing-xs);
+    gap: var(--spacing-xs);
+  }
+
+  .title {
+    font-size: var(--font-size-lg);
+    letter-spacing: -0.5px;
+  }
+
+  .subtitle {
+    display: none;
+  }
+
+  .tagline {
+    display: none;
+  }
+
+  .developerLink {
+    display: none;
   }
 }
 
@@ -150,17 +239,13 @@
   .header {
     padding: var(--spacing-xl) 0;
   }
-  
+
   .title {
     font-size: var(--font-size-3xl);
   }
-  
+
   .subtitle {
     font-size: var(--font-size-base);
-  }
-  
-  .headerActions {
-    gap: var(--spacing-xl);
   }
 }
 
@@ -168,9 +253,9 @@
   .container {
     padding: 0 var(--spacing-xxl);
   }
-  
+
   .title {
-    font-size: 3.5rem;
+    font-size: var(--font-size-4xl);
   }
 }
 

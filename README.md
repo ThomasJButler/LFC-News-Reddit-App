@@ -1,66 +1,26 @@
-# LFC Reddit Viewer 
+# LFC Reddit Viewer
 
-** At this stage, this is a desktop only app due to difficulties with the Reddit API and CORS on mobile browsers. 
+**All the LFC content. None of the noise.**
 
-A React app for browsing Liverpool FC content from Reddit without the clutter.
+<img width="1374" height="931" alt="LFC Reddit Viewer" src="https://github.com/user-attachments/assets/885cf941-5084-4330-9da5-e0588d8b4560" />
 
-Pulls posts and comments from Liverpool FC subreddits (r/LiverpoolFC and r/liverpoolfcmedia) and displays them in a cleaner interface. No Reddit account needed, no API keys, just reads the public JSON feeds.
+## Why?
 
-Includes search, sorting, threaded comments with media support, and a spiciness meter that ranks posts by score. Three colour themes based on LFC kits (red, white, green).
+Because the Reddit mobile site is terrible. Targeted ads between every third post. Popups begging you to use the app. Login walls. Algorithmic nonsense burying the content you actually want to see.
 
-<img width="1374" height="931" alt="image" src="https://github.com/user-attachments/assets/885cf941-5084-4330-9da5-e0588d8b4560" />
+This app pulls posts and comments directly from r/LiverpoolFC and r/liverpoolfcmedia and displays them in a clean, distraction-free interface. No account needed. No ads. Just LFC content.
 
-## Features
+## What you get
 
-Includes search, sorting, threaded comments with media support, and a spiciness meter that ranks posts by score. Three colour themes based on LFC kits (red, white, green).
+- **Filter by what matters** - Match days, transfers, images, videos, discussions
+- **Actually readable comments** - Threaded, collapsible, with inline media
+- **Three kit themes** - Anfield Red, Away Cream, Keeper Green
+- **Spicy meter** - See which posts are heating up
+- **Search across everything** - Find that post you half-remember
+- **Sort your way** - Hot, new, top, or viral (score-based ranking)
 
-## Usage
-
-- Browse posts from the combined feed or filter by subreddit
-- Click a post to see full content and comments
-- Search works across all selected subreddits
-- Sort by hot/new/top/viral (viral is client-side sorting by score)
-- Comments render inline media (images, videos, GIFs) automatically
-
-## Tech Stack
-
-- React 18 with hooks
-- Redux + Thunk for state
-- CSS Modules for styling
-- react-markdown with GitHub Flavoured Markdown
-- DOMPurify for sanitisation
-- Create React App (not ejected)
-
-## Installation
-
-```bash
-cd lfc-news-reddit-app
-npm install
-npm start
-```
-
-Runs on <http://localhost:3000>
-
-## Project Structure
-
-```text
-src/
-├── components/        11 React components (Header, PostList, PostItem, etc.)
-├── redux/
-│   ├── actions/      Action creators for posts, comments, subreddits
-│   ├── reducers/     State slices matching action types
-│   └── store.js      Redux store with thunk middleware
-└── utils/
-    ├── api.js        Reddit API with proxy fallback and rate limiting
-    ├── cache.js      TTL-based cache with periodic cleanup
-    ├── sanitize.js   URL/HTML sanitisation (whitelist approach)
-    └── markdown.js   React-markdown configuration
-```
-
-## Version
-
-Current: 1.0.4 (Mobile API fixes and viral sorting)
+No login. No tracking. No algorithmic feed manipulation. Just r/LiverpoolFC the way it should be.
 
 ---
 
-Built by [Tom Butler](https://github.com/thomasjbutler) because the Reddit mobile site is terrible.
+Built by [Tom Butler](https://github.com/thomasjbutler) | YNWA

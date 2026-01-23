@@ -1,0 +1,431 @@
+/**
+ * Toast Notification Styles
+ *
+ * WHY: Toast notifications provide transient user feedback. These styles implement
+ * the LFC theme-aware design with type-specific accents, smooth animations,
+ * and responsive positioning (bottom on mobile, top-right on desktop).
+ */
+
+/* ==========================================================================
+   Container Styles
+   ========================================================================== */
+
+.container {
+  position: fixed;
+  z-index: var(--z-tooltip);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  pointer-events: none;
+}
+
+/* Desktop: Top-right positioning */
+.containerDesktop {
+  top: var(--spacing-md);
+  right: var(--spacing-md);
+  align-items: flex-end;
+}
+
+/* Mobile: Bottom positioning above BottomNav (70px height) */
+.containerMobile {
+  bottom: calc(70px + var(--spacing-md));
+  left: var(--spacing-md);
+  right: var(--spacing-md);
+  align-items: stretch;
+}
+
+/* ==========================================================================
+   Toast Base Styles
+   ========================================================================== */
+
+.toast {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  padding-left: calc(var(--spacing-md) + 4px); /* Account for stripe */
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  pointer-events: auto;
+  overflow: hidden;
+
+  /* Animation timing */
+  --toast-duration: 4000ms;
+}
+
+/* Desktop toast width */
+.toastDesktop {
+  width: 360px;
+  max-width: 360px;
+}
+
+/* Mobile toast full width */
+.toastMobile {
+  width: 100%;
+}
+
+/* ==========================================================================
+   Type Indicator Stripe
+   WHY: Coloured left stripe provides quick visual identification of toast type
+   ========================================================================== */
+
+.stripe {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--accent);
+}
+
+/* Type-specific stripe colours */
+.toastSuccess .stripe {
+  background: var(--success);
+}
+
+.toastError .stripe {
+  background: var(--error);
+}
+
+.toastWarning .stripe {
+  background: var(--warning);
+}
+
+.toastInfo .stripe {
+  background: var(--accent);
+}
+
+/* ==========================================================================
+   Progress Bar
+   WHY: Visual countdown helps users understand when toast will auto-dismiss
+   ========================================================================== */
+
+.progressBar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--overlay-subtle);
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: var(--accent);
+  animation: progress var(--toast-duration) linear forwards;
+  transform-origin: left;
+}
+
+/* Type-specific progress colours */
+.toastSuccess .progressFill {
+  background: var(--success);
+}
+
+.toastError .progressFill {
+  background: var(--error);
+}
+
+.toastWarning .progressFill {
+  background: var(--warning);
+}
+
+.toastInfo .progressFill {
+  background: var(--accent);
+}
+
+/* Pause progress on hover/focus */
+.toast:hover .progressFill,
+.toast:focus .progressFill,
+.toast:focus-within .progressFill {
+  animation-play-state: paused;
+}
+
+@keyframes progress {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
+/* ==========================================================================
+   Icon Styles
+   ========================================================================== */
+
+.iconWrapper {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  margin-top: 2px; /* Align with first line of text */
+}
+
+.icon {
+  color: var(--accent);
+}
+
+/* Type-specific icon colours */
+.toastSuccess .icon {
+  color: var(--success);
+}
+
+.toastError .icon {
+  color: var(--error);
+}
+
+.toastWarning .icon {
+  color: var(--warning);
+}
+
+.toastInfo .icon {
+  color: var(--accent);
+}
+
+/* ==========================================================================
+   Content Styles
+   ========================================================================== */
+
+.content {
+  flex: 1;
+  min-width: 0; /* Enable text truncation */
+}
+
+.message {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+  line-height: 1.4;
+
+  /* Limit to 2 lines */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.secondary {
+  margin: var(--spacing-xs) 0 0;
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  line-height: 1.4;
+
+  /* Limit to 1 line */
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ==========================================================================
+   Button Styles
+   ========================================================================== */
+
+.actionButton {
+  flex-shrink: 0;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: transparent;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-sm);
+  color: var(--accent);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+
+  /* Minimum touch target */
+  min-height: 32px;
+}
+
+.actionButton:hover {
+  background: var(--accent-light);
+}
+
+.actionButton:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.actionButton:active {
+  transform: scale(0.97);
+}
+
+/* Type-specific action button colours */
+.toastSuccess .actionButton {
+  border-color: var(--success);
+  color: var(--success);
+}
+
+.toastSuccess .actionButton:hover {
+  background: rgba(0, 166, 81, 0.1);
+}
+
+.toastError .actionButton {
+  border-color: var(--error);
+  color: var(--error);
+}
+
+.toastError .actionButton:hover {
+  background: rgba(255, 68, 68, 0.1);
+}
+
+.closeButton {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+
+  /* Minimum touch target on mobile handled by container padding */
+}
+
+.closeButton:hover {
+  background: var(--overlay-subtle);
+  color: var(--text-primary);
+}
+
+.closeButton:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.closeButton:active {
+  transform: scale(0.9);
+}
+
+/* ==========================================================================
+   Entry/Exit Animations
+   ========================================================================== */
+
+/* Desktop: Slide from right */
+.toastDesktop.toastEntering {
+  animation: slideInRight 250ms ease-out forwards;
+}
+
+.toastDesktop.toastExiting {
+  animation: slideOutRight 200ms ease-in forwards;
+}
+
+/* Mobile: Slide from bottom */
+.toastMobile.toastEntering {
+  animation: slideInUp 250ms ease-out forwards;
+}
+
+.toastMobile.toastExiting {
+  animation: slideOutDown 200ms ease-in forwards;
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideOutDown {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+}
+
+/* ==========================================================================
+   Focus States (Accessibility)
+   ========================================================================== */
+
+.toast:focus {
+  outline: none;
+}
+
+.toast:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ==========================================================================
+   Reduced Motion Support
+   WHY: Respects user preference for reduced motion for accessibility
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .toast,
+  .toastEntering,
+  .toastExiting {
+    animation: none !important;
+    transition: opacity 150ms ease !important;
+  }
+
+  .toastExiting {
+    opacity: 0;
+  }
+
+  .progressFill {
+    animation: none !important;
+    transform: scaleX(0.5); /* Static indicator */
+  }
+
+  .actionButton:active,
+  .closeButton:active {
+    transform: none;
+  }
+}
+
+/* ==========================================================================
+   Theme Adjustments
+   ========================================================================== */
+
+/* White theme adjustments */
+[data-theme="white"] .toast {
+  background: var(--bg-secondary);
+  box-shadow: var(--shadow-md);
+}
+
+/* Green theme adjustments */
+[data-theme="green"] .toast {
+  background: var(--bg-secondary);
+}

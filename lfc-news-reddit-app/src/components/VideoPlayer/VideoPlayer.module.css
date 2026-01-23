@@ -1,0 +1,29 @@
+/**
+ * VideoPlayer component styles
+ *
+ * WHY: Ensures video players are responsive and work across all three LFC kit themes
+ */
+
+.video {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--border-radius-md, 8px);
+  background-color: var(--bg-secondary);
+
+  /* WHY: Theme transitions should use --transition-theme for consistency */
+  transition: background-color var(--transition-theme, 0.3s ease);
+}
+
+/* WHY: Ensure video maintains aspect ratio and doesn't overflow on mobile */
+.video:focus {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+/* WHY: Mobile-first approach - video should be full width on small screens */
+@media (max-width: 767px) {
+  .video {
+    border-radius: var(--border-radius-sm, 4px);
+  }
+}

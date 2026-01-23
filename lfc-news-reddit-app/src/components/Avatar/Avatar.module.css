@@ -1,0 +1,108 @@
+/**
+ * Avatar Component Styles
+ * Circular avatar with first-letter display
+ * Responsive sizing: 32px desktop, 28px mobile
+ */
+
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+  user-select: none;
+  font-weight: 600;
+  text-transform: uppercase;
+  transition: transform var(--transition-fast),
+              box-shadow var(--transition-fast);
+}
+
+.initial {
+  line-height: 1;
+  font-family: inherit;
+}
+
+/* Size variants */
+.sm {
+  width: 28px;
+  height: 28px;
+  font-size: 12px;
+}
+
+.md {
+  width: 32px;
+  height: 32px;
+  font-size: 14px;
+}
+
+.lg {
+  width: 44px;
+  height: 44px;
+  font-size: 18px;
+}
+
+/* Border variant - for thread depth color indication */
+.withBorder {
+  border: 2px solid var(--border-color);
+  box-sizing: border-box;
+}
+
+/* Hover effect (subtle scale) */
+.avatar:hover {
+  transform: scale(1.05);
+}
+
+/* Mobile responsive sizing */
+@media (max-width: 768px) {
+  .md {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+  }
+
+  .lg {
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
+  }
+}
+
+/* Extra small screens */
+@media (max-width: 375px) {
+  .sm {
+    width: 24px;
+    height: 24px;
+    font-size: 10px;
+  }
+
+  .md {
+    width: 26px;
+    height: 26px;
+    font-size: 11px;
+  }
+
+  .lg {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+}
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .avatar {
+    transition: none;
+  }
+
+  .avatar:hover {
+    transform: none;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .withBorder {
+    border-width: 3px;
+    border-color: currentColor;
+  }
+}

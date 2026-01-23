@@ -6,6 +6,8 @@
  */
 
 import React from 'react';
+import PropTypes from 'prop-types';
+import Icon from '../Icon/Icon';
 import styles from './SpicyMeter.module.css';
 
 /**
@@ -34,11 +36,11 @@ const SpicyMeter = ({ score }) => {
     const chilis = [];
     for (let i = 0; i < 5; i++) {
       chilis.push(
-        <span 
-          key={i} 
+        <span
+          key={i}
           className={`${styles.chili} ${i < level ? styles.active : styles.inactive}`}
         >
-          🌶️
+          <Icon name="Flame" size="sm" ariaHidden={true} />
         </span>
       );
     }
@@ -46,8 +48,12 @@ const SpicyMeter = ({ score }) => {
   };
 
   return (
-    <div className={styles.spicyMeter}>
-      <div className={styles.chilis}>
+    <div
+      className={styles.spicyMeter}
+      role="img"
+      aria-label={`Spiciness: ${spiciness.text} (${spiciness.level} of 5 chilis)`}
+    >
+      <div className={styles.chilis} aria-hidden="true">
         {renderChilis(spiciness.level)}
       </div>
       <span className={styles.spicyText}>{spiciness.text}</span>
@@ -55,4 +61,9 @@ const SpicyMeter = ({ score }) => {
   );
 };
 
-export default SpicyMeter;
+SpicyMeter.propTypes = {
+  // Reddit post score (upvotes minus downvotes) used to calculate spiciness level
+  score: PropTypes.number.isRequired
+};
+
+export default React.memo(SpicyMeter);

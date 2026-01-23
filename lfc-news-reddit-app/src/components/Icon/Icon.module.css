@@ -1,0 +1,37 @@
+/* Base icon styles */
+.icon {
+  display: inline-block;
+  vertical-align: middle;
+  flex-shrink: 0;
+  /* WHY: Inherit color from parent for theme compatibility */
+  color: currentColor;
+}
+
+/* Size variants - already handled by component via size prop */
+/* Additional styling can be added here if needed */
+
+/* Interactive icons get hover states when inside buttons or links */
+button .icon,
+a .icon,
+.interactive .icon {
+  /* WHY: Icons only change opacity, not color (inherit currentColor) */
+  transition: opacity var(--transition-fast);
+}
+
+button:hover .icon,
+a:hover .icon,
+.interactive:hover .icon {
+  opacity: 0.8;
+}
+
+button:active .icon,
+a:active .icon,
+.interactive:active .icon {
+  opacity: 0.6;
+}
+
+/* Ensure icons don't interfere with touch targets */
+button .icon,
+a .icon {
+  pointer-events: none;
+}

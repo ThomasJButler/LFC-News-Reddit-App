@@ -1,0 +1,118 @@
+/**
+ * BottomNav Component Styles
+ * Mobile-only bottom navigation bar
+ * WHY: Provides thumb-friendly navigation in mobile "thumb zone" (bottom third of screen)
+ */
+
+/* Container - fixed to bottom of viewport */
+.bottomNav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 150; /* Above content (header: 100), below modals (overlay: 999) */
+
+  /* Background with theme support */
+  background: var(--bg-primary);
+  border-top: 1px solid var(--border-color);
+  /* WHY: Use shadow-md for consistent elevation across UI */
+  box-shadow: 0 -4px 16px var(--overlay-light);
+
+  /* Safe area support for iPhone notch/home indicator */
+  /* WHY max(): Ensures minimum padding even on devices without notch */
+  padding: var(--spacing-sm) var(--spacing-md);
+  padding-bottom: max(env(safe-area-inset-bottom), var(--spacing-sm));
+
+  /* Layout - 4 equal columns for 4 buttons */
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-xs);
+
+  /* Smooth theme transitions */
+  transition: background-color var(--transition-theme),
+              border-color var(--transition-theme);
+}
+
+/* Individual navigation button */
+.navButton {
+  /* Touch target compliance (44x44px minimum for WCAG) */
+  min-width: 44px;
+  min-height: 44px;
+
+  /* Layout - vertical stack of icon and label */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+
+  /* Reset button defaults */
+  background: transparent;
+  border: none;
+  cursor: pointer;
+
+  /* Styling */
+  color: var(--text-secondary);
+  padding: var(--spacing-xs);
+  border-radius: var(--radius-md);
+
+  /* Smooth interactions - use theme transition for colors */
+  transition: background-color var(--transition-theme),
+              color var(--transition-theme),
+              transform var(--transition-fast);
+}
+
+/* Hover and focus states */
+.navButton:hover,
+.navButton:focus {
+  background: var(--accent-ultra-light);
+  color: var(--accent);
+}
+
+/* Active state - subtle press feedback */
+.navButton:active {
+  transform: scale(0.95);
+}
+
+/* Button text label */
+/* WHY: Using --font-size-xs for consistency with design system (0.625rem -> 0.75rem) */
+.buttonLabel {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  line-height: 1;
+}
+
+/* Hide on desktop (768px and above) */
+/* WHY: Bottom nav is mobile-only; desktop has persistent header navigation */
+@media (min-width: 768px) {
+  .bottomNav {
+    display: none;
+  }
+}
+
+/* Extra small screens (< 375px) - reduce padding slightly */
+/* WHY: Maximize usable space on smallest devices (iPhone SE, etc.) */
+@media (max-width: 374px) {
+  .bottomNav {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    gap: 2px;
+  }
+
+  .buttonLabel {
+    /* WHY: Using --font-size-xs for consistency with design system */
+    font-size: var(--font-size-xs);
+  }
+}
+
+/* Mobile performance optimization - disable backdrop filter */
+/* WHY: backdrop-filter is GPU-intensive on mobile, causes lag/jank */
+/* Solid background provides same visual separation without performance cost */
+@media (max-width: 767px) {
+  .bottomNav {
+    /* Ensure solid background on mobile (no translucency) */
+    background: var(--bg-primary);
+    backdrop-filter: none;
+  }
+}
