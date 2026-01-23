@@ -367,17 +367,41 @@ export const fetchComments = async (postId, subreddit = 'LiverpoolFC') => {
   }
 };
 
+// Allowed subreddits for this app - only LiverpoolFC content
+const ALLOWED_SUBREDDITS = ['LiverpoolFC'];
+const DEFAULT_SUBREDDIT = 'LiverpoolFC';
+
+/**
+ * Validates and sanitizes subreddit parameter to ensure only allowed subreddits are used.
+ * This is a critical security measure to prevent searching outside of r/LiverpoolFC.
+ * @param {string} subreddit - Subreddit name to validate
+ * @return {string} Validated subreddit name (defaults to LiverpoolFC if invalid)
+ */
+const validateSubreddit = (subreddit) => {
+  if (!subreddit || typeof subreddit !== 'string') {
+    return DEFAULT_SUBREDDIT;
+  }
+  const normalized = subreddit.trim();
+  if (!ALLOWED_SUBREDDITS.includes(normalized)) {
+    console.warn(`Attempted to search in unauthorized subreddit: ${subreddit}. Defaulting to ${DEFAULT_SUBREDDIT}`);
+    return DEFAULT_SUBREDDIT;
+  }
+  return normalized;
+};
+
 /**
  * @param {string} searchTerm - Search query string
- * @param {string} [subreddit='all'] - Subreddit to search within, or 'all' for combined Liverpool subreddits
+ * @param {string} [subreddit='LiverpoolFC'] - Subreddit to search within (only LiverpoolFC is allowed)
  * @return {Promise<Object[]>} Array of normalised post objects matching search query
  */
-export const searchPosts = async (searchTerm, subreddit = 'all') => {
+export const searchPosts = async (searchTerm, subreddit = DEFAULT_SUBREDDIT) => {
   if (!searchTerm.trim()) {
     return [];
   }
 
-  let url = `${BASE_URL}/r/${subreddit}/search.json?q=${encodeURIComponent(searchTerm)}&restrict_sr=on&limit=50&sort=relevance`;
+  // CRITICAL: Always validate subreddit to prevent searching outside r/LiverpoolFC
+  const validatedSubreddit = validateSubreddit(subreddit);
+  let url = `${BASE_URL}/r/${validatedSubreddit}/search.json?q=${encodeURIComponent(searchTerm)}&restrict_sr=on&limit=50&sort=relevance`;
   
   try {
     const data = await fetchFromReddit(url);
