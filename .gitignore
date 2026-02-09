@@ -141,3 +141,4 @@ vite.config.ts.timestamp-*
 # Claude reference file
 CLAUDE.md
 plantofixmobile.md
+/lfc-news-reddit-app/ui
