@@ -5,6 +5,12 @@
  *              WHY: Mobile users represent a significant portion of the audience.
  *              These tests ensure touch interactions, gestures, and mobile-specific
  *              UI elements work correctly on mobile viewports.
+ *
+ *              Updated for ShadCN rebuild:
+ *              - Selectors use data-testid attributes (Tailwind classes aren't semantic)
+ *              - Post detail uses ShadCN Sheet (still role="dialog")
+ *              - Sort uses ShadCN Tabs instead of <select>
+ *              - Filter buttons use ShadCN Toggle/ToggleGroup
  */
 
 const { test, expect } = require('@playwright/test');
@@ -18,7 +24,7 @@ test.describe('Mobile Navigation', () => {
       return;
     }
     await page.goto('/');
-    await page.waitForSelector('[class*="postItem"]', { timeout: 15000 });
+    await page.waitForSelector('[data-testid="post-item"]', { timeout: 15000 });
   });
 
   test.describe('Bottom Navigation', () => {
@@ -28,7 +34,7 @@ test.describe('Mobile Navigation', () => {
         return;
       }
 
-      const bottomNav = page.locator('[class*="bottomNav"]');
+      const bottomNav = page.locator('[data-testid="bottom-nav"]');
       await expect(bottomNav).toBeVisible();
     });
 
@@ -38,7 +44,7 @@ test.describe('Mobile Navigation', () => {
         return;
       }
 
-      const bottomNav = page.locator('[class*="bottomNav"]');
+      const bottomNav = page.locator('[data-testid="bottom-nav"]');
 
       // Check for navigation items (Home, Search, Theme, etc.)
       const navButtons = bottomNav.locator('button, a');
@@ -55,7 +61,7 @@ test.describe('Mobile Navigation', () => {
       }
 
       // Find theme button in bottom nav if it exists
-      const bottomNav = page.locator('[class*="bottomNav"]');
+      const bottomNav = page.locator('[data-testid="bottom-nav"]');
       const themeButton = bottomNav.locator('button').filter({ hasText: /theme/i });
 
       const buttonExists = await themeButton.count() > 0;
@@ -74,7 +80,7 @@ test.describe('Mobile Navigation', () => {
         return;
       }
 
-      const firstPost = page.locator('[class*="postItem"]').first();
+      const firstPost = page.locator('[data-testid="post-item"]').first();
 
       // Get element dimensions
       const box = await firstPost.boundingBox();
@@ -89,29 +95,29 @@ test.describe('Mobile Navigation', () => {
         return;
       }
 
-      const firstPost = page.locator('[class*="postItem"]').first();
+      const firstPost = page.locator('[data-testid="post-item"]').first();
 
       // Tap the post
       await firstPost.tap();
 
-      // Modal should open
-      const modal = page.locator('[role="dialog"]');
-      await expect(modal).toBeVisible({ timeout: 5000 });
+      // Sheet should open
+      const sheet = page.locator('[role="dialog"]');
+      await expect(sheet).toBeVisible({ timeout: 5000 });
     });
 
-    test('modal close button is tappable', async ({ page }, testInfo) => {
+    test('sheet close button is tappable', async ({ page }, testInfo) => {
       if (testInfo.project.name !== 'mobile') {
         test.skip();
         return;
       }
 
-      // Open modal
-      await page.locator('[class*="postItem"]').first().tap();
-      const modal = page.locator('[role="dialog"]');
-      await expect(modal).toBeVisible({ timeout: 5000 });
+      // Open sheet
+      await page.locator('[data-testid="post-item"]').first().tap();
+      const sheet = page.locator('[role="dialog"]');
+      await expect(sheet).toBeVisible({ timeout: 5000 });
 
       // Find and tap close button
-      const closeButton = page.locator('[class*="closeButton"]');
+      const closeButton = page.locator('[data-testid="close-button"]');
       const box = await closeButton.boundingBox();
 
       // Close button should be large enough for touch
@@ -119,7 +125,7 @@ test.describe('Mobile Navigation', () => {
       expect(box?.height).toBeGreaterThanOrEqual(44);
 
       await closeButton.tap();
-      await expect(modal).not.toBeVisible({ timeout: 3000 });
+      await expect(sheet).not.toBeVisible({ timeout: 3000 });
     });
   });
 
@@ -144,7 +150,7 @@ test.describe('Mobile Navigation', () => {
         return;
       }
 
-      const firstPost = page.locator('[class*="postItem"]').first();
+      const firstPost = page.locator('[data-testid="post-item"]').first();
       const box = await firstPost.boundingBox();
 
       // Post should span most of the viewport width (accounting for padding)
@@ -152,22 +158,22 @@ test.describe('Mobile Navigation', () => {
       expect(box?.width).toBeGreaterThan(viewportWidth * 0.8);
     });
 
-    test('modal displays as bottom sheet on mobile', async ({ page }, testInfo) => {
+    test('sheet displays correctly on mobile', async ({ page }, testInfo) => {
       if (testInfo.project.name !== 'mobile') {
         test.skip();
         return;
       }
 
-      // Open modal
-      await page.locator('[class*="postItem"]').first().tap();
-      const modal = page.locator('[role="dialog"]');
-      await expect(modal).toBeVisible({ timeout: 5000 });
+      // Open sheet
+      await page.locator('[data-testid="post-item"]').first().tap();
+      const sheet = page.locator('[role="dialog"]');
+      await expect(sheet).toBeVisible({ timeout: 5000 });
 
-      // Check modal positioning (should be near bottom or full screen)
-      const modalContent = page.locator('[class*="modalContent"]');
-      const box = await modalContent.boundingBox();
+      // Check sheet positioning (ShadCN Sheet slides from right)
+      const sheetContent = page.locator('[data-testid="post-detail-content"]');
+      const box = await sheetContent.boundingBox();
 
-      // Modal content should span significant viewport width
+      // Sheet content should span significant viewport width
       expect(box?.width).toBeGreaterThan(300);
     });
   });
@@ -205,7 +211,7 @@ test.describe('Mobile Navigation', () => {
         await searchInput.tap();
         await searchInput.fill('test');
 
-        const clearButton = page.locator('[class*="clearButton"]');
+        const clearButton = page.locator('[data-testid="search-clear"]');
         const buttonVisible = await clearButton.isVisible();
 
         if (buttonVisible) {
@@ -237,50 +243,51 @@ test.describe('Mobile Navigation', () => {
       expect(newScroll).toBeGreaterThan(initialScroll);
     });
 
-    test('modal content is scrollable when needed', async ({ page }, testInfo) => {
+    test('sheet content is scrollable when needed', async ({ page }, testInfo) => {
       if (testInfo.project.name !== 'mobile') {
         test.skip();
         return;
       }
 
-      // Open modal
-      await page.locator('[class*="postItem"]').first().tap();
-      const modal = page.locator('[role="dialog"]');
-      await expect(modal).toBeVisible({ timeout: 5000 });
+      // Open sheet
+      await page.locator('[data-testid="post-item"]').first().tap();
+      const sheet = page.locator('[role="dialog"]');
+      await expect(sheet).toBeVisible({ timeout: 5000 });
 
       // Wait for comments to load
       await page.waitForTimeout(2000);
 
-      // Check if modal content is scrollable
-      const modalContent = page.locator('[class*="modalContent"]');
-      const isScrollable = await modalContent.evaluate((el) => {
+      // Check if sheet content is scrollable (ShadCN ScrollArea)
+      const sheetContent = page.locator('[data-testid="post-detail-content"]');
+      const isScrollable = await sheetContent.evaluate((el) => {
         return el.scrollHeight > el.clientHeight;
       });
 
       // If content overflows, it should be scrollable
       if (isScrollable) {
-        await modalContent.evaluate((el) => el.scrollBy(0, 100));
-        const scrollTop = await modalContent.evaluate((el) => el.scrollTop);
+        await sheetContent.evaluate((el) => el.scrollBy(0, 100));
+        const scrollTop = await sheetContent.evaluate((el) => el.scrollTop);
         expect(scrollTop).toBeGreaterThan(0);
       }
     });
   });
 
   test.describe('Filter Controls on Mobile', () => {
-    test('sort dropdown is usable on mobile', async ({ page }, testInfo) => {
+    test('sort tabs are usable on mobile', async ({ page }, testInfo) => {
       if (testInfo.project.name !== 'mobile') {
         test.skip();
         return;
       }
 
-      const sortSelect = page.locator('#sort-select');
-      const selectExists = await sortSelect.count() > 0;
+      // Sort uses ShadCN Tabs instead of <select>
+      const sortTabs = page.locator('[data-testid="sort-tabs"]');
+      const tabsExist = await sortTabs.count() > 0;
 
-      if (selectExists) {
-        // Check select is visible and has minimum touch target
-        await expect(sortSelect).toBeVisible();
+      if (tabsExist) {
+        // Check tabs are visible and have minimum touch target
+        await expect(sortTabs).toBeVisible();
 
-        const box = await sortSelect.boundingBox();
+        const box = await sortTabs.boundingBox();
         expect(box?.height).toBeGreaterThanOrEqual(40);
       }
     });
@@ -291,7 +298,7 @@ test.describe('Mobile Navigation', () => {
         return;
       }
 
-      const filterButtons = page.locator('[class*="filterButton"]');
+      const filterButtons = page.locator('[data-testid="filter-button"]');
       const buttonCount = await filterButtons.count();
 
       if (buttonCount > 0) {
@@ -311,16 +318,15 @@ test.describe('Mobile Navigation', () => {
         return;
       }
 
-      const firstPost = page.locator('[class*="postItem"]').first();
+      const firstPost = page.locator('[data-testid="post-item"]').first();
       await firstPost.focus();
 
-      // Check for focus indicator (outline or shadow)
+      // Check for focus indicator (Tailwind ring/outline utilities)
       const hasVisibleFocus = await firstPost.evaluate((el) => {
         const style = getComputedStyle(el);
         const hasOutline = style.outline !== 'none' && style.outline !== '';
         const hasBoxShadow = style.boxShadow !== 'none' && style.boxShadow !== '';
-        const hasBorder = el.classList.toString().includes('focus');
-        return hasOutline || hasBoxShadow || hasBorder;
+        return hasOutline || hasBoxShadow;
       });
 
       // Focus should be visible in some form
@@ -334,7 +340,7 @@ test.describe('Mobile Navigation', () => {
       }
 
       // Check that text is visible (basic contrast check)
-      const postTitle = page.locator('[class*="title"]').first();
+      const postTitle = page.locator('[data-testid="post-title"]').first();
       const titleColor = await postTitle.evaluate((el) => {
         return getComputedStyle(el).color;
       });
@@ -354,7 +360,7 @@ test.describe('Tablet Navigation', () => {
       return;
     }
     await page.goto('/');
-    await page.waitForSelector('[class*="postItem"]', { timeout: 15000 });
+    await page.waitForSelector('[data-testid="post-item"]', { timeout: 15000 });
   });
 
   test('displays appropriate layout for tablet', async ({ page }, testInfo) => {
@@ -364,7 +370,7 @@ test.describe('Tablet Navigation', () => {
     }
 
     // Tablet should have more horizontal space than mobile
-    const firstPost = page.locator('[class*="postItem"]').first();
+    const firstPost = page.locator('[data-testid="post-item"]').first();
     const box = await firstPost.boundingBox();
 
     // Posts should use available width appropriately
@@ -378,9 +384,9 @@ test.describe('Tablet Navigation', () => {
     }
 
     // Tap post to open
-    await page.locator('[class*="postItem"]').first().tap();
+    await page.locator('[data-testid="post-item"]').first().tap();
 
-    const modal = page.locator('[role="dialog"]');
-    await expect(modal).toBeVisible({ timeout: 5000 });
+    const sheet = page.locator('[role="dialog"]');
+    await expect(sheet).toBeVisible({ timeout: 5000 });
   });
 });

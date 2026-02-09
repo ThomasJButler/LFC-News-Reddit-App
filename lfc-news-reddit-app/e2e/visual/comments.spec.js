@@ -4,6 +4,12 @@
  * @description Visual regression tests for comment threading.
  *              WHY: Comment threading uses depth-based colours and collapse/expand
  *              functionality that must remain visually consistent across themes.
+ *
+ *              Updated for ShadCN rebuild:
+ *              - Selectors use data-testid attributes
+ *              - Comments use ShadCN Collapsible for collapse/expand
+ *              - Badges use ShadCN Badge component
+ *              - Themes: red, white, black (was red, white, green)
  */
 
 const { test, expect } = require('@playwright/test');
@@ -14,13 +20,13 @@ test.describe('Comment Threading Visual Tests', () => {
     // Navigate to home page
     await page.goto('/');
     // Wait for posts to load
-    await page.waitForSelector('[class*="postItem"]', { timeout: 10000 });
+    await page.waitForSelector('[data-testid="post-item"]', { timeout: 10000 });
     // Open first post
-    const firstPost = page.locator('[class*="postItem"]').first();
+    const firstPost = page.locator('[data-testid="post-item"]').first();
     await firstPost.click();
-    // Wait for modal and comments
+    // Wait for sheet and comments
     await page.waitForSelector('[role="dialog"]', { timeout: 5000 });
-    await page.waitForSelector('[class*="comment"]', { timeout: 10000 });
+    await page.waitForSelector('[data-testid="comment"]', { timeout: 10000 });
   });
 
   test.describe('Thread Lines', () => {
@@ -29,7 +35,7 @@ test.describe('Comment Threading Visual Tests', () => {
         await setThemeDirect(page, theme);
 
         // Find a nested comment to show thread lines
-        const nestedComment = page.locator('[class*="comment"]').nth(1);
+        const nestedComment = page.locator('[data-testid="comment"]').nth(1);
         await nestedComment.scrollIntoViewIfNeeded();
 
         // WHY: Mask dynamic content to prevent flaky tests from changing timestamps/scores
@@ -49,7 +55,7 @@ test.describe('Comment Threading Visual Tests', () => {
       test(`collapsed comment in ${theme} theme`, async ({ page }, testInfo) => {
         await setThemeDirect(page, theme);
 
-        // Find and click a collapse button
+        // Find and click a collapse button (ShadCN Collapsible trigger)
         const collapseButton = page.getByRole('button', { name: /Toggle comment thread/i }).first();
         await collapseButton.click();
 
@@ -70,8 +76,8 @@ test.describe('Comment Threading Visual Tests', () => {
       test(`comment badges in ${theme} theme`, async ({ page }, testInfo) => {
         await setThemeDirect(page, theme);
 
-        // Look for OP badge or moderator badge
-        const badge = page.locator('[class*="opBadge"], [class*="distinguished"]').first();
+        // Look for OP badge or moderator badge (ShadCN Badge component)
+        const badge = page.locator('[data-testid="op-badge"], [data-testid="mod-badge"]').first();
         if (await badge.count() > 0) {
           await badge.scrollIntoViewIfNeeded();
           const commentHeader = badge.locator('..');
@@ -99,7 +105,7 @@ test.describe('Comment Threading Visual Tests', () => {
         // WHY: Test visual appearance of deeply nested comments to verify indentation
         // caps correctly (max 6 levels per comment-threading-polish.md spec)
         // Look for comments with high nesting level
-        const deepComments = page.locator('[class*="comment"]');
+        const deepComments = page.locator('[data-testid="comment"]');
         const count = await deepComments.count();
 
         // Find a deeply nested comment by checking left margin/padding

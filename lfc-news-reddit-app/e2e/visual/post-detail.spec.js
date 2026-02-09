@@ -1,44 +1,50 @@
 /**
  * @author Tom Butler
  * @date 2026-01-21
- * @description Visual regression tests for the post detail modal.
- *              WHY: The post detail modal is a complex component with reading mode,
+ * @description Visual regression tests for the post detail sheet.
+ *              WHY: The post detail sheet is a complex component with reading mode,
  *              gallery navigation, and various media types that need visual testing.
+ *
+ *              Updated for ShadCN rebuild:
+ *              - Post detail uses ShadCN Sheet (slides from right) instead of modal
+ *              - Selectors use data-testid attributes
+ *              - Sheet content uses ShadCN ScrollArea
+ *              - Themes: red, white, black (was red, white, green)
  */
 
 const { test, expect } = require('@playwright/test');
 const { THEMES, setThemeDirect, screenshotName, getDynamicContentMasks } = require('../helpers/theme');
 
-test.describe('Post Detail Modal Visual Tests', () => {
+test.describe('Post Detail Sheet Visual Tests', () => {
   test.beforeEach(async ({ page }) => {
     // Navigate to home page
     await page.goto('/');
     // Wait for posts to load
-    await page.waitForSelector('[class*="postItem"]', { timeout: 10000 });
+    await page.waitForSelector('[data-testid="post-item"]', { timeout: 10000 });
   });
 
   /**
-   * Helper to open a post detail modal
+   * Helper to open a post detail sheet
    */
   async function openPostDetail(page) {
-    const firstPost = page.locator('[class*="postItem"]').first();
+    const firstPost = page.locator('[data-testid="post-item"]').first();
     await firstPost.click();
-    // Wait for modal to open
+    // Wait for sheet to open (ShadCN Sheet uses role="dialog")
     await page.waitForSelector('[role="dialog"]', { timeout: 5000 });
   }
 
-  test.describe('Modal Open State', () => {
+  test.describe('Sheet Open State', () => {
     for (const theme of THEMES) {
-      test(`modal renders correctly in ${theme} theme`, async ({ page }, testInfo) => {
+      test(`sheet renders correctly in ${theme} theme`, async ({ page }, testInfo) => {
         await setThemeDirect(page, theme);
         await openPostDetail(page);
 
         // WHY: Mask dynamic content to prevent flaky tests
         const masks = getDynamicContentMasks(page);
 
-        const modal = page.locator('[role="dialog"]');
-        await expect(modal).toHaveScreenshot(
-          screenshotName('post-detail-modal', theme, testInfo.project.name),
+        const sheet = page.locator('[role="dialog"]');
+        await expect(sheet).toHaveScreenshot(
+          screenshotName('post-detail-sheet', theme, testInfo.project.name),
           { mask: masks }
         );
       });
@@ -58,8 +64,8 @@ test.describe('Post Detail Modal Visual Tests', () => {
         // Wait for transition
         await page.waitForTimeout(350);
 
-        const modal = page.locator('[role="dialog"]');
-        await expect(modal).toHaveScreenshot(
+        const sheet = page.locator('[role="dialog"]');
+        await expect(sheet).toHaveScreenshot(
           screenshotName('post-detail-reading-mode', theme, testInfo.project.name)
         );
       });
@@ -72,11 +78,11 @@ test.describe('Post Detail Modal Visual Tests', () => {
         await setThemeDirect(page, theme);
 
         // Click post quickly to capture loading state
-        const firstPost = page.locator('[class*="postItem"]').first();
+        const firstPost = page.locator('[data-testid="post-item"]').first();
         await firstPost.click();
 
         // Try to capture the comments skeleton
-        const commentsSkeleton = page.locator('[class*="commentsSkeleton"], [class*="CommentsSkeleton"]');
+        const commentsSkeleton = page.locator('[data-testid="comments-skeleton"]');
         if (await commentsSkeleton.count() > 0) {
           await expect(commentsSkeleton.first()).toHaveScreenshot(
             screenshotName('post-detail-comments-skeleton', theme, testInfo.project.name)
@@ -96,10 +102,10 @@ test.describe('Post Detail Modal Visual Tests', () => {
         await openPostDetail(page);
 
         // Wait for comments to load
-        await page.waitForSelector('[class*="comment"]', { timeout: 10000 });
+        await page.waitForSelector('[data-testid="comment"]', { timeout: 10000 });
 
         // Scroll to comments section
-        const commentsSection = page.locator('[class*="commentsSection"]');
+        const commentsSection = page.locator('[data-testid="comments-section"]');
         await commentsSection.scrollIntoViewIfNeeded();
 
         // Mask dynamic content
@@ -113,7 +119,7 @@ test.describe('Post Detail Modal Visual Tests', () => {
     }
   });
 
-  test.describe('Modal Overlay', () => {
+  test.describe('Sheet Overlay', () => {
     for (const theme of THEMES) {
       test(`overlay background in ${theme} theme`, async ({ page }, testInfo) => {
         await setThemeDirect(page, theme);

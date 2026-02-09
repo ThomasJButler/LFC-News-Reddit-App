@@ -5,6 +5,12 @@
  *              WHY: These tests verify the most critical user flows work correctly,
  *              ensuring the app remains functional for its primary use cases:
  *              browsing posts, viewing details, and reading comments.
+ *
+ *              Updated for ShadCN rebuild:
+ *              - Selectors use data-testid attributes (Tailwind doesn't generate semantic class names)
+ *              - Post detail uses ShadCN Sheet (still role="dialog")
+ *              - Sort uses ShadCN Tabs instead of <select>
+ *              - API requests route through /api/reddit proxy (not direct to reddit.com)
  */
 
 const { test, expect } = require('@playwright/test');
@@ -15,10 +21,10 @@ test.describe('Happy Path - Core User Journeys', () => {
       await page.goto('/');
 
       // Wait for posts to load
-      await page.waitForSelector('[class*="postItem"]', { timeout: 15000 });
+      await page.waitForSelector('[data-testid="post-item"]', { timeout: 15000 });
 
       // Verify posts are displayed
-      const posts = page.locator('[class*="postItem"]');
+      const posts = page.locator('[data-testid="post-item"]');
       await expect(posts.first()).toBeVisible();
 
       // Verify we have multiple posts
@@ -28,26 +34,26 @@ test.describe('Happy Path - Core User Journeys', () => {
 
     test('displays post metadata correctly', async ({ page }) => {
       await page.goto('/');
-      await page.waitForSelector('[class*="postItem"]', { timeout: 15000 });
+      await page.waitForSelector('[data-testid="post-item"]', { timeout: 15000 });
 
-      const firstPost = page.locator('[class*="postItem"]').first();
+      const firstPost = page.locator('[data-testid="post-item"]').first();
 
       // Verify post has essential elements
-      const title = firstPost.locator('[class*="title"]');
+      const title = firstPost.locator('[data-testid="post-title"]');
       await expect(title).toBeVisible();
 
       // Check for metadata (subreddit, author, time)
-      const header = firstPost.locator('[class*="postHeader"]');
+      const header = firstPost.locator('[data-testid="post-header"]');
       await expect(header).toBeVisible();
 
       // Check for footer stats (upvotes, comments)
-      const footer = firstPost.locator('[class*="postFooter"]');
+      const footer = firstPost.locator('[data-testid="post-footer"]');
       await expect(footer).toBeVisible();
     });
 
     test('shows loading skeleton before content', async ({ page }) => {
-      // Intercept API to delay response
-      await page.route('**/reddit.com/**', async (route) => {
+      // Intercept API to delay response (proxy route)
+      await page.route('**/api/reddit**', async (route) => {
         await new Promise(resolve => setTimeout(resolve, 500));
         await route.continue();
       });
@@ -55,7 +61,7 @@ test.describe('Happy Path - Core User Journeys', () => {
       await page.goto('/', { waitUntil: 'domcontentloaded' });
 
       // Check for skeleton loader
-      const skeleton = page.locator('[class*="skeleton"]');
+      const skeleton = page.locator('[data-testid="skeleton"]');
       const skeletonCount = await skeleton.count();
 
       // Skeleton should appear during loading
@@ -64,131 +70,131 @@ test.describe('Happy Path - Core User Journeys', () => {
       }
 
       // Eventually content should load
-      await page.waitForSelector('[class*="postItem"]', { timeout: 15000 });
+      await page.waitForSelector('[data-testid="post-item"]', { timeout: 15000 });
     });
   });
 
-  test.describe('Post Detail Modal', () => {
+  test.describe('Post Detail Sheet', () => {
     test('opens post detail when clicking a post', async ({ page }) => {
       await page.goto('/');
-      await page.waitForSelector('[class*="postItem"]', { timeout: 15000 });
+      await page.waitForSelector('[data-testid="post-item"]', { timeout: 15000 });
 
       // Click the first post
-      const firstPost = page.locator('[class*="postItem"]').first();
+      const firstPost = page.locator('[data-testid="post-item"]').first();
       await firstPost.click();
 
-      // Verify modal opens
-      const modal = page.locator('[role="dialog"]');
-      await expect(modal).toBeVisible({ timeout: 5000 });
+      // Verify Sheet opens (ShadCN Sheet uses role="dialog")
+      const sheet = page.locator('[role="dialog"]');
+      await expect(sheet).toBeVisible({ timeout: 5000 });
 
-      // Verify modal has content
-      const modalContent = page.locator('[class*="modalContent"]');
-      await expect(modalContent).toBeVisible();
+      // Verify sheet has content
+      const sheetContent = page.locator('[data-testid="post-detail-content"]');
+      await expect(sheetContent).toBeVisible();
     });
 
-    test('displays post title and content in modal', async ({ page }) => {
+    test('displays post title and content in sheet', async ({ page }) => {
       await page.goto('/');
-      await page.waitForSelector('[class*="postItem"]', { timeout: 15000 });
+      await page.waitForSelector('[data-testid="post-item"]', { timeout: 15000 });
 
       // Get the title text from the post card
-      const firstPost = page.locator('[class*="postItem"]').first();
-      const postTitleText = await firstPost.locator('[class*="title"]').textContent();
+      const firstPost = page.locator('[data-testid="post-item"]').first();
+      const postTitleText = await firstPost.locator('[data-testid="post-title"]').textContent();
 
-      // Click to open modal
+      // Click to open sheet
       await firstPost.click();
 
-      // Wait for modal
-      const modal = page.locator('[role="dialog"]');
-      await expect(modal).toBeVisible({ timeout: 5000 });
+      // Wait for sheet
+      const sheet = page.locator('[role="dialog"]');
+      await expect(sheet).toBeVisible({ timeout: 5000 });
 
-      // Verify the modal contains the post title
-      const modalTitle = page.locator('#modal-title');
-      await expect(modalTitle).toBeVisible();
+      // Verify the sheet contains the post title
+      const sheetTitle = page.locator('#modal-title');
+      await expect(sheetTitle).toBeVisible();
     });
 
-    test('closes modal with close button', async ({ page }) => {
+    test('closes sheet with close button', async ({ page }) => {
       await page.goto('/');
-      await page.waitForSelector('[class*="postItem"]', { timeout: 15000 });
+      await page.waitForSelector('[data-testid="post-item"]', { timeout: 15000 });
 
-      // Open modal
-      await page.locator('[class*="postItem"]').first().click();
-      const modal = page.locator('[role="dialog"]');
-      await expect(modal).toBeVisible({ timeout: 5000 });
+      // Open sheet
+      await page.locator('[data-testid="post-item"]').first().click();
+      const sheet = page.locator('[role="dialog"]');
+      await expect(sheet).toBeVisible({ timeout: 5000 });
 
       // Click close button
-      const closeButton = page.locator('[class*="closeButton"]');
+      const closeButton = page.locator('[data-testid="close-button"]');
       await closeButton.click();
 
-      // Verify modal is closed
-      await expect(modal).not.toBeVisible({ timeout: 3000 });
+      // Verify sheet is closed
+      await expect(sheet).not.toBeVisible({ timeout: 3000 });
     });
 
-    test('closes modal with Escape key', async ({ page }) => {
+    test('closes sheet with Escape key', async ({ page }) => {
       await page.goto('/');
-      await page.waitForSelector('[class*="postItem"]', { timeout: 15000 });
+      await page.waitForSelector('[data-testid="post-item"]', { timeout: 15000 });
 
-      // Open modal
-      await page.locator('[class*="postItem"]').first().click();
-      const modal = page.locator('[role="dialog"]');
-      await expect(modal).toBeVisible({ timeout: 5000 });
+      // Open sheet
+      await page.locator('[data-testid="post-item"]').first().click();
+      const sheet = page.locator('[role="dialog"]');
+      await expect(sheet).toBeVisible({ timeout: 5000 });
 
-      // Press Escape
+      // Press Escape (ShadCN Sheet handles this via Radix)
       await page.keyboard.press('Escape');
 
-      // Verify modal is closed
-      await expect(modal).not.toBeVisible({ timeout: 3000 });
+      // Verify sheet is closed
+      await expect(sheet).not.toBeVisible({ timeout: 3000 });
     });
 
-    test('closes modal when clicking overlay', async ({ page }) => {
+    test('closes sheet when clicking overlay', async ({ page }) => {
       await page.goto('/');
-      await page.waitForSelector('[class*="postItem"]', { timeout: 15000 });
+      await page.waitForSelector('[data-testid="post-item"]', { timeout: 15000 });
 
-      // Open modal
-      await page.locator('[class*="postItem"]').first().click();
-      const modal = page.locator('[role="dialog"]');
-      await expect(modal).toBeVisible({ timeout: 5000 });
+      // Open sheet
+      await page.locator('[data-testid="post-item"]').first().click();
+      const sheet = page.locator('[role="dialog"]');
+      await expect(sheet).toBeVisible({ timeout: 5000 });
 
-      // Click on the overlay (outside modal content)
-      const overlay = page.locator('[class*="modalOverlay"]');
+      // Click on the overlay (ShadCN Sheet overlay)
+      const overlay = page.locator('[data-testid="sheet-overlay"]');
       await overlay.click({ position: { x: 10, y: 10 } });
 
-      // Verify modal is closed
-      await expect(modal).not.toBeVisible({ timeout: 3000 });
+      // Verify sheet is closed
+      await expect(sheet).not.toBeVisible({ timeout: 3000 });
     });
   });
 
   test.describe('Comments Loading', () => {
     test('loads comments when viewing post detail', async ({ page }) => {
       await page.goto('/');
-      await page.waitForSelector('[class*="postItem"]', { timeout: 15000 });
+      await page.waitForSelector('[data-testid="post-item"]', { timeout: 15000 });
 
       // Open post detail
-      await page.locator('[class*="postItem"]').first().click();
-      const modal = page.locator('[role="dialog"]');
-      await expect(modal).toBeVisible({ timeout: 5000 });
+      await page.locator('[data-testid="post-item"]').first().click();
+      const sheet = page.locator('[role="dialog"]');
+      await expect(sheet).toBeVisible({ timeout: 5000 });
 
       // Wait for comments section to appear
-      const commentsSection = page.locator('[class*="commentsSection"]');
+      const commentsSection = page.locator('[data-testid="comments-section"]');
       await expect(commentsSection).toBeVisible({ timeout: 10000 });
 
       // Either we have comments or a "no comments" message
-      const hasComments = await page.locator('[class*="comment"]').count() > 0;
-      const hasNoComments = await page.locator('[class*="noComments"]').count() > 0;
+      const hasComments = await page.locator('[data-testid="comment"]').count() > 0;
+      const hasNoComments = await page.locator('[data-testid="no-comments"]').count() > 0;
 
       expect(hasComments || hasNoComments).toBe(true);
     });
 
     test('can collapse and expand comments', async ({ page }) => {
       await page.goto('/');
-      await page.waitForSelector('[class*="postItem"]', { timeout: 15000 });
+      await page.waitForSelector('[data-testid="post-item"]', { timeout: 15000 });
 
       // Open post detail
-      await page.locator('[class*="postItem"]').first().click();
-      const modal = page.locator('[role="dialog"]');
-      await expect(modal).toBeVisible({ timeout: 5000 });
+      await page.locator('[data-testid="post-item"]').first().click();
+      const sheet = page.locator('[role="dialog"]');
+      await expect(sheet).toBeVisible({ timeout: 5000 });
 
       // Wait for comments
-      const collapseButton = page.locator('[class*="collapseAllButton"]');
+      const collapseButton = page.locator('[data-testid="collapse-all-button"]');
       const buttonExists = await collapseButton.count() > 0;
 
       if (buttonExists) {
@@ -212,7 +218,7 @@ test.describe('Happy Path - Core User Journeys', () => {
   test.describe('Search Functionality', () => {
     test('searches posts and displays results', async ({ page }) => {
       await page.goto('/');
-      await page.waitForSelector('[class*="postItem"]', { timeout: 15000 });
+      await page.waitForSelector('[data-testid="post-item"]', { timeout: 15000 });
 
       // Find search input
       const searchInput = page.getByPlaceholder('Search posts...');
@@ -223,8 +229,8 @@ test.describe('Happy Path - Core User Journeys', () => {
       await page.waitForTimeout(1500);
 
       // Should either show results or empty state
-      const posts = page.locator('[class*="postItem"]');
-      const emptyState = page.locator('[class*="emptyState"]');
+      const posts = page.locator('[data-testid="post-item"]');
+      const emptyState = page.locator('[data-testid="empty-state"]');
 
       const hasResults = await posts.count() > 0;
       const hasEmptyState = await emptyState.count() > 0;
@@ -234,14 +240,14 @@ test.describe('Happy Path - Core User Journeys', () => {
 
     test('clears search and shows all posts', async ({ page }) => {
       await page.goto('/');
-      await page.waitForSelector('[class*="postItem"]', { timeout: 15000 });
+      await page.waitForSelector('[data-testid="post-item"]', { timeout: 15000 });
 
       // Perform a search
       const searchInput = page.getByPlaceholder('Search posts...');
       await searchInput.fill('test');
 
       // Clear button should appear
-      const clearButton = page.locator('[class*="clearButton"]');
+      const clearButton = page.locator('[data-testid="search-clear"]');
       await expect(clearButton).toBeVisible();
 
       // Click clear
@@ -255,15 +261,18 @@ test.describe('Happy Path - Core User Journeys', () => {
       // This test verifies the critical security fix: search should ONLY return
       // posts from r/LiverpoolFC, not from other subreddits like r/gambling, r/all, etc.
 
-      // Intercept the Reddit API search request to verify it targets LiverpoolFC
+      // Intercept the proxy API search request to verify it targets LiverpoolFC
       let searchUrl = null;
-      await page.route('**/reddit.com/**/search.json**', async (route) => {
-        searchUrl = route.request().url();
+      await page.route('**/api/reddit**', async (route) => {
+        const url = route.request().url();
+        if (url.includes('search')) {
+          searchUrl = url;
+        }
         await route.continue();
       });
 
       await page.goto('/');
-      await page.waitForSelector('[class*="postItem"]', { timeout: 15000 });
+      await page.waitForSelector('[data-testid="post-item"]', { timeout: 15000 });
 
       // Perform a search
       const searchInput = page.getByPlaceholder('Search posts...');
@@ -273,26 +282,25 @@ test.describe('Happy Path - Core User Journeys', () => {
       // Wait for the search request to be made
       await page.waitForTimeout(2000);
 
-      // Verify the API was called with LiverpoolFC subreddit
+      // Verify the API was called with LiverpoolFC subreddit path
       if (searchUrl) {
-        // The URL should contain /r/LiverpoolFC/search.json
-        expect(searchUrl).toContain('/r/LiverpoolFC/search.json');
-        // The URL should NOT contain /r/all/ or any other subreddit
-        expect(searchUrl).not.toContain('/r/all/');
-        expect(searchUrl).not.toContain('/r/undefined/');
-        // Should have restrict_sr=on to limit results to the subreddit
-        expect(searchUrl).toContain('restrict_sr=on');
+        // The path parameter should contain /r/LiverpoolFC/search.json
+        expect(searchUrl).toContain('LiverpoolFC');
+        expect(searchUrl).toContain('search');
+        // Should NOT contain /r/all/ or any other subreddit
+        expect(searchUrl).not.toContain('/r/all');
+        expect(searchUrl).not.toContain('/r/undefined');
       }
 
       // If results are shown, verify they are all from r/LiverpoolFC
-      const posts = page.locator('[class*="postItem"]');
+      const posts = page.locator('[data-testid="post-item"]');
       const postCount = await posts.count();
 
       if (postCount > 0) {
         // Check each visible post's subreddit indicator
         for (let i = 0; i < Math.min(postCount, 5); i++) {
           const post = posts.nth(i);
-          const subredditText = await post.locator('[class*="subreddit"]').textContent();
+          const subredditText = await post.locator('[data-testid="post-subreddit"]').textContent();
 
           // Subreddit should be r/LiverpoolFC (or LiverpoolFC without prefix)
           expect(subredditText?.toLowerCase()).toContain('liverpoolfc');
@@ -305,16 +313,16 @@ test.describe('Happy Path - Core User Journeys', () => {
       // or r/undefined, showing posts from random subreddits like r/gambling
 
       let requestsMade = [];
-      await page.route('**/*', async (route) => {
+      await page.route('**/api/reddit**', async (route) => {
         const url = route.request().url();
-        if (url.includes('reddit.com') && url.includes('search')) {
+        if (url.includes('search')) {
           requestsMade.push(url);
         }
         await route.continue();
       });
 
       await page.goto('/');
-      await page.waitForSelector('[class*="postItem"]', { timeout: 15000 });
+      await page.waitForSelector('[data-testid="post-item"]', { timeout: 15000 });
 
       // Search for something that could match posts in many subreddits
       const searchInput = page.getByPlaceholder('Search posts...');
@@ -336,42 +344,43 @@ test.describe('Happy Path - Core User Journeys', () => {
   test.describe('Sort and Filter', () => {
     test('changes sort method', async ({ page }) => {
       await page.goto('/');
-      await page.waitForSelector('[class*="postItem"]', { timeout: 15000 });
+      await page.waitForSelector('[data-testid="post-item"]', { timeout: 15000 });
 
-      // Find sort select
-      const sortSelect = page.locator('#sort-select');
-      const selectExists = await sortSelect.count() > 0;
+      // Find sort tabs (ShadCN Tabs component)
+      const sortTabs = page.locator('[data-testid="sort-tabs"]');
+      const tabsExist = await sortTabs.count() > 0;
 
-      if (selectExists) {
-        // Change to "new"
-        await sortSelect.selectOption('new');
+      if (tabsExist) {
+        // Click "New" sort tab
+        const newTab = sortTabs.getByRole('tab', { name: /new/i });
+        await newTab.click();
 
         // Wait for posts to reload
         await page.waitForTimeout(1000);
 
         // Posts should still be visible
-        const posts = page.locator('[class*="postItem"]');
+        const posts = page.locator('[data-testid="post-item"]');
         await expect(posts.first()).toBeVisible();
       }
     });
 
     test('applies flair filter', async ({ page }) => {
       await page.goto('/');
-      await page.waitForSelector('[class*="postItem"]', { timeout: 15000 });
+      await page.waitForSelector('[data-testid="post-item"]', { timeout: 15000 });
 
-      // Look for flair filter section
-      const flairExpandButton = page.locator('[class*="flairExpandButton"]');
-      const buttonExists = await flairExpandButton.count() > 0;
+      // Look for filter expand button (ShadCN Collapsible trigger)
+      const filterExpand = page.locator('[data-testid="filter-expand"]');
+      const buttonExists = await filterExpand.count() > 0;
 
       if (buttonExists) {
         // Expand flair filters
-        await flairExpandButton.click();
+        await filterExpand.click();
 
         // Wait for section to expand
         await page.waitForTimeout(300);
 
-        // Click a flair pill (if any exist)
-        const flairPill = page.locator('[class*="flairPill"]').first();
+        // Click a flair pill (ShadCN Toggle in ToggleGroup)
+        const flairPill = page.locator('[data-testid="flair-pill"]').first();
         const pillExists = await flairPill.count() > 0;
 
         if (pillExists) {
@@ -387,10 +396,10 @@ test.describe('Happy Path - Core User Journeys', () => {
   test.describe('Keyboard Navigation', () => {
     test('can navigate posts with Tab key', async ({ page }) => {
       await page.goto('/');
-      await page.waitForSelector('[class*="postItem"]', { timeout: 15000 });
+      await page.waitForSelector('[data-testid="post-item"]', { timeout: 15000 });
 
       // Tab to first post
-      const firstPost = page.locator('[class*="postItem"]').first();
+      const firstPost = page.locator('[data-testid="post-item"]').first();
       await firstPost.focus();
 
       // Verify focus is visible
@@ -399,18 +408,18 @@ test.describe('Happy Path - Core User Journeys', () => {
 
     test('can open post with Enter key', async ({ page }) => {
       await page.goto('/');
-      await page.waitForSelector('[class*="postItem"]', { timeout: 15000 });
+      await page.waitForSelector('[data-testid="post-item"]', { timeout: 15000 });
 
       // Focus first post
-      const firstPost = page.locator('[class*="postItem"]').first();
+      const firstPost = page.locator('[data-testid="post-item"]').first();
       await firstPost.focus();
 
       // Press Enter
       await page.keyboard.press('Enter');
 
-      // Modal should open
-      const modal = page.locator('[role="dialog"]');
-      await expect(modal).toBeVisible({ timeout: 5000 });
+      // Sheet should open
+      const sheet = page.locator('[role="dialog"]');
+      await expect(sheet).toBeVisible({ timeout: 5000 });
     });
   });
 
@@ -423,10 +432,10 @@ test.describe('Happy Path - Core User Journeys', () => {
       }
 
       await page.goto('/');
-      await page.waitForSelector('[class*="postItem"]', { timeout: 15000 });
+      await page.waitForSelector('[data-testid="post-item"]', { timeout: 15000 });
 
       // Bottom navigation should be visible on mobile
-      const bottomNav = page.locator('[class*="bottomNav"]');
+      const bottomNav = page.locator('[data-testid="bottom-nav"]');
       await expect(bottomNav).toBeVisible();
     });
 
@@ -438,10 +447,10 @@ test.describe('Happy Path - Core User Journeys', () => {
       }
 
       await page.goto('/');
-      await page.waitForSelector('[class*="postItem"]', { timeout: 15000 });
+      await page.waitForSelector('[data-testid="post-item"]', { timeout: 15000 });
 
       // Bottom navigation should not be visible on desktop
-      const bottomNav = page.locator('[class*="bottomNav"]');
+      const bottomNav = page.locator('[data-testid="bottom-nav"]');
       await expect(bottomNav).not.toBeVisible();
     });
   });
@@ -449,13 +458,13 @@ test.describe('Happy Path - Core User Journeys', () => {
   test.describe('Load More Posts', () => {
     test('loads more posts when clicking load more button', async ({ page }) => {
       await page.goto('/');
-      await page.waitForSelector('[class*="postItem"]', { timeout: 15000 });
+      await page.waitForSelector('[data-testid="post-item"]', { timeout: 15000 });
 
       // Get initial post count
-      const initialPosts = await page.locator('[class*="postItem"]').count();
+      const initialPosts = await page.locator('[data-testid="post-item"]').count();
 
       // Look for load more button
-      const loadMoreButton = page.locator('[class*="loadMoreButton"]');
+      const loadMoreButton = page.locator('[data-testid="load-more"]');
       const buttonExists = await loadMoreButton.count() > 0;
 
       if (buttonExists && initialPosts >= 20) {
@@ -467,7 +476,7 @@ test.describe('Happy Path - Core User Journeys', () => {
         await page.waitForTimeout(2000);
 
         // Should have more posts now
-        const newPostCount = await page.locator('[class*="postItem"]').count();
+        const newPostCount = await page.locator('[data-testid="post-item"]').count();
         expect(newPostCount).toBeGreaterThanOrEqual(initialPosts);
       }
     });

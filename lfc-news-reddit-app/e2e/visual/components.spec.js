@@ -4,6 +4,13 @@
  * @description Visual regression tests for standalone components.
  *              WHY: Isolated component tests ensure individual elements
  *              maintain their appearance independent of page context.
+ *
+ *              Updated for ShadCN rebuild:
+ *              - Selectors use data-testid attributes
+ *              - Theme switcher is ShadCN ToggleGroup (no dropdown)
+ *              - Search bar is ShadCN Input
+ *              - Sort uses ShadCN Tabs, filter uses Collapsible + ToggleGroup
+ *              - Themes: red, white, black (was red, white, green)
  */
 
 const { test, expect } = require('@playwright/test');
@@ -12,7 +19,7 @@ const { THEMES, setThemeDirect, screenshotName, getDynamicContentMasks } = requi
 test.describe('Component Visual Tests', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    await page.waitForSelector('[class*="postItem"]', { timeout: 10000 });
+    await page.waitForSelector('[data-testid="post-item"]', { timeout: 10000 });
   });
 
   test.describe('Header', () => {
@@ -30,29 +37,16 @@ test.describe('Component Visual Tests', () => {
 
   test.describe('Theme Switcher', () => {
     for (const theme of THEMES) {
-      test(`theme switcher button in ${theme} theme`, async ({ page }, testInfo) => {
+      test(`theme switcher in ${theme} theme`, async ({ page }, testInfo) => {
         await setThemeDirect(page, theme);
 
-        const themeSwitcher = page.getByRole('button', { name: /Theme/i });
+        // ShadCN ToggleGroup - no dropdown, buttons always visible
+        const themeSwitcher = page.locator('[data-testid="theme-switcher"]');
         await expect(themeSwitcher).toHaveScreenshot(
           screenshotName('theme-switcher', theme, testInfo.project.name)
         );
       });
     }
-
-    test('theme switcher dropdown', async ({ page }, testInfo) => {
-      // Only need to test dropdown once, it contains all themes
-      const themeSwitcher = page.getByRole('button', { name: /Theme/i });
-      await themeSwitcher.click();
-
-      // Wait for dropdown to appear
-      await page.waitForTimeout(300);
-
-      const dropdown = page.locator('[class*="themeSwitcher"]').first();
-      await expect(dropdown).toHaveScreenshot(
-        screenshotName('theme-switcher-dropdown', 'red', testInfo.project.name)
-      );
-    });
   });
 
   test.describe('Search Bar', () => {
@@ -60,7 +54,7 @@ test.describe('Component Visual Tests', () => {
       test(`search bar empty in ${theme} theme`, async ({ page }, testInfo) => {
         await setThemeDirect(page, theme);
 
-        const searchBar = page.locator('[class*="searchBar"]').first();
+        const searchBar = page.locator('[data-testid="search-bar"]').first();
         await expect(searchBar).toHaveScreenshot(
           screenshotName('search-bar-empty', theme, testInfo.project.name)
         );
@@ -72,7 +66,7 @@ test.describe('Component Visual Tests', () => {
         const searchInput = page.getByPlaceholder('Search posts...');
         await searchInput.focus();
 
-        const searchBar = page.locator('[class*="searchBar"]').first();
+        const searchBar = page.locator('[data-testid="search-bar"]').first();
         await expect(searchBar).toHaveScreenshot(
           screenshotName('search-bar-focused', theme, testInfo.project.name)
         );
@@ -88,7 +82,7 @@ test.describe('Component Visual Tests', () => {
         // WHY: Mask dynamic content to prevent flaky tests
         const masks = getDynamicContentMasks(page);
 
-        const postCard = page.locator('[class*="postItem"]').first();
+        const postCard = page.locator('[data-testid="post-item"]').first();
         await expect(postCard).toHaveScreenshot(
           screenshotName('post-card-default', theme, testInfo.project.name),
           { mask: masks }
@@ -103,7 +97,7 @@ test.describe('Component Visual Tests', () => {
         }
         await setThemeDirect(page, theme);
 
-        const postCard = page.locator('[class*="postItem"]').first();
+        const postCard = page.locator('[data-testid="post-item"]').first();
         await postCard.focus();
 
         // Mask dynamic content
@@ -127,7 +121,7 @@ test.describe('Component Visual Tests', () => {
         }
         await setThemeDirect(page, theme);
 
-        const bottomNav = page.locator('[class*="bottomNav"]').first();
+        const bottomNav = page.locator('[data-testid="bottom-nav"]').first();
         if (await bottomNav.isVisible()) {
           await expect(bottomNav).toHaveScreenshot(
             screenshotName('bottom-nav', theme, testInfo.project.name)
@@ -139,15 +133,34 @@ test.describe('Component Visual Tests', () => {
     }
   });
 
-  test.describe('Subreddit Filter', () => {
+  test.describe('Sort Tabs', () => {
     for (const theme of THEMES) {
-      test(`subreddit filter pills in ${theme} theme`, async ({ page }, testInfo) => {
+      test(`sort tabs in ${theme} theme`, async ({ page }, testInfo) => {
         await setThemeDirect(page, theme);
 
-        const subredditFilter = page.locator('[class*="subredditFilter"]').first();
-        if (await subredditFilter.isVisible()) {
-          await expect(subredditFilter).toHaveScreenshot(
-            screenshotName('subreddit-filter', theme, testInfo.project.name)
+        // ShadCN Tabs component for sort options
+        const sortTabs = page.locator('[data-testid="sort-tabs"]').first();
+        if (await sortTabs.isVisible()) {
+          await expect(sortTabs).toHaveScreenshot(
+            screenshotName('sort-tabs', theme, testInfo.project.name)
+          );
+        } else {
+          test.skip();
+        }
+      });
+    }
+  });
+
+  test.describe('Filter Panel', () => {
+    for (const theme of THEMES) {
+      test(`filter panel in ${theme} theme`, async ({ page }, testInfo) => {
+        await setThemeDirect(page, theme);
+
+        // ShadCN Collapsible + ToggleGroup for filter options
+        const filterPanel = page.locator('[data-testid="filter-panel"]').first();
+        if (await filterPanel.isVisible()) {
+          await expect(filterPanel).toHaveScreenshot(
+            screenshotName('filter-panel', theme, testInfo.project.name)
           );
         } else {
           test.skip();

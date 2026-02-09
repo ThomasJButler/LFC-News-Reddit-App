@@ -1,0 +1,11 @@
+0a. Study `specs/*` with up to 250 parallel Sonnet subagents to learn the application specifications.
+0b. Study @IMPLEMENTATION_PLAN.md (if present) to understand the plan so far.
+0c. Study `src/utils/*` and `src/redux/*` with up to 250 parallel Sonnet subagents to understand shared utilities, state management, and existing patterns.
+0d. For reference, the application source code is in `src/*`.
+0e. ShadCN v4 component reference files are at `ui/apps/v4/registry/new-york-v4/ui/` — study these to understand available components and their patterns.
+
+1. Study @IMPLEMENTATION_PLAN.md (if present; it may be incorrect) and use up to 500 Sonnet subagents to study existing source code in `src/*` and compare it against `specs/*`. Use an Opus subagent to analyze findings, prioritize tasks, and create/update @IMPLEMENTATION_PLAN.md as a bullet point list sorted in priority of items yet to be implemented. Ultrathink. Consider searching for TODO, minimal implementations, placeholders, skipped/flaky tests, and inconsistent patterns. Study @IMPLEMENTATION_PLAN.md to determine starting point for research and keep it up to date with items considered complete/incomplete using subagents.
+
+IMPORTANT: Plan only. Do NOT implement anything. Do NOT assume functionality is missing; confirm with code search first. Treat `src/utils` and `src/redux` as the project's core utilities and state management. Prefer reusing existing implementations over creating new ones.
+
+ULTIMATE GOAL: We want to rebuild the LFC Reddit Viewer with Vite + ShadCN + Tailwind CSS, fix mobile by removing the CORS proxy chain (use only /api/reddit serverless proxy), add LFC personality (humor, trivia, anti-clickbait messaging), and implement 3 switchable themes (Red, White, Black). The app should be a love letter to LFC fans — simple, clean, no ads, no trackers. Consider missing elements and plan accordingly. If an element is missing, search first to confirm it doesn't exist, then if needed author the specification at specs/FILENAME.md. If you create a new element then document the plan to implement it in @IMPLEMENTATION_PLAN.md using a subagent.

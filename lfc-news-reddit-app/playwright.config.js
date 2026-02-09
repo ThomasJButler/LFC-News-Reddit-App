@@ -2,8 +2,12 @@
  * @author Tom Butler
  * @date 2026-01-21
  * @description Playwright configuration for visual regression testing.
- *              WHY: Visual tests prevent CSS regressions across 4 themes and 3 viewports.
+ *              WHY: Visual tests prevent CSS regressions across 3 themes and 3 viewports.
  *              This configuration enables consistent screenshot comparisons.
+ *
+ *              Updated for Vite migration: dev server runs on port 5173 with `npm run dev`.
+ *              Updated for ShadCN rebuild: components use data-testid attributes for
+ *              reliable test selectors instead of CSS Module class name matching.
  */
 
 const { defineConfig, devices } = require('@playwright/test');
@@ -32,8 +36,8 @@ module.exports = defineConfig({
 
   // Shared settings for all the projects below
   use: {
-    // Base URL for the development server
-    baseURL: 'http://localhost:3000',
+    // Base URL for the Vite development server
+    baseURL: 'http://localhost:5173',
 
     // Collect trace when retrying the failed test
     trace: 'on-first-retry',
@@ -89,10 +93,10 @@ module.exports = defineConfig({
     },
   ],
 
-  // Run local dev server before starting the tests
+  // Run Vite dev server before starting the tests
   webServer: {
-    command: 'npm start',
-    url: 'http://localhost:3000',
+    command: 'npm run dev',
+    url: 'http://localhost:5173',
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
   },

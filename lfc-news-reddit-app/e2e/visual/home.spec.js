@@ -4,6 +4,11 @@
  * @description Visual regression tests for the home page.
  *              WHY: The home page is the primary entry point and must maintain
  *              visual consistency across themes and viewports.
+ *
+ *              Updated for ShadCN rebuild:
+ *              - Selectors use data-testid attributes
+ *              - API routes go through /api/reddit proxy
+ *              - Themes: red, white, black (was red, white, green)
  */
 
 const { test, expect } = require('@playwright/test');
@@ -14,7 +19,7 @@ test.describe('Home Page Visual Tests', () => {
     // Navigate to home page
     await page.goto('/');
     // Wait for initial content to load
-    await page.waitForSelector('[class*="postItem"]', { timeout: 10000 });
+    await page.waitForSelector('[data-testid="post-item"]', { timeout: 10000 });
   });
 
   test.describe('Default State', () => {
@@ -44,7 +49,7 @@ test.describe('Home Page Visual Tests', () => {
         await page.goto('/', { waitUntil: 'domcontentloaded' });
 
         // Capture skeleton loading state (if visible)
-        const skeleton = page.locator('[class*="skeleton"]');
+        const skeleton = page.locator('[data-testid="skeleton"]');
         if (await skeleton.count() > 0) {
           await expect(skeleton.first()).toHaveScreenshot(
             screenshotName('home-skeleton', theme, testInfo.project.name)
@@ -64,8 +69,8 @@ test.describe('Home Page Visual Tests', () => {
         }
         await setThemeDirect(page, theme);
 
-        // Get first post card
-        const postCard = page.locator('[class*="postItem"]').first();
+        // Get first post card (ShadCN Card component)
+        const postCard = page.locator('[data-testid="post-item"]').first();
         await postCard.hover();
 
         // Wait for hover transition
@@ -87,12 +92,12 @@ test.describe('Home Page Visual Tests', () => {
       test(`search bar with active search in ${theme} theme`, async ({ page }, testInfo) => {
         await setThemeDirect(page, theme);
 
-        // Type in search bar
+        // Type in search bar (ShadCN Input component)
         const searchInput = page.getByPlaceholder('Search posts...');
         await searchInput.fill('Salah');
 
         // Take screenshot of search area
-        const searchBar = page.locator('[class*="searchBar"]').first();
+        const searchBar = page.locator('[data-testid="search-bar"]').first();
         await expect(searchBar).toHaveScreenshot(
           screenshotName('search-active', theme, testInfo.project.name)
         );
@@ -114,7 +119,7 @@ test.describe('Home Page Visual Tests', () => {
         await page.waitForTimeout(1000);
 
         // Capture the main content area
-        const mainContent = page.locator('[class*="postList"]').first();
+        const mainContent = page.locator('[data-testid="post-list"]').first();
         await expect(mainContent).toHaveScreenshot(
           screenshotName('search-empty', theme, testInfo.project.name)
         );
@@ -126,8 +131,8 @@ test.describe('Home Page Visual Tests', () => {
     for (const theme of THEMES) {
       test(`error state in ${theme} theme`, async ({ page }, testInfo) => {
         // WHY: Test error state appearance by intercepting API requests and returning errors
-        // This ensures the error UI is consistent across themes
-        await page.route('**/reddit.com/**', route => {
+        // This ensures the error UI (with LFC humor) is consistent across themes
+        await page.route('**/api/reddit**', route => {
           route.abort('failed');
         });
 
@@ -137,10 +142,10 @@ test.describe('Home Page Visual Tests', () => {
         await page.goto('/');
 
         // Wait for error state to render
-        await page.waitForSelector('[class*="error"], [class*="Error"]', { timeout: 15000 });
+        await page.waitForSelector('[data-testid="error-message"], [role="alert"]', { timeout: 15000 });
 
         // Capture error state
-        const errorElement = page.locator('[class*="error"], [class*="Error"]').first();
+        const errorElement = page.locator('[data-testid="error-message"], [role="alert"]').first();
         await expect(errorElement).toHaveScreenshot(
           screenshotName('home-error', theme, testInfo.project.name)
         );

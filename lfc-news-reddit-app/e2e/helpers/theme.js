@@ -2,16 +2,22 @@
  * @author Tom Butler
  * @date 2026-01-21
  * @description Theme helper utilities for Playwright E2E tests.
- *              WHY: The app supports 4 themes that need visual testing.
+ *              WHY: The app supports 3 themes that need visual testing.
  *              These helpers enable consistent theme switching across tests.
+ *
+ *              Updated for ShadCN rebuild:
+ *              - Themes: red (Anfield Red), white (Away Day), black (Third Kit)
+ *              - All themes set data-theme attribute on <html> (no special case for default)
+ *              - CSS variables use ShadCN naming: --background, --foreground, --primary, etc.
+ *              - Selectors use data-testid attributes instead of CSS Module class matching
  */
 
 /**
  * Available themes in the application
- * WHY: Only 3 themes matching Liverpool FC kits - Home (red), Away (white/cream), Keeper (green)
+ * WHY: Only 3 themes matching Liverpool FC kits - Home (red), Away (white), Third Kit (black)
  * @type {string[]}
  */
-const THEMES = ['red', 'white', 'green'];
+const THEMES = ['red', 'white', 'black'];
 
 /**
  * Theme display names for test descriptions
@@ -20,38 +26,31 @@ const THEMES = ['red', 'white', 'green'];
 const THEME_NAMES = {
   red: 'Red (Default)',
   white: 'White',
-  green: 'Green',
+  black: 'Black',
 };
 
 /**
  * Sets the theme on the page by clicking the appropriate theme button
  * @param {import('@playwright/test').Page} page - Playwright page object
- * @param {string} theme - Theme name to set ('red', 'white', 'green')
+ * @param {string} theme - Theme name to set ('red', 'white', 'black')
  */
 async function setTheme(page, theme) {
-  // Map theme IDs to button names
+  // Map theme IDs to button names (ShadCN ToggleGroup buttons)
   const themeButtonNames = {
     red: 'Anfield Red theme',
     white: 'Away Day theme',
-    green: 'Keeper Kit theme'
+    black: 'Third Kit theme'
   };
 
   // Click the theme button directly (no dropdown to open)
   const themeButton = page.getByRole('button', { name: themeButtonNames[theme] });
   await themeButton.click();
 
-  // Wait for theme to be applied
-  if (theme === 'red') {
-    // Red theme removes the data-theme attribute
-    await page.waitForFunction(
-      () => !document.documentElement.hasAttribute('data-theme')
-    );
-  } else {
-    await page.waitForFunction(
-      (expectedTheme) => document.documentElement.getAttribute('data-theme') === expectedTheme,
-      theme
-    );
-  }
+  // Wait for theme to be applied (all themes set data-theme attribute)
+  await page.waitForFunction(
+    (expectedTheme) => document.documentElement.getAttribute('data-theme') === expectedTheme,
+    theme
+  );
 }
 
 /**
@@ -75,7 +74,7 @@ async function setThemeDirect(page, theme) {
   }, theme);
 
   // Wait for any CSS transitions to complete
-  await page.waitForTimeout(350); // Match --transition-normal
+  await page.waitForTimeout(350);
 }
 
 /**
@@ -91,7 +90,6 @@ function screenshotName(baseName, theme, viewport) {
 
 /**
  * Helper to run a test across all themes
- * @param {import('@playwright/test').TestInfo} testInfo - Playwright test info
  * @param {import('@playwright/test').Page} page - Playwright page object
  * @param {Function} testFn - Test function to run for each theme
  */
@@ -106,25 +104,27 @@ async function forEachTheme(page, testFn) {
  * Returns an array of locators for dynamic content that should be masked in screenshots
  * WHY: Timestamps, scores, and usernames change between test runs causing flaky visual tests.
  *      Masking these elements ensures consistent screenshots while still testing layout and styling.
+ *
+ *      Uses data-testid selectors compatible with ShadCN/Tailwind components.
  * @param {import('@playwright/test').Page} page - Playwright page object
  * @returns {import('@playwright/test').Locator[]} Array of locators to mask
  */
 function getDynamicContentMasks(page) {
   return [
     // Post list items
-    page.locator('[class*="time"]'),           // Relative timestamps ("2h ago")
-    page.locator('[class*="upvotes"]'),        // Upvote counts
-    page.locator('[class*="score"]'),          // Score displays
-    page.locator('[class*="comments"] span'),  // Comment counts in post cards
-    page.locator('[class*="author"]'),         // Author usernames
+    page.locator('[data-testid="timestamp"]'),      // Relative timestamps ("2h ago")
+    page.locator('[data-testid="upvotes"]'),         // Upvote counts
+    page.locator('[data-testid="score"]'),           // Score displays
+    page.locator('[data-testid="comment-count"]'),   // Comment counts in post cards
+    page.locator('[data-testid="author"]'),          // Author usernames
 
     // Comment section
-    page.locator('[class*="commentMeta"]'),    // Comment metadata (author, time)
-    page.locator('[class*="commentScore"]'),   // Comment scores
+    page.locator('[data-testid="comment-meta"]'),    // Comment metadata (author, time)
+    page.locator('[data-testid="comment-score"]'),   // Comment scores
 
     // Post detail
-    page.locator('[class*="metaAuthor"]'),     // Post detail author
-    page.locator('[class*="metaTime"]'),       // Post detail timestamp
+    page.locator('[data-testid="post-author"]'),     // Post detail author
+    page.locator('[data-testid="post-time"]'),       // Post detail timestamp
   ];
 }
 
