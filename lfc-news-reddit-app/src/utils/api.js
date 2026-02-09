@@ -60,6 +60,47 @@ const CORS_PROXIES = [
 ];
 
 /**
+ * Fetches from the self-hosted Vercel serverless proxy (/api/reddit).
+ * This runs server-side on the same domain, so there are no CORS issues.
+ * Works on all devices including mobile browsers.
+ *
+ * @param {string} redditUrl - Full Reddit URL (e.g. https://www.reddit.com/r/LiverpoolFC/hot.json?limit=50)
+ * @return {Promise<Object>} JSON response from Reddit API
+ */
+const tryVercelProxy = async (redditUrl) => {
+  try {
+    // Parse the Reddit URL to extract path and query params for the proxy
+    const url = new URL(redditUrl);
+    const proxyParams = new URLSearchParams(url.search);
+    proxyParams.set('path', url.pathname);
+
+    const proxyUrl = `/api/reddit?${proxyParams.toString()}`;
+    console.log('Trying Vercel proxy:', proxyUrl);
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+    const response = await fetch(proxyUrl, { signal: controller.signal });
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      throw new Error(`Vercel proxy HTTP ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log('Successfully fetched via Vercel proxy');
+    return data;
+  } catch (error) {
+    if (error.name === 'AbortError') {
+      console.log('Vercel proxy timed out after 15 seconds');
+      throw new Error('Vercel proxy timeout');
+    }
+    console.log('Vercel proxy failed:', error.message);
+    throw error;
+  }
+};
+
+/**
  * @return {boolean} True if user agent matches mobile device or viewport is narrow
  */
 const isMobile = () => {
@@ -184,14 +225,23 @@ const fetchFromReddit = async (url) => {
     return cachedData;
   }
 
-  // Proxy selection strategy differs between mobile and desktop
-  // Heuristic 1: Detect device type to prioritise compatible proxies
+  // PRIMARY: Try the self-hosted Vercel serverless proxy first.
+  // This is the most reliable method — runs server-side on the same domain,
+  // no CORS, works on all devices including mobile browsers.
+  try {
+    const data = await tryVercelProxy(url);
+    cache.set(cacheKey, data, CACHE_TTL);
+    return data;
+  } catch (vercelError) {
+    console.warn('Vercel proxy unavailable, falling back to CORS proxies:', vercelError.message);
+  }
+
+  // FALLBACK: Third-party CORS proxies (for local development or non-Vercel hosting)
   const mobile = isMobile();
   let proxies = [...CORS_PROXIES];
 
   if (mobile) {
     console.log('Mobile device detected, prioritising mobile-compatible proxies');
-    // Heuristic 2: Sort by mobile support flag, prioritising codetabs
     proxies = proxies.sort((a, b) => {
       if (a.mobileSupport && !b.mobileSupport) return -1;
       if (!a.mobileSupport && b.mobileSupport) return 1;
