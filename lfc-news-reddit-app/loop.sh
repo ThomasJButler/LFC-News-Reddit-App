@@ -25,7 +25,7 @@ ITERATION=0
 CURRENT_BRANCH=$(git branch --show-current)
 
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "🔴 LFC Reddit Viewer - Ralph Loop"
+echo "  AiTomatic Ralph Loop"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "Mode:   $MODE"
 echo "Prompt: $PROMPT_FILE"
@@ -39,13 +39,30 @@ if [ ! -f "$PROMPT_FILE" ]; then
     exit 1
 fi
 
+# Note: shadcn reference available in ui/ folder
+if [ -f "ui/package.json" ] && [ ! -d "ui/node_modules" ]; then
+    echo "Tip: Run 'cd ui && pnpm install' for component reference"
+fi
+
 while true; do
     if [ $MAX_ITERATIONS -gt 0 ] && [ $ITERATION -ge $MAX_ITERATIONS ]; then
         echo "Reached max iterations: $MAX_ITERATIONS"
         break
     fi
 
-    cat "$PROMPT_FILE" | claude -p \
+    ITERATION=$((ITERATION + 1))
+    echo -e "\n======================== ITERATION $ITERATION ========================\n"
+
+    # Run Ralph iteration
+    # -p: Headless mode (non-interactive)
+    # --dangerously-skip-permissions: Auto-approve all tool calls
+    # --output-format=stream-json: Structured output
+    # --model opus: Primary agent uses Opus for complex reasoning
+    # --verbose: Detailed logging
+    # Resolve claude CLI path (alias won't work in scripts)
+    CLAUDE_BIN="${CLAUDE_BIN:-$(command -v claude 2>/dev/null || echo "$HOME/.claude/local/claude")}"
+
+    cat "$PROMPT_FILE" | "$CLAUDE_BIN" -p \
         --dangerously-skip-permissions \
         --output-format=stream-json \
         --model opus \
@@ -57,6 +74,5 @@ while true; do
         git push -u origin "$CURRENT_BRANCH"
     }
 
-    ITERATION=$((ITERATION + 1))
-    echo -e "\n\n======================== LOOP $ITERATION ========================\n"
+    echo -e "\n======================== LOOP $ITERATION COMPLETE ========================\n"
 done

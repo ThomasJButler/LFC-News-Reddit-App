@@ -1,0 +1,12 @@
+How to Run
+
+cd lfc-news-reddit-app
+
+# Step 1: Let Ralph refine the plan (optional but recommended)
+./loop.sh plan
+
+# Step 2: Build it (Ralph picks tasks, implements, tests, commits)
+./loop.sh           # unlimited iterations
+./loop.sh 20        # max 20 iterations
+
+# Stop anytime: Ctrl+C
