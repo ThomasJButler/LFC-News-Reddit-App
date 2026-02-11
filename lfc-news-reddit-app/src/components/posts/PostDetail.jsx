@@ -3,8 +3,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { clearCurrentPost } from '../../redux/actions/posts';
 import { clearComments } from '../../redux/actions/comments';
 import { formatDateTime } from '../../utils/formatTime';
-import CommentList from '../CommentList/CommentList';
-import { CommentsSkeleton } from '../SkeletonLoader/SkeletonLoader';
+import CommentList from '../comments/CommentList';
+import { CommentSkeleton } from '../comments/CommentSkeleton';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { sanitizeUrl } from '../../utils/sanitize';
@@ -414,7 +414,7 @@ const PostDetail = () => {
                 <div data-testid="comments-section" className="pt-4">
                   <h2 className="text-base font-semibold mb-4">Comments</h2>
                   {commentsLoading ? (
-                    <CommentsSkeleton />
+                    <CommentSkeleton />
                   ) : (
                     <CommentList comments={comments} />
                   )}

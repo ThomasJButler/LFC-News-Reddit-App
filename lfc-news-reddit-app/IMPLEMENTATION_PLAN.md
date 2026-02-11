@@ -9,12 +9,12 @@
 **Tech Stack:** Vite, React 18, Tailwind CSS v4, ShadCN (Radix UI), Redux + redux-thunk, Sonner, Lucide React, Vitest, Playwright
 
 > **Last audited:** 2026-02-11 (deep audit v4 — all src/, specs/, config, tests, ShadCN refs verified by parallel Opus/Sonnet agents; 12 errors corrected, 5 missing items added)
-> **Status:** Priorities 1-7 COMPLETED. Priority 8 (Comments Rebuild) is next. 4 priorities remain.
+> **Status:** Priorities 1-8 COMPLETED. Priority 9 (Error/Toast/App Shell) is next. 3 priorities remain.
 > **Current state:** Vite 7 + CSS Modules (19 files) + Black/White/Red themes (HSL + hex both active). API simplified (single proxy). Dev server on port 5173. Jest `moduleNameMapper` resolves `@/` alias. Target: Tailwind + ShadCN + LFC personality.
 > **E2E test state:** Playwright config already targets Vite (port 5173) and `data-testid` selectors (38 unique attributes required). Tests reference `'black'` theme. They will NOT pass until the migration is complete. **Port fixed:** `npm run dev` now runs Vite on port 5173.
 > **Unit test state:** Jest via react-scripts. Tests reference `'green'` theme. Must migrate to Vitest and update theme references. 30 test files total: `src/utils/__tests__/` (6 files, ~2312 lines), `src/utils/formatDuration.test.js` (79 lines, misplaced outside `__tests__/`), `src/redux/__tests__/` (4 files, ~1370 lines), 19 component test files (Header has NO test), and `src/App.test.js`. All currently passing with Jest/CRA.
 > **Component inventory:** 19 component directories, 23 component files, all using CSS Modules, 0 with `data-testid` attributes in component source (only in 4 test files: Toast.test.js, PostList.test.js, PostDetail.test.js, Icon.test.js). Largest: CommentList (619 lines), PostDetail (542 lines), PostList (532 lines). 14 components use `prop-types` (bundled by `react-scripts`). Total component code: ~16,142 lines (source + CSS + tests).
-> **Existing directories that DON'T exist yet:** `src/components/comments/`
+> **Already created:** `src/components/comments/` (CommentList, Comment, CommentSkeleton — created in Priority 8)
 > **Already created:** `src/components/layout/` (Header, SortBar, FilterPanel, ThemeSwitcher, BottomNav — created in Priority 7)
 > **Already created:** `src/components/posts/` (PostItem, PostList, PostDetail, PostSkeleton — created in Priority 6)
 > **Already created:** `src/components/shared/` (Avatar, CodeBlock, VideoPlayer — created in Priority 5; SearchBar — created in Priority 7), `src/components/lfc/` (SpicyMeter — created in Priority 5)
@@ -210,18 +210,25 @@
 
 ---
 
-## Priority 8: Rebuild Components — Comments
+## Priority 8: Rebuild Components — Comments ✅ COMPLETED
 
 **Spec:** `specs/shadcn-ui-rebuild.md` (comments section)
 
-**New directory:** `src/components/comments/` (does not exist yet)
+**Completed 2026-02-11:**
 
-**Current component details:**
-- `CommentList.js`: Receives `comments`, `postId`, `subreddit` as props. Uses `react-window` FixedSizeList (threshold 999). Max nesting level 6. Staggered animations for first 15 comments. Collapse/expand all. Uses Avatar, ReactMarkdown, Icon.
+- [x] Rebuild CommentList → `src/components/comments/CommentList.jsx` — Native DOM rendering (removed `react-window`), staggered entry animations for first 15 comments (40ms stagger), collapse/expand all controls with ChevronsUp/ChevronsDown icons, comment count display; `data-testid="comment-list"`, `data-testid="no-comments"`, `data-testid="collapse-all-button"`, `data-testid="comment-count"`
+- [x] Rebuild Comment → `src/components/comments/Comment.jsx` — ShadCN Badge for OP/MOD/Pinned, shared Avatar, Tailwind border-l thread lines with LFC color cycle (red-600/amber-400/emerald-500/sky-400/zinc-500), max nesting level 6, markdown with media embeds, action buttons (Reply/Share) with hover reveal, responsive indentation; `data-testid="comment"`, `data-testid="comment-meta"`, `data-testid="comment-score"`, `data-testid="op-badge"`, `data-testid="mod-badge"`, `data-testid="score"`, `data-testid="timestamp"`, `data-testid="author"`
+- [x] Rebuild CommentSkeleton → `src/components/comments/CommentSkeleton.jsx` — ShadCN Skeleton with thread structure simulation (4 skeletons, alternating indentation); `data-testid="comment-skeleton"`, `data-testid="comments-skeleton"`
+- [x] Updated PostDetail.jsx: import paths changed from `../CommentList/CommentList` → `../comments/CommentList` and `../SkeletonLoader/SkeletonLoader` → `../comments/CommentSkeleton`
+- [x] All 30 test suites pass (864 tests), build succeeds
 
-- [ ] Rebuild CommentList → `src/components/comments/CommentList.jsx` — ShadCN ScrollArea + Separator, **remove `react-window` dependency**; add `data-testid="comment-list"`, `data-testid="comments-section"`, `data-testid="no-comments"`, `data-testid="collapse-all-button"`
-- [ ] Rebuild Comment → `src/components/comments/Comment.jsx` — ShadCN Collapsible for thread collapse, shared Avatar, Badge for OP/flair; keep max nesting level 6; add `data-testid="comment"`, `data-testid="comment-meta"`, `data-testid="comment-score"`, `data-testid="op-badge"`, `data-testid="mod-badge"`, `data-testid="score"`, `data-testid="timestamp"`, `data-testid="author"`
-- [ ] Rebuild CommentSkeleton → `src/components/comments/CommentSkeleton.jsx` — ShadCN Skeleton; add `data-testid="comment-skeleton"`, `data-testid="comments-skeleton"`
+**Key changes:**
+- `react-window` removed — uses native DOM rendering with `space-y` gaps (virtualization was disabled at threshold 999 anyway)
+- Comment and CommentList split into separate files (was monolithic 620-line file)
+- Thread line colors use Tailwind border utilities instead of CSS custom properties
+- Direct Lucide imports (ChevronDown, MessageCircle, Share2, Check, ChevronsUp, ChevronsDown) — no Icon wrapper
+- Action buttons (Reply/Share) appear on hover (desktop) or always visible (mobile via sm:opacity-100)
+- Old `CommentList/` directory still in place — deleted in Priority 9
 
 ---
 
