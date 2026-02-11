@@ -58,27 +58,27 @@
 
 ---
 
-## Priority 2: Fix Mobile (API Simplification)
+## Priority 2: Fix Mobile (API Simplification) ✅ COMPLETED
 
 **Why second:** Mobile users get CORS errors from the 6-proxy fallback chain. Fixing this is the highest-impact user-facing bug. Independent of UI rebuild.
 
 **Spec:** `specs/api-simplification.md`
 
-**Current state of `src/utils/api.js`:** 463 lines. Contains `CORS_PROXIES` array (6 third-party proxies), `tryProxy()`, `isMobile()`, `tryVercelProxy()`, and sequential fallback logic. The 4 exported functions (`fetchPosts`, `fetchPostDetails`, `fetchComments`, `searchPosts`) construct full Reddit URLs like `https://www.reddit.com/r/LiverpoolFC/hot.json?limit=50` and pass them to `fetchFromReddit()`, which then parses them to extract the path for the Vercel proxy.
+**Completed 2026-02-11:**
 
-**Target architecture:** The 4 exported functions should construct *paths* (e.g., `/r/LiverpoolFC/hot.json`) and pass them directly to `fetchFromReddit(path)`, which calls `/api/reddit?path={path}&limit=50`. The `api/reddit.js` serverless function already accepts `path` as a query parameter and forwards all other query params to Reddit.
+- [x] Rewrote `fetchFromReddit(url)` → `fetchFromReddit(path, params)`: single call to `/api/reddit?path={path}&{params}` with 15s AbortController timeout; kept rate limiter and cache
+- [x] Updated `fetchPosts()`: constructs path `/r/${subreddit}/${sortBy}.json` with params `{ limit: '50' }` (and `t: timeRange` for top/controversial)
+- [x] Updated `fetchPostDetails()`: path `/api/info.json` with params `{ id: 't3_${postId}' }`
+- [x] Updated `fetchComments()`: path `/r/${subreddit}/comments/${postId}.json` with params `{ limit: '500', depth: '10' }`
+- [x] Updated `searchPosts()`: path `/r/${validatedSubreddit}/search.json` with params `{ q, restrict_sr, limit, sort }`
+- [x] Removed: `CORS_PROXIES` array (6 proxies), `tryProxy()`, `isMobile()`, `tryVercelProxy()`, `BASE_URL` constant, all fallback/proxy logic, mobile error messages
+- [x] Kept: `RateLimiter`, `cache`, `processPostData()`, `processCommentData()`, `validateSubreddit()`, `ALLOWED_SUBREDDITS`, `DEFAULT_SUBREDDIT`, `CACHE_TTL`, `RATE_LIMIT_*`
+- [x] Reduced file from 463 lines to ~156 lines
+- [x] Did NOT modify `api/reddit.js` or `vercel.json`
+- [x] Rewrote `api.test.js`: 36 tests covering all 4 exports, error handling, timeout, cache, subreddit validation — removed proxy chain tests
+- [x] All 30 test suites pass (864 tests), build succeeds
 
-- [ ] Rewrite `fetchFromReddit(url)` → `fetchFromReddit(path)`: single call to `/api/reddit?path={encodedPath}` with 15s AbortController timeout; keep rate limiter and cache
-- [ ] Update `fetchPosts()`: change from constructing full Reddit URL to passing path `/r/${subreddit}/${sortBy}.json` with query params `limit=50` (and `t=${timeRange}` for top/controversial)
-- [ ] Update `fetchPostDetails()`: change to path `/api/info.json` with query param `id=t3_${postId}`
-- [ ] Update `fetchComments()`: change to path `/r/${subreddit}/comments/${postId}.json` with query params `limit=500&depth=10`
-- [ ] Update `searchPosts()`: change to path `/r/${validatedSubreddit}/search.json` with query params
-- [ ] Remove: `CORS_PROXIES` array, `tryProxy()`, `isMobile()`, `tryVercelProxy()`, `BASE_URL` constant, all fallback/proxy selection logic, mobile-specific error messages
-- [ ] Keep unchanged: `RateLimiter` class, `cache` usage, `processPostData()`, `processCommentData()`, `validateSubreddit()`, `ALLOWED_SUBREDDITS`, `DEFAULT_SUBREDDIT`, `CACHE_TTL`, `RATE_LIMIT_*` constants
-- [ ] Target: reduce file from ~463 lines to ~150 lines
-- [ ] Do NOT modify `api/reddit.js` serverless function or `vercel.json` rewrites
-- [ ] Update `src/utils/__tests__/api.test.js`: remove proxy chain tests, test simplified single-proxy `fetchFromReddit()`
-- [ ] Verify: posts load on mobile browser without CORS errors
+**Key change:** Cache key is now the proxy URL (`/api/reddit?path=...&limit=...`) rather than the full Reddit URL. This is deterministic for the same path+params combination.
 
 ---
 
