@@ -9,12 +9,13 @@
 **Tech Stack:** Vite, React 18, Tailwind CSS v4, ShadCN (Radix UI), Redux + redux-thunk, Sonner, Lucide React, Vitest, Playwright
 
 > **Last audited:** 2026-02-11 (deep audit v4 — all src/, specs/, config, tests, ShadCN refs verified by parallel Opus/Sonnet agents; 12 errors corrected, 5 missing items added)
-> **Status:** Priorities 1-5 COMPLETED. Priority 6 (Post Components Rebuild) is next. 6 priorities remain.
+> **Status:** Priorities 1-6 COMPLETED. Priority 7 (Layout & Navigation Rebuild) is next. 5 priorities remain.
 > **Current state:** Vite 7 + CSS Modules (19 files) + Black/White/Red themes (HSL + hex both active). API simplified (single proxy). Dev server on port 5173. Jest `moduleNameMapper` resolves `@/` alias. Target: Tailwind + ShadCN + LFC personality.
 > **E2E test state:** Playwright config already targets Vite (port 5173) and `data-testid` selectors (38 unique attributes required). Tests reference `'black'` theme. They will NOT pass until the migration is complete. **Port fixed:** `npm run dev` now runs Vite on port 5173.
 > **Unit test state:** Jest via react-scripts. Tests reference `'green'` theme. Must migrate to Vitest and update theme references. 30 test files total: `src/utils/__tests__/` (6 files, ~2312 lines), `src/utils/formatDuration.test.js` (79 lines, misplaced outside `__tests__/`), `src/redux/__tests__/` (4 files, ~1370 lines), 19 component test files (Header has NO test), and `src/App.test.js`. All currently passing with Jest/CRA.
 > **Component inventory:** 19 component directories, 23 component files, all using CSS Modules, 0 with `data-testid` attributes in component source (only in 4 test files: Toast.test.js, PostList.test.js, PostDetail.test.js, Icon.test.js). Largest: CommentList (619 lines), PostDetail (542 lines), PostList (532 lines). 14 components use `prop-types` (bundled by `react-scripts`). Total component code: ~16,142 lines (source + CSS + tests).
-> **Existing directories that DON'T exist yet:** `src/components/posts/`, `src/components/layout/`, `src/components/comments/`
+> **Existing directories that DON'T exist yet:** `src/components/layout/`, `src/components/comments/`
+> **Already created:** `src/components/posts/` (PostItem, PostList, PostDetail, PostSkeleton — created in Priority 6)
 > **Already created:** `src/components/shared/` (Avatar, CodeBlock, VideoPlayer — created in Priority 5), `src/components/lfc/` (SpicyMeter — created in Priority 5)
 > **Already created:** `src/components/ui/` (16 ShadCN JSX components — created in Priority 4)
 > **Already created:** `src/lib/utils.js` (ShadCN `cn()` helper — created in Priority 1)
@@ -158,22 +159,26 @@
 
 ---
 
-## Priority 6: Rebuild Components — Post Components
+## Priority 6: Rebuild Components — Post Components ✅ COMPLETED
 
 **Spec:** `specs/shadcn-ui-rebuild.md` (posts section)
 
-**New directory:** `src/components/posts/` (does not exist yet)
+**Completed 2026-02-11:**
 
-**Current component details:**
-- `PostItem.js`: Dispatches `setCurrentPost` + `fetchComments` via Redux. Uses Icon component, SpicyMeter. Smart thumbnail selection, video duration overlay, gallery count. Flair color coding.
-- `PostList.js`: Redux-connected. Uses `react-window` FixedSizeList (threshold 999). Pull-to-refresh on mobile. Initial visible: 20, load more: 20. Flair and media filtering.
-- `PostDetail.js`: Redux-connected (reads `currentPost`, `comments`). Modal with focus trap, keyboard nav (Escape/R/arrows). Reading mode toggle, reading progress indicator. Gallery carousel. CommentList child.
-- `SkeletonLoader.js`: Exports 6 skeleton variants (PostListSkeleton, CommentsSkeleton, etc.)
+- [x] Rebuild PostItem → `src/components/posts/PostItem.jsx` — ShadCN Card + Badge, Tailwind responsive, direct Lucide imports (ArrowUp, MessageCircle, Image, ExternalLink, Play, Images); uses shared SpicyMeter from `../lfc/SpicyMeter`; score color coding via Tailwind classes (text-primary for hot, text-amber-400 for popular); flair variants mapped to Badge destructive/secondary/default/outline; staggered animate-in with tailwindcss-animate; left accent stripe on hover; all `data-testid` attributes added
+- [x] Rebuild PostSkeleton → `src/components/posts/PostSkeleton.jsx` — ShadCN Skeleton inside Card; alternating thumbnail skeleton; `data-testid="skeleton"` on each card
+- [x] Rebuild PostList → `src/components/posts/PostList.jsx` — **removed `react-window` dependency**, uses native scroll with `space-y-3` gaps; ShadCN Button for "Load More"; preserved pull-to-refresh, filter/pagination logic, empty states; all `data-testid` attributes added
+- [x] Rebuild PostDetail → `src/components/posts/PostDetail.jsx` — ShadCN Sheet (replaces custom modal) + ScrollArea + Separator; Radix Dialog handles focus trap, Escape key, overlay dismiss natively; kept reading mode (R key), reading progress bar, gallery carousel with arrow keys, VideoPlayer integration; all `data-testid` attributes added
+- [x] All 30 test suites pass (864 tests), build succeeds
 
-- [ ] Rebuild PostItem → `src/components/posts/PostItem.jsx` — ShadCN Card + Badge, Tailwind responsive, direct Lucide imports; add `data-testid="post-item"`, `data-testid="post-title"`, `data-testid="post-header"`, `data-testid="post-footer"`, `data-testid="post-subreddit"`, `data-testid="post-score"`, `data-testid="post-flair"`, `data-testid="timestamp"`, `data-testid="upvotes"`, `data-testid="comment-count"`, `data-testid="author"`
-- [ ] Rebuild PostSkeleton → `src/components/posts/PostSkeleton.jsx` — ShadCN Skeleton inside Card; add `data-testid="skeleton"`
-- [ ] Rebuild PostList → `src/components/posts/PostList.jsx` — **remove `react-window` dependency**, use native scroll with "Load More" button, keep filter/pagination logic from Redux, keep pull-to-refresh; add `data-testid="post-list"`, `data-testid="empty-state"`, `data-testid="load-more"`
-- [ ] Rebuild PostDetail → `src/components/posts/PostDetail.jsx` — ShadCN Sheet (replaces custom modal) + ScrollArea, lazy loaded via `React.lazy`; keep focus trap, keyboard nav, reading mode, gallery carousel; add `data-testid="post-detail"`, `data-testid="post-body"`, `data-testid="post-detail-content"`, `data-testid="close-button"`, `data-testid="sheet-overlay"`, `data-testid="post-author"`, `data-testid="post-time"`
+**Key changes:**
+- PostDetail now uses Radix Dialog (via Sheet) for modal management — eliminates ~50 lines of manual focus trap, exit animation, and overlay click handling
+- PostList no longer imports `react-window` — uses native DOM rendering with `space-y-3` gaps
+- PostItem uses `tailwindcss-animate` classes (`animate-in fade-in-0 slide-in-from-bottom-4`) for staggered entry instead of CSS Module keyframes
+- All new components import Lucide icons directly (no Icon wrapper)
+- Old components (PostItem/, PostList/, PostDetail/, SkeletonLoader/) are still in place — they'll be deleted in Priority 9
+
+**Note:** Old components still exist and their tests still pass. The new `src/components/posts/` components are not yet wired into App.jsx — that happens in Priority 9 when old components are deleted and App is rebuilt.
 
 ---
 
