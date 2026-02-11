@@ -82,22 +82,22 @@ describe('Cache', () => {
 
   describe('TTL expiry', () => {
     beforeEach(() => {
-      jest.useFakeTimers();
+      vi.useFakeTimers();
     });
 
     afterEach(() => {
-      jest.useRealTimers();
+      vi.useRealTimers();
     });
 
     it('should use default TTL of 5 minutes (300000ms)', () => {
       cache.set('defaultTTL', 'value');
 
       // Should exist before TTL
-      jest.advanceTimersByTime(299999);
+      vi.advanceTimersByTime(299999);
       expect(cache.get('defaultTTL')).toBe('value');
 
       // Should expire after TTL
-      jest.advanceTimersByTime(2);
+      vi.advanceTimersByTime(2);
       expect(cache.get('defaultTTL')).toBeNull();
     });
 
@@ -105,18 +105,18 @@ describe('Cache', () => {
       cache.set('customTTL', 'value', 1000); // 1 second TTL
 
       // Should exist before TTL
-      jest.advanceTimersByTime(999);
+      vi.advanceTimersByTime(999);
       expect(cache.get('customTTL')).toBe('value');
 
       // Should expire after TTL
-      jest.advanceTimersByTime(2);
+      vi.advanceTimersByTime(2);
       expect(cache.get('customTTL')).toBeNull();
     });
 
     it('should handle very short TTL', () => {
       cache.set('shortTTL', 'value', 1); // 1ms TTL
 
-      jest.advanceTimersByTime(2);
+      vi.advanceTimersByTime(2);
       expect(cache.get('shortTTL')).toBeNull();
     });
 
@@ -124,24 +124,24 @@ describe('Cache', () => {
       const oneHour = 3600000;
       cache.set('longTTL', 'value', oneHour);
 
-      jest.advanceTimersByTime(oneHour - 1);
+      vi.advanceTimersByTime(oneHour - 1);
       expect(cache.get('longTTL')).toBe('value');
 
-      jest.advanceTimersByTime(2);
+      vi.advanceTimersByTime(2);
       expect(cache.get('longTTL')).toBeNull();
     });
 
     it('should refresh TTL when setting same key', () => {
       cache.set('refresh', 'value1', 1000);
 
-      jest.advanceTimersByTime(500);
+      vi.advanceTimersByTime(500);
       cache.set('refresh', 'value2', 1000);
 
       // Original would have expired at 1000ms, but refresh resets to 1500ms
-      jest.advanceTimersByTime(600);
+      vi.advanceTimersByTime(600);
       expect(cache.get('refresh')).toBe('value2');
 
-      jest.advanceTimersByTime(500);
+      vi.advanceTimersByTime(500);
       expect(cache.get('refresh')).toBeNull();
     });
   });
@@ -194,14 +194,14 @@ describe('Cache', () => {
     });
 
     it('should return false and clean up expired keys', () => {
-      jest.useFakeTimers();
+      vi.useFakeTimers();
 
       cache.set('expired', 'value', 100);
-      jest.advanceTimersByTime(101);
+      vi.advanceTimersByTime(101);
 
       expect(cache.has('expired')).toBe(false);
 
-      jest.useRealTimers();
+      vi.useRealTimers();
     });
   });
 
@@ -218,28 +218,28 @@ describe('Cache', () => {
     });
 
     it('should not count expired entries', () => {
-      jest.useFakeTimers();
+      vi.useFakeTimers();
 
       cache.set('valid', 'value', 10000);
       cache.set('expired1', 'value', 100);
       cache.set('expired2', 'value', 100);
 
-      jest.advanceTimersByTime(101);
+      vi.advanceTimersByTime(101);
 
       // size() calls cleanExpired internally
       expect(cache.size()).toBe(1);
 
-      jest.useRealTimers();
+      vi.useRealTimers();
     });
   });
 
   describe('cleanExpired', () => {
     beforeEach(() => {
-      jest.useFakeTimers();
+      vi.useFakeTimers();
     });
 
     afterEach(() => {
-      jest.useRealTimers();
+      vi.useRealTimers();
     });
 
     it('should remove all expired entries', () => {
@@ -247,7 +247,7 @@ describe('Cache', () => {
       cache.set('expire2', 'value', 200);
       cache.set('keep', 'value', 10000);
 
-      jest.advanceTimersByTime(201);
+      vi.advanceTimersByTime(201);
 
       cache.cleanExpired();
 
@@ -260,7 +260,7 @@ describe('Cache', () => {
       cache.set('expire1', 'value', 100);
       cache.set('expire2', 'value', 100);
 
-      jest.advanceTimersByTime(101);
+      vi.advanceTimersByTime(101);
 
       cache.cleanExpired();
       expect(cache.size()).toBe(0);

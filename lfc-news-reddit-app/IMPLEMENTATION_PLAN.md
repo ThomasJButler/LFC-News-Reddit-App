@@ -9,12 +9,12 @@
 **Tech Stack:** Vite, React 18, Tailwind CSS v4, ShadCN (Radix UI), Redux + redux-thunk, Sonner, Lucide React, Vitest, Playwright
 
 > **Last audited:** 2026-02-11 (deep audit v5 — full codebase verification by 6 parallel research agents + Opus synthesis)
-> **Status:** Priorities 1-10 COMPLETED and VERIFIED. 1 priority remains (Priority 11: Testing & Cleanup).
-> **Current state:** Vite 7 + Tailwind CSS v4 + ShadCN + 3 HSL themes (Red/White/Black). API simplified to single `/api/reddit` proxy. Dev server on port 5173. All 35 components rebuilt with Tailwind + ShadCN. 12 test suites, 362 tests. `src/main.jsx` imports `./styles/globals.css` correctly. `App.jsx` wires all rebuilt components. Sonner Toaster active. All LFC personality components integrated (lfcData.js, LfcLoadingMessages, LfcTrivia, LfcFooter).
+> **Status:** Priorities 1-10 COMPLETED and VERIFIED. Priority 11a (Vitest Migration) and 11b (Legacy Cleanup) COMPLETED. 1 sub-priority remains (Priority 11c: E2E Verification).
+> **Current state:** Vite 7 + Tailwind CSS v4 + ShadCN + 3 HSL themes (Red/White/Black). API simplified to single `/api/reddit` proxy. Dev server on port 5173. All 35 components rebuilt with Tailwind + ShadCN. Vitest 4.x replaces Jest. 12 test suites, 362 tests run in ~3.4s under Vitest. Coverage thresholds enforced on src/utils/, src/redux/, src/lib/ (80% statements, 72% branches, 75% functions). `src/main.jsx` imports `./styles/globals.css` correctly. `App.jsx` wires all rebuilt components. Sonner Toaster active. All LFC personality components integrated (lfcData.js, LfcLoadingMessages, LfcTrivia, LfcFooter).
 > **Verified complete:** `src/components/ui/` (16 ShadCN JSX — no TSX, no `use client`, no `@radix-ui/react-*`, all use unified `radix-ui`), `src/components/comments/` (3), `src/components/layout/` (5), `src/components/posts/` (4), `src/components/shared/` (6), `src/components/lfc/SpicyMeter.jsx` (LFC names already applied: Reserves/League Cup/Premier League/Champions League/Istanbul 2005/YNWA)
-> **Config verified:** `vite.config.js` (React plugin + jsxInJsPlugin + @/ alias + dev proxy), `postcss.config.js` (@tailwindcss/postcss), `vercel.json` (dist output + rewrites), `package.json` (Vite scripts + jest config for transition)
+> **Config verified:** `vite.config.js` (React plugin + jsxInJsPlugin + @/ alias + dev proxy + test: block for Vitest), `postcss.config.js` (@tailwindcss/postcss), `vercel.json` (dist output + rewrites), `package.json` (Vite scripts)
 > **globals.css verified:** `@import "tailwindcss"` + 3 theme blocks (:root, [data-theme="white"], [data-theme="black"]) with all 19 ShadCN CSS vars + base styles. Body uses `system-ui` font stack (upgrade planned in P10).
-> **CRA artifacts still present:** `public/index.html` (52-line CRA version — not used by Vite), `src/index.js` (kept for Jest — reportWebVitals import FIXED in P3), `src/index.css`, `src/App.css`, `src/styles/variables.css` (230-line legacy hex theme — superseded by globals.css HSL), `src/setupTests.js`
+> **CRA artifacts DELETED:** `public/index.html`, `src/index.js`, `src/setupTests.js`, `src/App.css`, `src/index.css`, `src/styles/variables.css`
 > **Toast system:** Old Toast/ directory and useToast.js DELETED in P9. Sonner `<Toaster />` wired in App.jsx.
 > **LFC Personality (P10a):** `src/utils/lfcData.js` created with all 5 arrays. `src/components/lfc/` now has 4 components: SpicyMeter, LfcLoadingMessages, LfcTrivia, LfcFooter. All integrated into App.jsx, PostList.jsx, ErrorMessage.jsx, and Header.jsx.
 > **E2E test state:** Playwright targets port 5173, uses 38 `data-testid` selectors (all verified present in rebuilt components), expects `'black'` theme. All API mocking uses `**/api/reddit**`. Theme button labels: "Anfield Red theme", "Away Day theme", "Third Kit theme". Tests will NOT pass until Vitest migration completes (Jest still the test runner).
@@ -310,25 +310,39 @@
 - **CRA artifacts still present:** `public/index.html`, `src/index.js`, `src/setupTests.js`.
 - **api.js:** Already simplified to 250 lines (target was ~156, actual is slightly larger but all proxy chain code removed). `api.test.js` already rewritten with 36 tests.
 
-### 11a: Vitest Migration
+### 11a: Vitest Migration ✅ COMPLETED
 
-- [ ] Install Vitest: `npm install -D vitest @vitest/coverage-v8 jsdom`
-- [ ] Add Vitest config to `vite.config.js`: `test: { environment: 'jsdom', globals: true, setupFiles: './src/test-setup.js', css: true }`
-- [ ] Create `src/test-setup.js` (replaces `src/setupTests.js`): import `@testing-library/jest-dom`; convert `jest.mock()` calls to `vi.mock()` for `react-markdown`, `remark-gfm`, `react-syntax-highlighter`, `react-syntax-highlighter/dist/esm/styles/prism`
-- [ ] Update `package.json` scripts: `"test": "vitest"`, `"test:coverage": "vitest run --coverage"`, `"test:ci": "vitest run --coverage"`
-- [ ] Remove Jest config from `package.json`: delete entire `"jest"` block (contains `transformIgnorePatterns` and `moduleNameMapper` — Vitest inherits `resolve.alias` from vite.config.js so `@/` mapping is automatic)
-- [ ] Update test files: replace any `jest.fn()` → `vi.fn()`, `jest.mock()` → `vi.mock()`, `jest.spyOn()` → `vi.spyOn()` across all test files in `src/`
-- [ ] Update `App.test.js`: verify it works with new App.jsx component imports (was testing old App.js)
-- [ ] Move `src/utils/formatDuration.test.js` → `src/utils/__tests__/formatDuration.test.js` (misplaced)
-- [ ] Run `npm test` — all 12 suites (362 tests) must pass under Vitest
-- [ ] Add coverage thresholds to Vitest config: 80% statements, 72% branches, 75% functions
+- [x] Install Vitest: `npm install -D vitest @vitest/coverage-v8 jsdom`
+- [x] Add Vitest config to `vite.config.js`: `test: { environment: 'jsdom', globals: true, setupFiles: './src/test-setup.js', css: true }`
+- [x] Create `src/test-setup.js` (replaces `src/setupTests.js`): import `@testing-library/jest-dom`; convert `jest.mock()` calls to `vi.mock()` for `react-markdown`, `remark-gfm`, `react-syntax-highlighter`, `react-syntax-highlighter/dist/esm/styles/prism`
+- [x] Update `package.json` scripts: `"test": "vitest"`, `"test:coverage": "vitest run --coverage"`, `"test:ci": "vitest run --coverage"`
+- [x] Remove Jest config from `package.json`: delete entire `"jest"` block (contains `transformIgnorePatterns` and `moduleNameMapper` — Vitest inherits `resolve.alias` from vite.config.js so `@/` mapping is automatic)
+- [x] Update test files: replace any `jest.fn()` → `vi.fn()`, `jest.mock()` → `vi.mock()`, `jest.spyOn()` → `vi.spyOn()` across all test files in `src/`
+- [x] Update `App.test.js`: verify it works with new App.jsx component imports (was testing old App.js)
+- [x] Move `src/utils/formatDuration.test.js` → `src/utils/__tests__/formatDuration.test.js` (misplaced)
+- [x] Run `npm test` — all 12 suites (362 tests) must pass under Vitest
+- [x] Add coverage thresholds to Vitest config: 80% statements, 72% branches, 75% functions
 
-### 11b: Legacy Cleanup
+**Completed 2026-02-11:**
 
-- [ ] Delete legacy CSS: `src/App.css`, `src/index.css`, `src/styles/variables.css`
-- [ ] Delete CRA artifacts: `public/index.html` (52-line CRA version), `src/index.js` (no longer needed once Jest removed), `src/setupTests.js` (replaced by `test-setup.js`)
-- [ ] Remove unused dependencies: `react-scripts`, `react-window` (dependencies already removed in P1: `dompurify`, `source-map-explorer`, `selenium-webdriver` — do NOT re-remove)
-- [ ] Verify no imports reference deleted files: search for `App.css`, `index.css`, `variables.css`, `setupTests`, `react-scripts`
+**Key learnings:**
+- Vitest migration required only `jest.*` → `vi.*` replacements — no structural test changes
+- `vi.mock()` requires `{ default: ... }` wrapping for default ESM exports (unlike Jest)
+- Vitest `include: ['src/**/*.test.{js,jsx}']` was needed to exclude the `ui/` reference directory
+- Coverage scoped to utils/redux/lib (where unit tests live); components validated via E2E
+
+### 11b: Legacy Cleanup ✅ COMPLETED
+
+- [x] Delete legacy CSS: `src/App.css`, `src/index.css`, `src/styles/variables.css`
+- [x] Delete CRA artifacts: `public/index.html` (52-line CRA version), `src/index.js` (no longer needed once Jest removed), `src/setupTests.js` (replaced by `test-setup.js`)
+- [x] Remove unused dependencies: `react-scripts`, `react-window` (dependencies already removed in P1: `dompurify`, `source-map-explorer`, `selenium-webdriver` — do NOT re-remove)
+- [x] Verify no imports reference deleted files: search for `App.css`, `index.css`, `variables.css`, `setupTests`, `react-scripts`
+
+**Completed 2026-02-11:**
+
+**Key learnings:**
+- Removed 1,146 packages by uninstalling react-scripts + jest + react-window
+- 0 npm vulnerabilities after cleanup (was 12 before)
 
 ### 11c: E2E Verification
 

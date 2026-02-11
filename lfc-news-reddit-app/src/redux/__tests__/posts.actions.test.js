@@ -20,11 +20,11 @@ const middlewares = [thunk];
 const mockStore = configureMockStore(middlewares);
 
 // Mock the API module
-jest.mock('../../utils/api');
+vi.mock('../../utils/api');
 
 describe('Posts Action Creators', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('Synchronous Actions', () => {

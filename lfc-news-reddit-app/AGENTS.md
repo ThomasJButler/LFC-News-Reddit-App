@@ -9,7 +9,8 @@
 
 Run these after implementing to get immediate feedback:
 
-- Tests: `npm test -- --watchAll=false`
+- Tests: `npx vitest run` (single run) or `npm test` (watch mode)
+- Coverage: `npm run test:coverage`
 - Build check: `npm run build` (must succeed with no errors)
 - E2E tests: `npm run test:e2e`
 

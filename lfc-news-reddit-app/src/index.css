@@ -1,5 +1,0 @@
-/* WHY: This file is kept minimal - body and code styles are defined in App.css with theme variables */
-
-code {
-  font-family: var(--font-mono);
-}

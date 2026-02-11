@@ -14,20 +14,17 @@
 import { fetchPosts, fetchPostDetails, fetchComments, searchPosts } from '../api';
 import { cache } from '../cache';
 
-// Increase timeout for API tests since they involve async operations
-jest.setTimeout(30000);
-
 // Mock the cache module
-jest.mock('../cache', () => ({
+vi.mock('../cache', () => ({
   cache: {
-    get: jest.fn(),
-    set: jest.fn(),
-    clear: jest.fn()
+    get: vi.fn(),
+    set: vi.fn(),
+    clear: vi.fn()
   }
 }));
 
 // Mock global fetch
-global.fetch = jest.fn();
+global.fetch = vi.fn();
 
 // Mock console methods to reduce noise in tests
 const originalConsoleLog = console.log;
@@ -36,20 +33,20 @@ const originalConsoleWarn = console.warn;
 
 describe('API Module', () => {
   beforeEach(() => {
-    jest.useFakeTimers();
-    jest.clearAllMocks();
+    vi.useFakeTimers();
+    vi.clearAllMocks();
     cache.get.mockReturnValue(null);
 
-    console.log = jest.fn();
-    console.error = jest.fn();
-    console.warn = jest.fn();
+    console.log = vi.fn();
+    console.error = vi.fn();
+    console.warn = vi.fn();
   });
 
   afterEach(() => {
     console.log = originalConsoleLog;
     console.error = originalConsoleError;
     console.warn = originalConsoleWarn;
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   // Helper: create a successful fetch mock response
@@ -108,7 +105,7 @@ describe('API Module', () => {
       mockFetchSuccess(mockPostData);
 
       const postsPromise = fetchPosts('LiverpoolFC', 'hot');
-      jest.runAllTimers();
+      vi.runAllTimers();
       const posts = await postsPromise;
 
       expect(posts).toHaveLength(1);
@@ -125,7 +122,7 @@ describe('API Module', () => {
       cache.get.mockReturnValueOnce(mockPostData);
 
       const postsPromise = fetchPosts('LiverpoolFC', 'hot');
-      jest.runAllTimers();
+      vi.runAllTimers();
       const posts = await postsPromise;
 
       expect(global.fetch).not.toHaveBeenCalled();
@@ -136,7 +133,7 @@ describe('API Module', () => {
       mockFetchSuccess(mockPostData);
 
       const postsPromise = fetchPosts('LiverpoolFC', 'hot');
-      jest.runAllTimers();
+      vi.runAllTimers();
       await postsPromise;
 
       expect(cache.set).toHaveBeenCalled();
@@ -146,7 +143,7 @@ describe('API Module', () => {
       mockFetchSuccess(mockPostData);
 
       const postsPromise = fetchPosts('LiverpoolFC', 'top', 'week');
-      jest.runAllTimers();
+      vi.runAllTimers();
       await postsPromise;
 
       const url = getCalledUrl();
@@ -158,7 +155,7 @@ describe('API Module', () => {
       mockFetchSuccess(mockPostData);
 
       const postsPromise = fetchPosts('LiverpoolFC', 'controversial', 'month');
-      jest.runAllTimers();
+      vi.runAllTimers();
       await postsPromise;
 
       const url = getCalledUrl();
@@ -170,7 +167,7 @@ describe('API Module', () => {
       mockFetchSuccess(mockPostData);
 
       const postsPromise = fetchPosts('LiverpoolFC', 'hot');
-      jest.runAllTimers();
+      vi.runAllTimers();
       await postsPromise;
 
       const url = getCalledUrl();
@@ -181,7 +178,7 @@ describe('API Module', () => {
       mockFetchSuccess(mockPostData);
 
       const postsPromise = fetchPosts();
-      jest.runAllTimers();
+      vi.runAllTimers();
       const posts = await postsPromise;
 
       const post = posts[0];
@@ -219,7 +216,7 @@ describe('API Module', () => {
       mockFetchSuccess(postWithSelfThumb);
 
       const postsPromise = fetchPosts();
-      jest.runAllTimers();
+      vi.runAllTimers();
       const posts = await postsPromise;
       expect(posts[0].thumbnail).toBeNull();
     });
@@ -239,7 +236,7 @@ describe('API Module', () => {
       mockFetchSuccess(postWithDefaultThumb);
 
       const postsPromise = fetchPosts();
-      jest.runAllTimers();
+      vi.runAllTimers();
       const posts = await postsPromise;
       expect(posts[0].thumbnail).toBeNull();
     });
@@ -248,7 +245,7 @@ describe('API Module', () => {
       global.fetch.mockRejectedValueOnce(new Error('Network error'));
 
       const postsPromise = fetchPosts();
-      jest.runAllTimers();
+      vi.runAllTimers();
       await expect(postsPromise).rejects.toThrow('Network error');
     });
 
@@ -259,7 +256,7 @@ describe('API Module', () => {
       });
 
       const postsPromise = fetchPosts();
-      jest.runAllTimers();
+      vi.runAllTimers();
       await expect(postsPromise).rejects.toThrow('HTTP 500');
     });
   });
@@ -307,7 +304,7 @@ describe('API Module', () => {
       mockFetchSuccess(mockDetailData);
 
       const postPromise = fetchPostDetails('xyz789');
-      jest.runAllTimers();
+      vi.runAllTimers();
       const post = await postPromise;
 
       expect(post.id).toBe('xyz789');
@@ -322,7 +319,7 @@ describe('API Module', () => {
       mockFetchSuccess({ data: { children: [] } });
 
       const postPromise = fetchPostDetails('nonexistent');
-      jest.runAllTimers();
+      vi.runAllTimers();
       await expect(postPromise).rejects.toThrow('Post not found');
     });
 
@@ -330,7 +327,7 @@ describe('API Module', () => {
       mockFetchSuccess(mockDetailData);
 
       const postPromise = fetchPostDetails('abc123');
-      jest.runAllTimers();
+      vi.runAllTimers();
       await postPromise;
 
       const url = getCalledUrl();
@@ -406,7 +403,7 @@ describe('API Module', () => {
       mockFetchSuccess(mockCommentsData);
 
       const commentsPromise = fetchComments('abc123', 'LiverpoolFC');
-      jest.runAllTimers();
+      vi.runAllTimers();
       const comments = await commentsPromise;
 
       expect(comments).toHaveLength(2);
@@ -423,7 +420,7 @@ describe('API Module', () => {
       mockFetchSuccess(mockCommentsData);
 
       const commentsPromise = fetchComments('abc123');
-      jest.runAllTimers();
+      vi.runAllTimers();
       const comments = await commentsPromise;
 
       expect(comments[1].replies).toHaveLength(1);
@@ -435,7 +432,7 @@ describe('API Module', () => {
       mockFetchSuccess(mockCommentsData);
 
       const commentsPromise = fetchComments('abc123');
-      jest.runAllTimers();
+      vi.runAllTimers();
       const comments = await commentsPromise;
       const comment = comments[0];
 
@@ -487,7 +484,7 @@ describe('API Module', () => {
       mockFetchSuccess(dataWithMore);
 
       const commentsPromise = fetchComments('abc123');
-      jest.runAllTimers();
+      vi.runAllTimers();
       const comments = await commentsPromise;
 
       expect(comments).toHaveLength(1);
@@ -498,7 +495,7 @@ describe('API Module', () => {
       mockFetchSuccess([{ data: { children: [] } }]);
 
       const commentsPromise = fetchComments('abc123');
-      jest.runAllTimers();
+      vi.runAllTimers();
       const comments = await commentsPromise;
 
       expect(comments).toEqual([]);
@@ -508,7 +505,7 @@ describe('API Module', () => {
       mockFetchSuccess(mockCommentsData);
 
       const commentsPromise = fetchComments('abc123');
-      jest.runAllTimers();
+      vi.runAllTimers();
       const comments = await commentsPromise;
 
       expect(comments[0].isSubmitter).toBe(false);
@@ -561,7 +558,7 @@ describe('API Module', () => {
       mockFetchSuccess(mockSearchData);
 
       const postsPromise = searchPosts('Salah', 'LiverpoolFC');
-      jest.runAllTimers();
+      vi.runAllTimers();
       const posts = await postsPromise;
 
       expect(posts).toHaveLength(1);
@@ -588,7 +585,7 @@ describe('API Module', () => {
       mockFetchSuccess(mockSearchData);
 
       const postsPromise = searchPosts('Mo Salah goal');
-      jest.runAllTimers();
+      vi.runAllTimers();
       await postsPromise;
 
       const url = getCalledUrl();
@@ -599,7 +596,7 @@ describe('API Module', () => {
       mockFetchSuccess(mockSearchData);
 
       const postsPromise = searchPosts('test', 'LiverpoolFC');
-      jest.runAllTimers();
+      vi.runAllTimers();
       await postsPromise;
 
       const url = getCalledUrl();
@@ -610,7 +607,7 @@ describe('API Module', () => {
       mockFetchSuccess(mockSearchData);
 
       const postsPromise = searchPosts('Salah');
-      jest.runAllTimers();
+      vi.runAllTimers();
       await postsPromise;
 
       const url = getCalledUrl();
@@ -621,7 +618,7 @@ describe('API Module', () => {
       mockFetchSuccess(mockSearchData);
 
       const postsPromise = searchPosts('Salah', undefined);
-      jest.runAllTimers();
+      vi.runAllTimers();
       await postsPromise;
 
       const url = getCalledUrl();
@@ -632,7 +629,7 @@ describe('API Module', () => {
       mockFetchSuccess(mockSearchData);
 
       const postsPromise = searchPosts('Salah', null);
-      jest.runAllTimers();
+      vi.runAllTimers();
       await postsPromise;
 
       const url = getCalledUrl();
@@ -643,7 +640,7 @@ describe('API Module', () => {
       mockFetchSuccess(mockSearchData);
 
       const postsPromise = searchPosts('test', 'gambling');
-      jest.runAllTimers();
+      vi.runAllTimers();
       await postsPromise;
 
       const url = getCalledUrl();
@@ -655,7 +652,7 @@ describe('API Module', () => {
       mockFetchSuccess(mockSearchData);
 
       const postsPromise = searchPosts('test', 'all');
-      jest.runAllTimers();
+      vi.runAllTimers();
       await postsPromise;
 
       const url = getCalledUrl();
@@ -667,7 +664,7 @@ describe('API Module', () => {
       mockFetchSuccess(mockSearchData);
 
       const postsPromise = searchPosts('test', 'mildlyinteresting');
-      jest.runAllTimers();
+      vi.runAllTimers();
       await postsPromise;
 
       const url = getCalledUrl();
@@ -679,7 +676,7 @@ describe('API Module', () => {
       mockFetchSuccess(mockSearchData);
 
       const postsPromise = searchPosts('test', '');
-      jest.runAllTimers();
+      vi.runAllTimers();
       await postsPromise;
 
       const url = getCalledUrl();
@@ -730,7 +727,7 @@ describe('API Module', () => {
       global.fetch.mockRejectedValueOnce(new Error('Network error'));
 
       const postsPromise = fetchPosts();
-      jest.runAllTimers();
+      vi.runAllTimers();
       await expect(postsPromise).rejects.toThrow('Network error');
     });
 
@@ -741,7 +738,7 @@ describe('API Module', () => {
       });
 
       const postsPromise = fetchPosts();
-      jest.runAllTimers();
+      vi.runAllTimers();
       await expect(postsPromise).rejects.toThrow('HTTP 429');
     });
 
@@ -751,7 +748,7 @@ describe('API Module', () => {
       global.fetch.mockRejectedValueOnce(abortError);
 
       const postsPromise = fetchPosts();
-      jest.runAllTimers();
+      vi.runAllTimers();
       await expect(postsPromise).rejects.toThrow('Request timed out');
     });
 
@@ -759,7 +756,7 @@ describe('API Module', () => {
       global.fetch.mockRejectedValueOnce(new Error('Network error'));
 
       const postsPromise = fetchPosts();
-      jest.runAllTimers();
+      vi.runAllTimers();
 
       try { await postsPromise; } catch { /* expected */ }
 

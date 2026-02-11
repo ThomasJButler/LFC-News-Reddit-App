@@ -5,7 +5,7 @@
  *              WHY: Ensures video duration formatting is correct for thumbnail overlays.
  */
 
-import { formatDuration } from './formatDuration';
+import { formatDuration } from '../formatDuration';
 
 describe('formatDuration', () => {
   describe('handles standard durations', () => {

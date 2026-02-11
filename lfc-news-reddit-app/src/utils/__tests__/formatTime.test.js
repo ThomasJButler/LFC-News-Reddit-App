@@ -18,7 +18,7 @@ describe('formatRelativeTime', () => {
   beforeEach(() => {
     // Mock Date.now to return a consistent timestamp for testing
     // Using January 21, 2026 12:00:00 UTC as the "current" time
-    Date.now = jest.fn(() => 1737457200000); // Unix ms timestamp
+    Date.now = vi.fn(() => 1737457200000); // Unix ms timestamp
   });
 
   afterEach(() => {

@@ -46,4 +46,20 @@ export default defineConfig({
       '/api/reddit': 'http://localhost:3000',
     },
   },
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    setupFiles: './src/test-setup.js',
+    css: true,
+    include: ['src/**/*.test.{js,jsx}'],
+    coverage: {
+      provider: 'v8',
+      include: ['src/utils/**', 'src/redux/**', 'src/lib/**'],
+      thresholds: {
+        statements: 80,
+        branches: 72,
+        functions: 75,
+      },
+    },
+  },
 });
