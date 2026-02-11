@@ -32,6 +32,15 @@ function App() {
 
   return (
     <div data-testid="app" className="min-h-screen bg-background text-foreground">
+      {/* Red theme atmosphere — subtle warm glow like Anfield under floodlights */}
+      <div
+        className="fixed inset-x-0 top-0 h-[200px] pointer-events-none z-0"
+        style={{
+          background: 'radial-gradient(ellipse 80% 100% at 50% 0%, hsl(349 85% 43% / 0.04) 0%, transparent 70%)',
+        }}
+        aria-hidden="true"
+      />
+
       {/* Skip-to-content link for keyboard users */}
       <a
         href="#main-content"

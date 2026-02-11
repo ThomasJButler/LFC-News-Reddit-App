@@ -9,7 +9,17 @@
  * Black (Third Kit): Pure black OLED-friendly, red accents — night mode
  *
  * Primary color #C8102E (LFC Red) = 349 85% 43% is constant across all themes.
+ *
+ * Typography: Barlow Condensed (display/headings) + DM Sans (body).
+ * Barlow Condensed gives that athletic, editorial, matchday-programme feel.
+ * DM Sans is clean and readable without being generic.
  */
+
+/* ── Font Custom Properties ──────────────────────────────────────── */
+:root {
+  --font-display: 'Barlow Condensed', 'Impact', 'Arial Narrow', sans-serif;
+  --font-body: 'DM Sans', system-ui, -apple-system, sans-serif;
+}
 
 /* ── Red Theme (Default) ─────────────────────────────────────────── */
 :root {
@@ -86,8 +96,16 @@
 body {
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-               Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+  font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Smooth theme transition — crossfade instead of hard cut */
+  transition: background-color 300ms ease, color 300ms ease;
 }
+
+/* ── Display Typography ──────────────────────────────────────────── */
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  letter-spacing: -0.01em;
+}
+

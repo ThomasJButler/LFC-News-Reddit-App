@@ -116,13 +116,14 @@ const PostItem = ({ post, animationIndex }) => {
     >
       <Card
         className={cn(
-          'group cursor-pointer overflow-hidden transition-all duration-300',
+          'group cursor-pointer overflow-hidden transition-all duration-200 ease-out',
           'hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5',
+          'hover:scale-[1.01]',
           'relative',
           shouldAnimate && 'animate-in fade-in-0 slide-in-from-bottom-4',
         )}
         style={shouldAnimate ? {
-          animationDelay: `${animationIndex * 60}ms`,
+          animationDelay: `${animationIndex * 40}ms`,
           animationFillMode: 'backwards'
         } : undefined}
       >
