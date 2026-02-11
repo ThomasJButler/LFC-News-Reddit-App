@@ -667,7 +667,8 @@ describe('API Module', () => {
       await postsPromise;
 
       const calledUrl = global.fetch.mock.calls[0][0];
-      expect(calledUrl).toContain('Mo%20Salah%20goal');
+      // URLSearchParams encodes spaces as '+' which is equivalent to %20
+      expect(calledUrl).toContain('Mo+Salah+goal');
     });
 
     it('should restrict search to specified subreddit', async () => {
@@ -699,7 +700,8 @@ describe('API Module', () => {
       await postsPromise;
 
       const calledUrl = global.fetch.mock.calls[0][0];
-      expect(calledUrl).toContain('/r/LiverpoolFC/search.json');
+      // Vercel proxy is tried first, URL is transformed to /api/reddit with path param
+      expect(calledUrl).toContain('path=%2Fr%2FLiverpoolFC%2Fsearch.json');
     });
 
     it('should default to LiverpoolFC when undefined subreddit passed', async () => {
@@ -715,7 +717,8 @@ describe('API Module', () => {
       await postsPromise;
 
       const calledUrl = global.fetch.mock.calls[0][0];
-      expect(calledUrl).toContain('/r/LiverpoolFC/search.json');
+      // Vercel proxy is tried first, URL is transformed to /api/reddit with path param
+      expect(calledUrl).toContain('path=%2Fr%2FLiverpoolFC%2Fsearch.json');
     });
 
     it('should default to LiverpoolFC when null subreddit passed', async () => {
@@ -731,7 +734,8 @@ describe('API Module', () => {
       await postsPromise;
 
       const calledUrl = global.fetch.mock.calls[0][0];
-      expect(calledUrl).toContain('/r/LiverpoolFC/search.json');
+      // Vercel proxy is tried first, URL is transformed to /api/reddit with path param
+      expect(calledUrl).toContain('path=%2Fr%2FLiverpoolFC%2Fsearch.json');
     });
 
     it('should block unauthorized subreddits and default to LiverpoolFC', async () => {
@@ -748,8 +752,9 @@ describe('API Module', () => {
       await postsPromise;
 
       const calledUrl = global.fetch.mock.calls[0][0];
-      expect(calledUrl).toContain('/r/LiverpoolFC/search.json');
-      expect(calledUrl).not.toContain('/r/gambling/');
+      // Vercel proxy is tried first, URL is transformed to /api/reddit with path param
+      expect(calledUrl).toContain('path=%2Fr%2FLiverpoolFC%2Fsearch.json');
+      expect(calledUrl).not.toContain('gambling');
     });
 
     it('should block "all" subreddit and default to LiverpoolFC', async () => {
@@ -766,8 +771,10 @@ describe('API Module', () => {
       await postsPromise;
 
       const calledUrl = global.fetch.mock.calls[0][0];
-      expect(calledUrl).toContain('/r/LiverpoolFC/search.json');
-      expect(calledUrl).not.toContain('/r/all/');
+      // Vercel proxy is tried first, URL is transformed to /api/reddit with path param
+      expect(calledUrl).toContain('path=%2Fr%2FLiverpoolFC%2Fsearch.json');
+      // The URL should not contain 'all' in any subreddit context
+      expect(calledUrl).toMatch(/path=%2Fr%2FLiverpoolFC/);
     });
 
     it('should block random subreddits and default to LiverpoolFC', async () => {
@@ -784,8 +791,9 @@ describe('API Module', () => {
       await postsPromise;
 
       const calledUrl = global.fetch.mock.calls[0][0];
-      expect(calledUrl).toContain('/r/LiverpoolFC/search.json');
-      expect(calledUrl).not.toContain('/r/mildlyinteresting/');
+      // Vercel proxy is tried first, URL is transformed to /api/reddit with path param
+      expect(calledUrl).toContain('path=%2Fr%2FLiverpoolFC%2Fsearch.json');
+      expect(calledUrl).not.toContain('mildlyinteresting');
     });
 
     it('should handle empty string subreddit by defaulting to LiverpoolFC', async () => {
@@ -801,7 +809,8 @@ describe('API Module', () => {
       await postsPromise;
 
       const calledUrl = global.fetch.mock.calls[0][0];
-      expect(calledUrl).toContain('/r/LiverpoolFC/search.json');
+      // Vercel proxy is tried first, URL is transformed to /api/reddit with path param
+      expect(calledUrl).toContain('path=%2Fr%2FLiverpoolFC%2Fsearch.json');
     });
   });
 

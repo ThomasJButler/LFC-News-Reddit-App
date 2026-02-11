@@ -70,14 +70,20 @@ describe('SubredditFilter Component', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    // Set localStorage to have filters expanded by default for most tests
+    localStorage.setItem('lfc-filters-expanded', 'true');
     store = mockStore(createDefaultState());
+  });
+
+  afterEach(() => {
+    localStorage.clear();
   });
 
   describe('Rendering', () => {
     it('renders sort select with correct options', () => {
       renderWithStore(store);
 
-      const sortSelect = screen.getByLabelText('Sort by:');
+      const sortSelect = screen.getByLabelText('Sort:');
       expect(sortSelect).toBeInTheDocument();
       expect(sortSelect).toHaveValue('hot');
 
@@ -122,11 +128,10 @@ describe('SubredditFilter Component', () => {
     });
 
     it('renders theme switcher section', () => {
-      const { container } = renderWithStore(store);
+      renderWithStore(store);
 
-      // ThemeSwitcher should be rendered - look for the theme section
-      const themeSection = container.querySelector('[class*="themeSection"]');
-      expect(themeSection).toBeTruthy();
+      // ThemeSwitcher should be rendered - look for the theme selection group
+      expect(screen.getByRole('group', { name: 'Theme selection' })).toBeInTheDocument();
     });
 
     it('shows correct subreddit as checked', () => {
@@ -142,13 +147,13 @@ describe('SubredditFilter Component', () => {
       }));
       renderWithStore(topSortStore);
 
-      expect(screen.getByLabelText('Time:')).toBeInTheDocument();
+      expect(screen.getByLabelText('Time range')).toBeInTheDocument();
     });
 
     it('does not show time range selector for non-top sorts', () => {
       renderWithStore(store);
 
-      expect(screen.queryByLabelText('Time:')).not.toBeInTheDocument();
+      expect(screen.queryByLabelText('Time range')).not.toBeInTheDocument();
     });
 
     it('renders all time range options when top sort is active', () => {
@@ -303,7 +308,7 @@ describe('SubredditFilter Component', () => {
     it('sort select has associated label', () => {
       renderWithStore(store);
 
-      expect(screen.getByLabelText('Sort by:')).toBeInTheDocument();
+      expect(screen.getByLabelText('Sort:')).toBeInTheDocument();
     });
   });
 
@@ -311,7 +316,7 @@ describe('SubredditFilter Component', () => {
     it('shows Flame icon indication for hot sort', () => {
       renderWithStore(store);
 
-      expect(screen.getByLabelText('Sort by:')).toHaveValue('hot');
+      expect(screen.getByLabelText('Sort:')).toHaveValue('hot');
     });
 
     it('shows correct value for viral sort', () => {
@@ -320,7 +325,7 @@ describe('SubredditFilter Component', () => {
       }));
       renderWithStore(viralStore);
 
-      expect(screen.getByLabelText('Sort by:')).toHaveValue('viral');
+      expect(screen.getByLabelText('Sort:')).toHaveValue('viral');
     });
   });
 
