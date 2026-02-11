@@ -21,7 +21,7 @@ Run these after implementing to get immediate feedback:
 - Redux state management: `src/redux/` (store, actions, reducers) — keep unchanged unless a spec explicitly requires changes
 - Utilities: `src/utils/` (api.js, cache.js, formatTime.js, formatDuration.js, colorHash.js, sanitize.js, markdown.js)
 - Deployment: Vercel auto-deploys from git push. Config in `vercel.json`
-- Current build tool is CRA (react-scripts) — first task is migrating to Vite
+- Build tool: Vite 7 (migrated from CRA in Priority 1). Dev server on port 5173. `react-scripts` still in devDeps for Jest until Vitest migration (Priority 11)
 
 ### Codebase Patterns
 

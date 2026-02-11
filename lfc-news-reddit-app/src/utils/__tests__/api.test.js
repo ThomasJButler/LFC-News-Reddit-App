@@ -1,13 +1,14 @@
 /**
  * @author Tom Butler
- * @date 2026-01-21
- * @description Unit tests for Reddit API integration with CORS proxy fallback.
+ * @date 2026-02-11
+ * @description Unit tests for simplified Reddit API integration via Vercel proxy.
  *
  * WHY these tests matter:
  * - API module is the critical data layer connecting the app to Reddit
- * - CORS proxy fallback must work correctly to ensure cross-platform access
+ * - All requests now route through /api/reddit serverless proxy (no CORS chain)
  * - Rate limiting prevents API throttling and ban
  * - Data normalisation ensures consistent component data format
+ * - Subreddit validation is a security boundary preventing misuse
  */
 
 import { fetchPosts, fetchPostDetails, fetchComments, searchPosts } from '../api';
@@ -31,37 +32,36 @@ global.fetch = jest.fn();
 // Mock console methods to reduce noise in tests
 const originalConsoleLog = console.log;
 const originalConsoleError = console.error;
+const originalConsoleWarn = console.warn;
 
 describe('API Module', () => {
   beforeEach(() => {
-    // Use fake timers to control rate limiter
     jest.useFakeTimers();
-
-    // Reset all mocks before each test
     jest.clearAllMocks();
-    cache.get.mockReturnValue(null); // No cache by default
+    cache.get.mockReturnValue(null);
 
-    // Suppress console output during tests
     console.log = jest.fn();
     console.error = jest.fn();
-
-    // Mock navigator and window for mobile detection
-    Object.defineProperty(global, 'navigator', {
-      value: { userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/91.0' },
-      writable: true
-    });
-    Object.defineProperty(global, 'window', {
-      value: { innerWidth: 1920 },
-      writable: true
-    });
+    console.warn = jest.fn();
   });
 
   afterEach(() => {
-    // Restore console methods
     console.log = originalConsoleLog;
     console.error = originalConsoleError;
+    console.warn = originalConsoleWarn;
     jest.useRealTimers();
   });
+
+  // Helper: create a successful fetch mock response
+  const mockFetchSuccess = (data) => {
+    global.fetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve(data)
+    });
+  };
+
+  // Helper: verify the proxy URL format
+  const getCalledUrl = () => global.fetch.mock.calls[0][0];
 
   describe('fetchPosts', () => {
     const mockPostData = {
@@ -104,13 +104,8 @@ describe('API Module', () => {
       }
     };
 
-    it('should fetch posts from Reddit API', async () => {
-      global.fetch.mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        headers: { get: () => 'application/json' },
-        json: () => Promise.resolve(mockPostData)
-      });
+    it('should fetch posts via Vercel proxy', async () => {
+      mockFetchSuccess(mockPostData);
 
       const postsPromise = fetchPosts('LiverpoolFC', 'hot');
       jest.runAllTimers();
@@ -119,7 +114,11 @@ describe('API Module', () => {
       expect(posts).toHaveLength(1);
       expect(posts[0].id).toBe('abc123');
       expect(posts[0].title).toBe('Test Post');
-      expect(posts[0].author).toBe('testuser');
+
+      const url = getCalledUrl();
+      expect(url).toMatch(/^\/api\/reddit\?/);
+      expect(url).toContain('path=%2Fr%2FLiverpoolFC%2Fhot.json');
+      expect(url).toContain('limit=50');
     });
 
     it('should use cache when available', async () => {
@@ -134,12 +133,7 @@ describe('API Module', () => {
     });
 
     it('should cache successful responses', async () => {
-      global.fetch.mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        headers: { get: () => 'application/json' },
-        json: () => Promise.resolve(mockPostData)
-      });
+      mockFetchSuccess(mockPostData);
 
       const postsPromise = fetchPosts('LiverpoolFC', 'hot');
       jest.runAllTimers();
@@ -149,46 +143,42 @@ describe('API Module', () => {
     });
 
     it('should include time range for top sort', async () => {
-      global.fetch.mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        headers: { get: () => 'application/json' },
-        json: () => Promise.resolve(mockPostData)
-      });
+      mockFetchSuccess(mockPostData);
 
       const postsPromise = fetchPosts('LiverpoolFC', 'top', 'week');
       jest.runAllTimers();
       await postsPromise;
 
-      const calledUrl = global.fetch.mock.calls[0][0];
-      expect(calledUrl).toContain('top.json');
-      expect(calledUrl).toContain('t=week');
+      const url = getCalledUrl();
+      expect(url).toContain('path=%2Fr%2FLiverpoolFC%2Ftop.json');
+      expect(url).toContain('t=week');
     });
 
     it('should include time range for controversial sort', async () => {
-      global.fetch.mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        headers: { get: () => 'application/json' },
-        json: () => Promise.resolve(mockPostData)
-      });
+      mockFetchSuccess(mockPostData);
 
       const postsPromise = fetchPosts('LiverpoolFC', 'controversial', 'month');
       jest.runAllTimers();
       await postsPromise;
 
-      const calledUrl = global.fetch.mock.calls[0][0];
-      expect(calledUrl).toContain('controversial.json');
-      expect(calledUrl).toContain('t=month');
+      const url = getCalledUrl();
+      expect(url).toContain('path=%2Fr%2FLiverpoolFC%2Fcontroversial.json');
+      expect(url).toContain('t=month');
+    });
+
+    it('should not include time range for hot sort', async () => {
+      mockFetchSuccess(mockPostData);
+
+      const postsPromise = fetchPosts('LiverpoolFC', 'hot');
+      jest.runAllTimers();
+      await postsPromise;
+
+      const url = getCalledUrl();
+      expect(url).not.toMatch(/[&?]t=[a-z]/i);
     });
 
     it('should normalise post data correctly', async () => {
-      global.fetch.mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        headers: { get: () => 'application/json' },
-        json: () => Promise.resolve(mockPostData)
-      });
+      mockFetchSuccess(mockPostData);
 
       const postsPromise = fetchPosts();
       jest.runAllTimers();
@@ -226,12 +216,7 @@ describe('API Module', () => {
         }
       };
 
-      global.fetch.mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        headers: { get: () => 'application/json' },
-        json: () => Promise.resolve(postWithSelfThumb)
-      });
+      mockFetchSuccess(postWithSelfThumb);
 
       const postsPromise = fetchPosts();
       jest.runAllTimers();
@@ -251,12 +236,7 @@ describe('API Module', () => {
         }
       };
 
-      global.fetch.mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        headers: { get: () => 'application/json' },
-        json: () => Promise.resolve(postWithDefaultThumb)
-      });
+      mockFetchSuccess(postWithDefaultThumb);
 
       const postsPromise = fetchPosts();
       jest.runAllTimers();
@@ -264,34 +244,23 @@ describe('API Module', () => {
       expect(posts[0].thumbnail).toBeNull();
     });
 
-    it('should throw error when all proxies fail', async () => {
-      // Make fetch fail for all proxy attempts
-      global.fetch.mockRejectedValue(new Error('Network error'));
+    it('should throw error when fetch fails', async () => {
+      global.fetch.mockRejectedValueOnce(new Error('Network error'));
 
       const postsPromise = fetchPosts();
       jest.runAllTimers();
-      await expect(postsPromise).rejects.toThrow();
+      await expect(postsPromise).rejects.toThrow('Network error');
     });
 
-    it('should handle rate limit (429) response', async () => {
+    it('should throw error on non-OK HTTP response', async () => {
       global.fetch.mockResolvedValueOnce({
         ok: false,
-        status: 429,
-        headers: { get: () => 'application/json' }
-      });
-
-      // Should try next proxy after rate limit
-      global.fetch.mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        headers: { get: () => 'application/json' },
-        json: () => Promise.resolve(mockPostData)
+        status: 500
       });
 
       const postsPromise = fetchPosts();
       jest.runAllTimers();
-      const posts = await postsPromise;
-      expect(posts).toHaveLength(1);
+      await expect(postsPromise).rejects.toThrow('HTTP 500');
     });
   });
 
@@ -334,13 +303,8 @@ describe('API Module', () => {
       }
     };
 
-    it('should fetch post details by ID', async () => {
-      global.fetch.mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        headers: { get: () => 'application/json' },
-        json: () => Promise.resolve(mockDetailData)
-      });
+    it('should fetch post details by ID via Vercel proxy', async () => {
+      mockFetchSuccess(mockDetailData);
 
       const postPromise = fetchPostDetails('xyz789');
       jest.runAllTimers();
@@ -348,41 +312,35 @@ describe('API Module', () => {
 
       expect(post.id).toBe('xyz789');
       expect(post.title).toBe('Detailed Post');
+
+      const url = getCalledUrl();
+      expect(url).toContain('path=%2Fapi%2Finfo.json');
+      expect(url).toContain('id=t3_xyz789');
     });
 
     it('should throw error when post not found', async () => {
-      global.fetch.mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        headers: { get: () => 'application/json' },
-        json: () => Promise.resolve({ data: { children: [] } })
-      });
+      mockFetchSuccess({ data: { children: [] } });
 
       const postPromise = fetchPostDetails('nonexistent');
       jest.runAllTimers();
       await expect(postPromise).rejects.toThrow('Post not found');
     });
 
-    it('should use t3_ prefix for post ID in API call', async () => {
-      global.fetch.mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        headers: { get: () => 'application/json' },
-        json: () => Promise.resolve(mockDetailData)
-      });
+    it('should use t3_ prefix for post ID', async () => {
+      mockFetchSuccess(mockDetailData);
 
       const postPromise = fetchPostDetails('abc123');
       jest.runAllTimers();
       await postPromise;
 
-      const calledUrl = global.fetch.mock.calls[0][0];
-      expect(calledUrl).toContain('t3_abc123');
+      const url = getCalledUrl();
+      expect(url).toContain('id=t3_abc123');
     });
   });
 
   describe('fetchComments', () => {
     const mockCommentsData = [
-      { data: { children: [] } }, // Post data (index 0)
+      { data: { children: [] } },
       {
         data: {
           children: [
@@ -444,13 +402,8 @@ describe('API Module', () => {
       }
     ];
 
-    it('should fetch comments for a post', async () => {
-      global.fetch.mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        headers: { get: () => 'application/json' },
-        json: () => Promise.resolve(mockCommentsData)
-      });
+    it('should fetch comments via Vercel proxy', async () => {
+      mockFetchSuccess(mockCommentsData);
 
       const commentsPromise = fetchComments('abc123', 'LiverpoolFC');
       jest.runAllTimers();
@@ -459,15 +412,15 @@ describe('API Module', () => {
       expect(comments).toHaveLength(2);
       expect(comments[0].id).toBe('comment1');
       expect(comments[1].id).toBe('comment2');
+
+      const url = getCalledUrl();
+      expect(url).toContain('path=%2Fr%2FLiverpoolFC%2Fcomments%2Fabc123.json');
+      expect(url).toContain('limit=500');
+      expect(url).toContain('depth=10');
     });
 
     it('should parse nested replies', async () => {
-      global.fetch.mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        headers: { get: () => 'application/json' },
-        json: () => Promise.resolve(mockCommentsData)
-      });
+      mockFetchSuccess(mockCommentsData);
 
       const commentsPromise = fetchComments('abc123');
       jest.runAllTimers();
@@ -479,12 +432,7 @@ describe('API Module', () => {
     });
 
     it('should normalise comment data correctly', async () => {
-      global.fetch.mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        headers: { get: () => 'application/json' },
-        json: () => Promise.resolve(mockCommentsData)
-      });
+      mockFetchSuccess(mockCommentsData);
 
       const commentsPromise = fetchComments('abc123');
       jest.runAllTimers();
@@ -528,7 +476,7 @@ describe('API Module', () => {
                 }
               },
               {
-                kind: 'more', // "Load more" indicator, not a comment
+                kind: 'more',
                 data: { id: 'more1', count: 10 }
               }
             ]
@@ -536,12 +484,7 @@ describe('API Module', () => {
         }
       ];
 
-      global.fetch.mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        headers: { get: () => 'application/json' },
-        json: () => Promise.resolve(dataWithMore)
-      });
+      mockFetchSuccess(dataWithMore);
 
       const commentsPromise = fetchComments('abc123');
       jest.runAllTimers();
@@ -552,12 +495,7 @@ describe('API Module', () => {
     });
 
     it('should return empty array when no comments exist', async () => {
-      global.fetch.mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        headers: { get: () => 'application/json' },
-        json: () => Promise.resolve([{ data: { children: [] } }])
-      });
+      mockFetchSuccess([{ data: { children: [] } }]);
 
       const commentsPromise = fetchComments('abc123');
       jest.runAllTimers();
@@ -567,12 +505,7 @@ describe('API Module', () => {
     });
 
     it('should handle OP (isSubmitter) flag', async () => {
-      global.fetch.mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        headers: { get: () => 'application/json' },
-        json: () => Promise.resolve(mockCommentsData)
-      });
+      mockFetchSuccess(mockCommentsData);
 
       const commentsPromise = fetchComments('abc123');
       jest.runAllTimers();
@@ -624,13 +557,8 @@ describe('API Module', () => {
       }
     };
 
-    it('should search posts by term', async () => {
-      global.fetch.mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        headers: { get: () => 'application/json' },
-        json: () => Promise.resolve(mockSearchData)
-      });
+    it('should search posts via Vercel proxy', async () => {
+      mockFetchSuccess(mockSearchData);
 
       const postsPromise = searchPosts('Salah', 'LiverpoolFC');
       jest.runAllTimers();
@@ -638,183 +566,128 @@ describe('API Module', () => {
 
       expect(posts).toHaveLength(1);
       expect(posts[0].title).toContain('Salah');
+
+      const url = getCalledUrl();
+      expect(url).toContain('path=%2Fr%2FLiverpoolFC%2Fsearch.json');
+      expect(url).toContain('restrict_sr=on');
     });
 
     it('should return empty array for empty search term', async () => {
       const posts = await searchPosts('');
-
       expect(posts).toEqual([]);
       expect(global.fetch).not.toHaveBeenCalled();
     });
 
     it('should return empty array for whitespace-only search term', async () => {
       const posts = await searchPosts('   ');
-
       expect(posts).toEqual([]);
       expect(global.fetch).not.toHaveBeenCalled();
     });
 
     it('should URL encode search terms', async () => {
-      global.fetch.mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        headers: { get: () => 'application/json' },
-        json: () => Promise.resolve(mockSearchData)
-      });
+      mockFetchSuccess(mockSearchData);
 
       const postsPromise = searchPosts('Mo Salah goal');
       jest.runAllTimers();
       await postsPromise;
 
-      const calledUrl = global.fetch.mock.calls[0][0];
-      // URLSearchParams encodes spaces as '+' which is equivalent to %20
-      expect(calledUrl).toContain('Mo+Salah+goal');
+      const url = getCalledUrl();
+      expect(url).toContain('q=Mo+Salah+goal');
     });
 
     it('should restrict search to specified subreddit', async () => {
-      global.fetch.mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        headers: { get: () => 'application/json' },
-        json: () => Promise.resolve(mockSearchData)
-      });
+      mockFetchSuccess(mockSearchData);
 
       const postsPromise = searchPosts('test', 'LiverpoolFC');
       jest.runAllTimers();
       await postsPromise;
 
-      const calledUrl = global.fetch.mock.calls[0][0];
-      expect(calledUrl).toContain('restrict_sr=on');
+      const url = getCalledUrl();
+      expect(url).toContain('restrict_sr=on');
     });
 
     it('should default to LiverpoolFC when no subreddit provided', async () => {
-      global.fetch.mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        headers: { get: () => 'application/json' },
-        json: () => Promise.resolve(mockSearchData)
-      });
+      mockFetchSuccess(mockSearchData);
 
       const postsPromise = searchPosts('Salah');
       jest.runAllTimers();
       await postsPromise;
 
-      const calledUrl = global.fetch.mock.calls[0][0];
-      // Vercel proxy is tried first, URL is transformed to /api/reddit with path param
-      expect(calledUrl).toContain('path=%2Fr%2FLiverpoolFC%2Fsearch.json');
+      const url = getCalledUrl();
+      expect(url).toContain('path=%2Fr%2FLiverpoolFC%2Fsearch.json');
     });
 
     it('should default to LiverpoolFC when undefined subreddit passed', async () => {
-      global.fetch.mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        headers: { get: () => 'application/json' },
-        json: () => Promise.resolve(mockSearchData)
-      });
+      mockFetchSuccess(mockSearchData);
 
       const postsPromise = searchPosts('Salah', undefined);
       jest.runAllTimers();
       await postsPromise;
 
-      const calledUrl = global.fetch.mock.calls[0][0];
-      // Vercel proxy is tried first, URL is transformed to /api/reddit with path param
-      expect(calledUrl).toContain('path=%2Fr%2FLiverpoolFC%2Fsearch.json');
+      const url = getCalledUrl();
+      expect(url).toContain('path=%2Fr%2FLiverpoolFC%2Fsearch.json');
     });
 
     it('should default to LiverpoolFC when null subreddit passed', async () => {
-      global.fetch.mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        headers: { get: () => 'application/json' },
-        json: () => Promise.resolve(mockSearchData)
-      });
+      mockFetchSuccess(mockSearchData);
 
       const postsPromise = searchPosts('Salah', null);
       jest.runAllTimers();
       await postsPromise;
 
-      const calledUrl = global.fetch.mock.calls[0][0];
-      // Vercel proxy is tried first, URL is transformed to /api/reddit with path param
-      expect(calledUrl).toContain('path=%2Fr%2FLiverpoolFC%2Fsearch.json');
+      const url = getCalledUrl();
+      expect(url).toContain('path=%2Fr%2FLiverpoolFC%2Fsearch.json');
     });
 
     it('should block unauthorized subreddits and default to LiverpoolFC', async () => {
-      global.fetch.mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        headers: { get: () => 'application/json' },
-        json: () => Promise.resolve(mockSearchData)
-      });
+      mockFetchSuccess(mockSearchData);
 
-      // Attempt to search in r/gambling - should be blocked
       const postsPromise = searchPosts('test', 'gambling');
       jest.runAllTimers();
       await postsPromise;
 
-      const calledUrl = global.fetch.mock.calls[0][0];
-      // Vercel proxy is tried first, URL is transformed to /api/reddit with path param
-      expect(calledUrl).toContain('path=%2Fr%2FLiverpoolFC%2Fsearch.json');
-      expect(calledUrl).not.toContain('gambling');
+      const url = getCalledUrl();
+      expect(url).toContain('path=%2Fr%2FLiverpoolFC%2Fsearch.json');
+      expect(url).not.toContain('gambling');
     });
 
     it('should block "all" subreddit and default to LiverpoolFC', async () => {
-      global.fetch.mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        headers: { get: () => 'application/json' },
-        json: () => Promise.resolve(mockSearchData)
-      });
+      mockFetchSuccess(mockSearchData);
 
-      // Attempt to search in r/all - should be blocked
       const postsPromise = searchPosts('test', 'all');
       jest.runAllTimers();
       await postsPromise;
 
-      const calledUrl = global.fetch.mock.calls[0][0];
-      // Vercel proxy is tried first, URL is transformed to /api/reddit with path param
-      expect(calledUrl).toContain('path=%2Fr%2FLiverpoolFC%2Fsearch.json');
-      // The URL should not contain 'all' in any subreddit context
-      expect(calledUrl).toMatch(/path=%2Fr%2FLiverpoolFC/);
+      const url = getCalledUrl();
+      expect(url).toContain('path=%2Fr%2FLiverpoolFC%2Fsearch.json');
+      expect(url).toMatch(/path=%2Fr%2FLiverpoolFC/);
     });
 
     it('should block random subreddits and default to LiverpoolFC', async () => {
-      global.fetch.mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        headers: { get: () => 'application/json' },
-        json: () => Promise.resolve(mockSearchData)
-      });
+      mockFetchSuccess(mockSearchData);
 
-      // Attempt to search in r/mildlyinteresting - should be blocked
       const postsPromise = searchPosts('test', 'mildlyinteresting');
       jest.runAllTimers();
       await postsPromise;
 
-      const calledUrl = global.fetch.mock.calls[0][0];
-      // Vercel proxy is tried first, URL is transformed to /api/reddit with path param
-      expect(calledUrl).toContain('path=%2Fr%2FLiverpoolFC%2Fsearch.json');
-      expect(calledUrl).not.toContain('mildlyinteresting');
+      const url = getCalledUrl();
+      expect(url).toContain('path=%2Fr%2FLiverpoolFC%2Fsearch.json');
+      expect(url).not.toContain('mildlyinteresting');
     });
 
     it('should handle empty string subreddit by defaulting to LiverpoolFC', async () => {
-      global.fetch.mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        headers: { get: () => 'application/json' },
-        json: () => Promise.resolve(mockSearchData)
-      });
+      mockFetchSuccess(mockSearchData);
 
       const postsPromise = searchPosts('test', '');
       jest.runAllTimers();
       await postsPromise;
 
-      const calledUrl = global.fetch.mock.calls[0][0];
-      // Vercel proxy is tried first, URL is transformed to /api/reddit with path param
-      expect(calledUrl).toContain('path=%2Fr%2FLiverpoolFC%2Fsearch.json');
+      const url = getCalledUrl();
+      expect(url).toContain('path=%2Fr%2FLiverpoolFC%2Fsearch.json');
     });
   });
 
-  describe('proxy fallback behaviour', () => {
+  describe('error handling', () => {
     const mockData = {
       data: {
         children: [{
@@ -853,45 +726,44 @@ describe('API Module', () => {
       }
     };
 
-    it('should try next proxy when first fails', async () => {
-      // First proxy fails
-      global.fetch.mockRejectedValueOnce(new Error('First proxy failed'));
-      // Second proxy succeeds
-      global.fetch.mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        headers: { get: () => 'application/json' },
-        json: () => Promise.resolve(mockData)
-      });
+    it('should throw on network error', async () => {
+      global.fetch.mockRejectedValueOnce(new Error('Network error'));
 
       const postsPromise = fetchPosts();
       jest.runAllTimers();
-      const posts = await postsPromise;
-
-      expect(global.fetch).toHaveBeenCalledTimes(2);
-      expect(posts).toHaveLength(1);
+      await expect(postsPromise).rejects.toThrow('Network error');
     });
 
-    it('should handle HTML error pages from proxies', async () => {
-      // First proxy returns HTML (error page)
+    it('should throw on HTTP error status', async () => {
       global.fetch.mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        headers: { get: () => 'text/html' }
-      });
-      // Second proxy succeeds
-      global.fetch.mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        headers: { get: () => 'application/json' },
-        json: () => Promise.resolve(mockData)
+        ok: false,
+        status: 429
       });
 
       const postsPromise = fetchPosts();
       jest.runAllTimers();
-      const posts = await postsPromise;
+      await expect(postsPromise).rejects.toThrow('HTTP 429');
+    });
 
-      expect(posts).toHaveLength(1);
+    it('should handle timeout (AbortError)', async () => {
+      const abortError = new Error('The operation was aborted');
+      abortError.name = 'AbortError';
+      global.fetch.mockRejectedValueOnce(abortError);
+
+      const postsPromise = fetchPosts();
+      jest.runAllTimers();
+      await expect(postsPromise).rejects.toThrow('Request timed out');
+    });
+
+    it('should only call fetch once per request (no fallback chain)', async () => {
+      global.fetch.mockRejectedValueOnce(new Error('Network error'));
+
+      const postsPromise = fetchPosts();
+      jest.runAllTimers();
+
+      try { await postsPromise; } catch { /* expected */ }
+
+      expect(global.fetch).toHaveBeenCalledTimes(1);
     });
   });
 });

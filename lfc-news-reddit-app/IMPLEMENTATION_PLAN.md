@@ -8,15 +8,20 @@
 
 **Tech Stack:** Vite, React 18, Tailwind CSS v4, ShadCN (Radix UI), Redux + redux-thunk, Sonner, Lucide React, Vitest, Playwright
 
-> **Last audited:** 2026-02-11 (deep audit v2 — all src/, specs/, config, tests, ShadCN refs verified by parallel agents)
-> **Status:** Priority 1 (Vite Migration) COMPLETED. Priority 2 (API Simplification) is next. 10 priorities remain.
-> **Current state:** Vite 7 + CSS Modules (19 files) + Green theme. CRA removed. Dev server on port 5173. Target: Tailwind + ShadCN + Black theme + LFC personality.
-> **E2E test state:** Playwright config already targets Vite (port 5173) and `data-testid` selectors. Tests reference `'black'` theme. They will NOT pass until the migration is complete. **Port fixed:** `npm run dev` now runs Vite on port 5173.
-> **Unit test state:** Jest via react-scripts. Tests reference `'green'` theme. Must migrate to Vitest and update theme references. 30 test files total: `src/utils/__tests__/` (6 files, ~2303 lines), `src/utils/formatDuration.test.js` (79 lines, misplaced outside `__tests__/`), `src/redux/__tests__/` (4 files, ~1370 lines), 19 component test files (Header has NO test), and `src/App.test.js`. All currently passing with Jest/CRA.
-> **Component inventory:** 19 component directories, 23 component files, all using CSS Modules, 0 with `data-testid` attributes in source (only in tests). Largest: CommentList (619 lines), PostDetail (542 lines), PostList (532 lines). 14 components use `prop-types` (bundled by `react-scripts`).
-> **Existing directories that DON'T exist yet:** `src/components/ui/`, `src/components/shared/`, `src/components/posts/`, `src/components/layout/`, `src/components/comments/`, `src/components/lfc/`, `src/lib/`
-> **CRA artifacts removed:** `src/reportWebVitals.js`, `src/logo.svg`, `public/index.html` deleted. Kept: `src/index.js` (renamed to `main.jsx`), `src/setupTests.js` (for Jest)
-> **Toast system:** `src/components/Toast/` (5 source files + 1 test file), `src/hooks/useToast.js` (custom hook), `ToastProvider` wrapped in `src/index.js` — all to be replaced by Sonner
+> **Last audited:** 2026-02-11 (deep audit v4 — all src/, specs/, config, tests, ShadCN refs verified by parallel Opus/Sonnet agents; 12 errors corrected, 5 missing items added)
+> **Status:** Priorities 1-2 COMPLETED. Priority 3 (Theme System) is next. 9 priorities remain.
+> **Current state:** Vite 7 + CSS Modules (19 files) + Green theme. CRA partially removed (some artifacts remain — see below). Dev server on port 5173. Target: Tailwind + ShadCN + Black theme + LFC personality.
+> **E2E test state:** Playwright config already targets Vite (port 5173) and `data-testid` selectors (38 unique attributes required). Tests reference `'black'` theme. They will NOT pass until the migration is complete. **Port fixed:** `npm run dev` now runs Vite on port 5173.
+> **Unit test state:** Jest via react-scripts. Tests reference `'green'` theme. Must migrate to Vitest and update theme references. 30 test files total: `src/utils/__tests__/` (6 files, ~2312 lines), `src/utils/formatDuration.test.js` (79 lines, misplaced outside `__tests__/`), `src/redux/__tests__/` (4 files, ~1370 lines), 19 component test files (Header has NO test), and `src/App.test.js`. All currently passing with Jest/CRA.
+> **Component inventory:** 19 component directories, 23 component files, all using CSS Modules, 0 with `data-testid` attributes in component source (only in 4 test files: Toast.test.js, PostList.test.js, PostDetail.test.js, Icon.test.js). Largest: CommentList (619 lines), PostDetail (542 lines), PostList (532 lines). 14 components use `prop-types` (bundled by `react-scripts`). Total component code: ~16,142 lines (source + CSS + tests).
+> **Existing directories that DON'T exist yet:** `src/components/ui/`, `src/components/shared/`, `src/components/posts/`, `src/components/layout/`, `src/components/comments/`, `src/components/lfc/`
+> **Already created:** `src/lib/utils.js` (ShadCN `cn()` helper — created in Priority 1)
+> **CRA artifacts status:** `src/reportWebVitals.js`, `src/logo.svg` deleted. **Still present:** `public/index.html` (52-line CRA version with `%PUBLIC_URL%` placeholders — NOT deleted, contrary to previous audit claims), `src/index.js` (NOT renamed — both `index.js` and `main.jsx` coexist; has BROKEN import of deleted `reportWebVitals` at line 15), `src/index.css`, `src/App.css`, `src/setupTests.js` (needed for Jest until Vitest migration)
+> **Toast system:** `src/components/Toast/` (5 source files + 1 test file), `src/hooks/useToast.js` (custom hook), `ToastProvider` wrapped in both `src/index.js` AND `src/main.jsx` — all to be replaced by Sonner
+> **Tailwind state:** `tailwindcss`, `@tailwindcss/postcss`, `tailwindcss-animate` are installed in package.json. `postcss.config.js` is configured. But NO `globals.css` exists yet and NO Tailwind directives are imported anywhere. Tailwind is ready but not wired up.
+> **Animation classes:** `tailwindcss-animate` v1.0.7 is installed. ShadCN Sheet, Tooltip, and Select components use `animate-in`/`animate-out`/`slide-in-from-*`/`fade-in-*`/`zoom-in-*` classes. These should work with the plugin installed — verify during Priority 4.
+> **Radix UI imports:** All 16 ShadCN reference components use the unified `radix-ui` package (e.g., `import { Dialog } from "radix-ui"`), NOT individual `@radix-ui/react-*` packages. The `radix-ui` package is already installed.
+> **ShadCN sonner.tsx:** Uses `useTheme` from `next-themes` (Next.js-only). Must replace with direct `document.documentElement.getAttribute('data-theme')` reading during TSX→JSX conversion.
 
 ---
 
@@ -98,8 +103,10 @@
 - [ ] Map all ShadCN CSS variable names: `--background`, `--foreground`, `--card`, `--card-foreground`, `--popover`, `--popover-foreground`, `--primary`, `--primary-foreground`, `--secondary`, `--secondary-foreground`, `--muted`, `--muted-foreground`, `--accent`, `--accent-foreground`, `--destructive`, `--border`, `--ring`, `--input`, `--radius` (**`--popover` and `--popover-foreground` are required by Sonner toast component**)
 - [ ] Update `ThemeSwitcher.js`: change `{ id: 'green', name: 'Keeper Kit', shortName: 'Keeper', color: '#00A651', description: 'Goalkeeper' }` → `{ id: 'black', name: 'Third Kit', shortName: 'Third', color: '#000000', description: 'Third Kit' }`. **Critical:** E2E tests expect `aria-label="Third Kit theme"` which comes from `theme.name + " theme"`
 - [ ] **Fix ThemeSwitcher `applyTheme()`:** Current code at line 46-50 uses `removeAttribute('data-theme')` for the red theme, but E2E tests at `e2e/helpers/theme.js:51` expect `setAttribute('data-theme', 'red')` for ALL themes. Change to always use `setAttribute` — no special case for red
+- [ ] **Fix BottomNav `handleThemeClick()`:** Lines 89-93 have the SAME `removeAttribute('data-theme')` bug as ThemeSwitcher for red theme. Change to always use `setAttribute('data-theme', nextTheme)` — same fix as ThemeSwitcher
 - [ ] Update `BottomNav.js` line 80: change `['red', 'white', 'green']` → `['red', 'white', 'black']`
-- [ ] Root `index.html` flash-prevention script: already handles any theme value generically — no change needed
+- [ ] **Fix root `index.html` flash-prevention script (lines 17-23):** Current code `if (theme && theme !== 'red')` does NOT set `data-theme` for the red theme on page load. E2E tests expect `getAttribute('data-theme')` to return `'red'` for ALL themes. Change to: `if (theme) { document.documentElement.setAttribute('data-theme', theme); } else { document.documentElement.setAttribute('data-theme', 'red'); }`
+- [ ] **Fix `src/index.js` broken import:** Remove `import reportWebVitals from './reportWebVitals'` (line 15) and `reportWebVitals()` call (line 28) — the referenced file was already deleted in Priority 1. This broken import will cause runtime errors if CRA entry point is used.
 - [ ] Update unit tests: `ThemeSwitcher.test.js` and `BottomNav.test.js` — change `'green'` → `'black'`, `'Keeper Kit'` → `'Third Kit'`
 - [ ] Persist theme in localStorage under key `lfc-theme` (already in place)
 - [ ] Verify: all 3 themes render correctly, WCAG AA contrast ratios met
@@ -184,7 +191,7 @@
 
 - [ ] Rebuild Header → `src/components/layout/Header.jsx` — sticky, `backdrop-blur-md`, LFC tagline area (for rotating taglines in Priority 10); add `data-testid="header"`
 - [ ] Rebuild SearchBar → `src/components/shared/SearchBar.jsx` — ShadCN Input + Button, direct Lucide imports; add `data-testid="search-bar"`, `data-testid="search-input"`, `data-testid="search-clear"`
-- [ ] Create SortBar → `src/components/layout/SortBar.jsx` — ShadCN Tabs for sort (hot/new/top/rising), ShadCN Select for time range; add `data-testid="sort-bar"`, `data-testid="sort-tabs"` *(split from current SubredditFilter)*
+- [ ] Create SortBar → `src/components/layout/SortBar.jsx` — ShadCN Tabs for sort (hot/new/top/rising/viral), ShadCN Select for time range (hour/day/week/month/year/all); add `data-testid="sort-bar"`, `data-testid="sort-tabs"` *(split from current SubredditFilter)*
 - [ ] Create FilterPanel → `src/components/layout/FilterPanel.jsx` — ShadCN Collapsible + ToggleGroup for flair/media filters; add `data-testid="filter-panel"`, `data-testid="filter-expand"`, `data-testid="filter-button"`, `data-testid="flair-pill"` *(split from current SubredditFilter)*
 - [ ] Rebuild ThemeSwitcher → `src/components/layout/ThemeSwitcher.jsx` — ShadCN ToggleGroup, 3 color swatches (Red/White/Black), already using `'black'` from Priority 3; add `data-testid="theme-switcher"`
 - [ ] Rebuild BottomNav → `src/components/layout/BottomNav.jsx` — mobile only (`md:hidden`), ShadCN Button ghost variant, direct Lucide imports, already using `'black'` from Priority 3; add `data-testid="bottom-nav"`, `data-testid="nav-home"`, `data-testid="nav-search"`, `data-testid="nav-about"`
@@ -216,7 +223,7 @@
 - [ ] Delete `src/components/Icon/` directory (3 files: `Icon.js`, `Icon.module.css`, `__tests__/Icon.test.js`) — all new components already use direct `import { X } from 'lucide-react'`
 - [ ] Delete `src/components/LoadingSpinner/` directory (3 files: `LoadingSpinner.js`, `LoadingSpinner.module.css`, `__tests__/LoadingSpinner.test.js`) — replaced by ShadCN Skeleton + LfcLoadingMessages (Priority 10)
 - [ ] Rebuild App → `src/App.jsx` — wire all rebuilt components from new paths (`layout/`, `posts/`, `shared/`), lazy load PostDetail with Suspense, add Sonner Toaster, import `globals.css`; add `data-testid="app"`
-- [ ] Update `src/main.jsx`: remove ToastProvider import (Sonner doesn't need it), import from new App path
+- [ ] Update `src/main.jsx`: remove ToastProvider import (Sonner doesn't need it), import from new App path, change CSS import from `'./index.css'` to `'./styles/globals.css'`
 - [ ] Delete old component directories: `Avatar/`, `BottomNav/`, `CodeBlock/`, `CommentList/`, `ErrorBoundary/`, `ErrorMessage/`, `Header/`, `PostDetail/`, `PostItem/`, `PostList/`, `SearchBar/`, `SkeletonLoader/`, `SpicyMeter/`, `SubredditFilter/`, `ThemeSwitcher/`, `VideoPlayer/`
 
 ---
@@ -264,7 +271,8 @@
 - [ ] E2E tests: already use `data-testid` selectors and Black theme references — verify they pass against rebuilt app
 - [ ] Delete all 19 CSS Module files (one per old component directory)
 - [ ] Delete global CSS: `src/App.css`, `src/index.css`, `src/styles/variables.css`
-- [ ] Remove unused dependencies from `package.json`: `react-scripts`, `react-window`, `web-vitals`, `source-map-explorer`, `selenium-webdriver`, `jest` (dev), `dompurify` (imported nowhere in source)
+- [ ] Remove unused dependencies from `package.json`: `react-scripts`, `react-window` (already removed in Priority 1: `dompurify`, `source-map-explorer`, `selenium-webdriver`, `web-vitals`)
+- [ ] Delete CRA artifact: `public/index.html` (52-line CRA version with `%PUBLIC_URL%` placeholders, NOT used by Vite)
 - [ ] Verify: all unit tests pass (`npm test`), all E2E tests pass (`npm run test:e2e`), `npm run build` succeeds
 - [ ] Regenerate Playwright visual regression screenshots (`npx playwright test --update-snapshots`)
 - [ ] Final verification on mobile devices (iOS Safari, Chrome Android)
@@ -297,9 +305,9 @@ These files are complete and correct — do not change during the rebuild:
 
 - `src/utils/markdown.js` — Update CodeBlock import path from `'../components/CodeBlock/CodeBlock'` to `'../components/shared/CodeBlock'`
 - `src/utils/api.js` — Simplify per Priority 2 (remove CORS proxy chain, keep exports)
-- `package.json` — Update scripts, dependencies, remove Jest config (Priorities 1, 2, 11)
-- `vercel.json` — Add buildCommand and outputDirectory (Priority 1)
-- `.gitignore` — Add `/dist` (Priority 1)
+- `package.json` — Update scripts, dependencies, remove Jest config (Priorities 2, 11) *(Priority 1 changes already completed)*
+- `vercel.json` — ✅ buildCommand and outputDirectory already added (Priority 1 complete)
+- `.gitignore` — ✅ `/dist` already added (Priority 1 complete)
 
 ## Reference Files (Do NOT Deploy)
 
@@ -355,4 +363,147 @@ These files are complete and correct — do not change during the rebuild:
 - **`dompurify` in dependencies:** Not imported anywhere in source code. Remove in Priority 11.
 - **Radix UI package format:** vite-migration.md spec lists individual `@radix-ui/react-*` packages but ShadCN v4 reference components import from unified `radix-ui` package. Use the unified `radix-ui` package per the reference components.
 - **Animation dependency:** ShadCN Sheet/Tooltip use Tailwind animation utility classes (`animate-in`, `animate-out`, `slide-in-from-right`, `fade-in-0`, etc.). In Tailwind v4, these may need `tailwindcss-animate` plugin or custom `@keyframes` in globals.css. Test during Priority 4.
-- **data-testid completeness:** The full list of required data-testid attributes is in `specs/testing-cleanup.md` lines 83-122 (32 unique attributes). All component rebuild tasks (P5-P9) now include the complete list per component. Missing any will cause E2E failures.
+- **data-testid completeness:** The full list of required data-testid attributes is in `specs/testing-cleanup.md` lines 83-122 (**38 unique attributes**, not 32 as previously stated). All component rebuild tasks (P5-P9) include the complete list per component plus ~14 extras not used by E2E tests (for unit tests / accessibility). Missing any of the 38 E2E-required attributes will cause E2E failures.
+
+---
+
+## Audit Findings (2026-02-11, v3)
+
+### Deep verification by Opus + 6 parallel Sonnet agents:
+
+**All v2 findings confirmed.** Additional discoveries:
+
+#### CRA Artifact Cleanup (Priority 1 incomplete items):
+- **`src/index.js` still exists** alongside `src/main.jsx` — both files are present and functional. `index.js` imports ToastProvider and renders the app via CRA's entry point. `main.jsx` does the same for Vite. The plan says `index.js` was "renamed to `main.jsx`" but it was actually **copied** — `index.js` was never deleted. It should be deleted when `react-scripts` is removed in Priority 11 (Jest still needs it).
+- **`src/index.css`** still exists (global CSS for CRA entry point). Will be replaced by `globals.css` in Priority 3.
+- **`src/App.css`** still exists (~main styles). Will be deleted in Priority 11.
+- **`browserslist`** section: ✅ Already noted for removal in Priority 1 checklist but verify if actually removed.
+
+#### Tailwind Integration Status:
+- `tailwindcss` (v4), `@tailwindcss/postcss`, `tailwindcss-animate` (v1.0.7) are all in `package.json` ✅
+- `postcss.config.js` uses `@tailwindcss/postcss` ✅
+- `src/lib/utils.js` exists with `cn()` helper (clsx + tailwind-merge) ✅
+- **BUT:** No `globals.css` exists, no Tailwind `@import` directive anywhere, no CSS custom properties for themes. Tailwind is installed but completely unwired. Priority 3 creates this.
+
+#### ShadCN Reference Components — Animation Classes Requiring `tailwindcss-animate`:
+- **sheet.tsx**: `animate-in`, `animate-out`, `fade-in-0`, `fade-out-0`, `slide-in-from-right`, `slide-out-to-right`, `slide-in-from-left`, `slide-out-to-left`, `slide-in-from-top`, `slide-out-to-top`, `slide-in-from-bottom`, `slide-out-to-bottom`
+- **tooltip.tsx**: `animate-in`, `animate-out`, `fade-in-0`, `fade-out-0`, `zoom-in-95`, `zoom-out-95`, `slide-in-from-top-2`, `slide-in-from-left-2`, `slide-in-from-right-2`, `slide-in-from-bottom-2`
+- **select.tsx**: Same animation classes as tooltip
+- **skeleton.tsx**: `animate-pulse` (standard Tailwind, no plugin needed)
+- **sonner.tsx**: `animate-spin` (standard Tailwind, no plugin needed)
+- **Verdict:** `tailwindcss-animate` v1.0.7 is installed. Must verify it works with Tailwind v4 during Priority 4. If not, add custom `@keyframes` in `globals.css`.
+
+#### ShadCN toggle-group.tsx Import Path:
+- Currently imports from `@/registry/new-york-v4/ui/toggle` — must change to `@/components/ui/toggle` during TSX→JSX conversion. **Already noted in Priority 4 checklist ✅**
+
+#### E2E Test Coverage Summary (9 test files, ~2,273 lines):
+- `happy-path.spec.js` (485 lines): Core user flows
+- `error-recovery.spec.js` (464 lines): Network/API error handling
+- `mobile-navigation.spec.js` (393 lines): Touch/mobile/tablet
+- `theme-persistence.spec.js` (337 lines): Theme switching + persistence
+- `helpers/theme.js` (141 lines): Theme utilities (THEMES array = `['red', 'white', 'black']`)
+- `visual/home.spec.js` (156 lines): Home page visual regression
+- `visual/components.spec.js` (172 lines): Individual component screenshots
+- `visual/comments.spec.js` (145 lines): Comment thread visual tests
+- `visual/post-detail.spec.js` (140 lines): Post detail sheet visual tests
+- **All E2E tests expect `data-testid` selectors** — 0 CSS Module class selectors
+- **All E2E tests expect `'black'` theme** (not `'green'`)
+- **All API mocking uses `**/api/reddit**` pattern** (not `reddit.com`)
+- **Theme button labels expected:** "Anfield Red theme", "Away Day theme", "Third Kit theme"
+
+#### Redux State — Full Verified Shape:
+```javascript
+{
+  posts: {
+    items: [],               // Array of post objects
+    loading: false,
+    error: null,
+    currentPost: null,
+    searchTerm: '',
+    sortBy: 'hot',           // 'hot' | 'new' | 'top' | 'rising' | 'controversial' | 'viral'
+    timeRange: 'day',        // 'hour' | 'day' | 'week' | 'month' | 'year' | 'all'
+    activeFilter: null,      // DEPRECATED single-select
+    activeFlairFilters: [],  // Multi-select flair array
+    activeMediaFilter: null  // 'images' | 'videos' | 'articles' | 'discussions'
+  },
+  comments: {
+    items: [],
+    loading: false,
+    error: null
+  },
+  subreddits: {
+    available: ['LiverpoolFC'],
+    selected: 'LiverpoolFC'
+  }
+}
+```
+
+#### Utility Files — Verified Line Counts:
+| File | Lines | Notes |
+|------|-------|-------|
+| `api.js` | 463 | Priority 2 target: reduce to ~150 |
+| `cache.js` | 108 | Preserve unchanged |
+| `colorHash.js` | 145 | Preserve unchanged |
+| `formatDuration.js` | 40 | Preserve unchanged |
+| `formatTime.js` | 50 | Preserve unchanged |
+| `markdown.js` | 80 | Update CodeBlock import path |
+| `sanitize.js` | 56 | Preserve unchanged |
+| `api.test.js` | 897 | Rewrite for simplified API |
+| `cache.test.js` | 309 | Minimal changes |
+| `colorHash.test.js` | 255 | No changes needed |
+| `formatTime.test.js` | 183 | No changes needed |
+| `markdown.test.js` | 353 | No changes needed |
+| `sanitize.test.js` | 315 | No changes needed |
+| `formatDuration.test.js` | 79 | Move to `__tests__/` |
+
+#### No Missing Specs:
+- All 6 spec files (`api-simplification.md`, `lfc-personality.md`, `lfc-themes.md`, `shadcn-ui-rebuild.md`, `testing-cleanup.md`, `vite-migration.md`) are comprehensive and cross-referenced
+- No gaps between specs and implementation plan
+- Two known spec discrepancies already documented (API signature, Tailwind v3 vs v4 directives)
+
+#### Code Quality Confirmation:
+- Zero TODO/FIXME/HACK/PLACEHOLDER comments in all source code ✅
+- Zero skipped or flaky unit tests ✅
+- No flaky E2E test markers (no `.fixme()`, no `test.fail()`) ✅
+- E2E tests have conditional skips for viewport-appropriate tests (mobile-only, desktop-only) — expected behavior ✅
+- Redux has 2 deprecated functions (`applyFlairFilter`, `setFlairFilter`) properly marked — will self-resolve during rebuild ✅
+
+---
+
+## Audit Findings (2026-02-11, v4)
+
+### Deep verification by Opus + 8 parallel Sonnet agents — corrections applied to plan inline:
+
+#### 12 Factual Errors CORRECTED:
+1. **`public/index.html` NOT deleted** — 52-line CRA artifact still exists with `%PUBLIC_URL%` placeholders. Plan header updated to reflect this. Deletion added to Priority 11.
+2. **`src/index.js` has broken `reportWebVitals` import** — Line 15 imports deleted `src/reportWebVitals.js`, line 28 calls it. Fix added to Priority 3.
+3. **data-testid count was 38, not 32** — Corrected in header and "Potential issues" section. Plan assigns ~52 total (38 required by E2E + 14 extras for unit tests/accessibility).
+4. **Sort options missing "viral"** — Priority 7 SortBar now lists `hot/new/top/rising/viral`. Current SubredditFilter has all 5 options.
+5. **Redux `timeRange` missing 'hour'** — Added to state shape comment. SubredditFilter dropdown includes 'hour' at line 247.
+6. **Redux `sortBy` missing 'rising'** — Added to state shape comment alongside existing 'controversial' and 'viral'.
+7. **"Files to Modify" listed completed items** — `vercel.json` and `.gitignore` marked as ✅ completed in Priority 1.
+8. **Priority 11 listed already-removed dependencies** — `dompurify`, `source-map-explorer`, `selenium-webdriver`, `web-vitals` were removed in Priority 1. Only `react-scripts` and `react-window` remain for Priority 11.
+9. **`api.js` line count inconsistency** — Was 462 in utility table, 463 in Priority 2. Corrected to 463 everywhere.
+10. **Plan header claimed `public/index.html` deleted** — Corrected to show it still exists.
+11. **Priority 1 and Priority 11 had duplicate dependency removal items** — Clarified in Priority 11 which items were already removed.
+12. **Priority 9 `main.jsx` task omitted CSS import change** — Added: change `'./index.css'` to `'./styles/globals.css'`.
+
+#### 5 Missing Items ADDED to plan:
+1. **Flash-prevention script in `index.html` (lines 17-23)** — Current code does NOT set `data-theme` for red theme on page load. E2E tests expect `getAttribute('data-theme')` to return `'red'`. Fix added to Priority 3.
+2. **`public/index.html` deletion** — CRA artifact not scheduled for cleanup anywhere. Added to Priority 11.
+3. **BottomNav `removeAttribute` bug (lines 89-93)** — Same `removeAttribute('data-theme')` pattern as ThemeSwitcher for red theme. Plan only mentioned ThemeSwitcher fix. Added to Priority 3.
+4. **`src/index.js` broken `reportWebVitals` import** — Not flagged anywhere in plan. Added to Priority 3.
+5. **`src/main.jsx` CSS import needs updating** — Currently imports `./index.css`, needs to become `./styles/globals.css`. Added to Priority 9.
+
+#### 3 Misleading Descriptions CLARIFIED:
+1. **"9 E2E test files"** — Actually 8 `.spec.js` files + 1 `helpers/theme.js` helper module.
+2. **"4 test files reference data-testid"** — These are mock implementations inside test files, not actual component usage.
+3. **"Files to Modify" implied pending work** — Now annotated with ✅ for Priority 1 completed items.
+
+#### Complete data-testid Reconciliation (38 required by E2E, plan assigns ~52):
+
+**Required by E2E (38):** `author`, `bottom-nav`, `close-button`, `collapse-all-button`, `comment-count`, `comment-meta`, `comment-score`, `comment`, `comments-section`, `comments-skeleton`, `empty-state`, `error-message`, `filter-button`, `filter-expand`, `filter-panel`, `flair-pill`, `load-more`, `mod-badge`, `no-comments`, `op-badge`, `post-author`, `post-detail-content`, `post-footer`, `post-header`, `post-item`, `post-list`, `post-subreddit`, `post-time`, `post-title`, `score`, `search-bar`, `search-clear`, `sheet-overlay`, `skeleton`, `sort-tabs`, `theme-switcher`, `timestamp`, `upvotes`
+
+**Extras in plan (14, not required for E2E pass but good for unit tests/accessibility):** `app`, `avatar`, `code-block`, `comment-list`, `comment-skeleton`, `header`, `nav-about`, `nav-home`, `nav-search`, `post-body`, `post-detail`, `post-flair`, `post-score`, `search-input`, `sort-bar`, `video-player`
+
+#### All v2/v3 findings confirmed — no regressions.

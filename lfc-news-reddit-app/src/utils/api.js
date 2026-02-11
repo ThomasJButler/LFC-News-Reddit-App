@@ -1,117 +1,16 @@
 /**
  * @author Tom Butler
  * @date 2025-10-22
- * @description Reddit API integration with CORS proxy fallback system and rate limiting.
- *              Handles mobile device detection and proxy prioritisation for cross-platform support.
+ * @description Reddit API integration via Vercel serverless proxy.
+ *              All requests route through /api/reddit to eliminate CORS issues on mobile.
  */
 
 import { cache } from './cache';
 
-// CORS proxy fallback chain with mobile compatibility flags
-const CORS_PROXIES = [
-  {
-    name: 'corsproxy.io',
-    url: 'https://corsproxy.io/?',
-    format: 'direct',
-    wrapper: false,
-    headers: {},
-    mobileSupport: false
-  },
-  {
-    name: 'codetabs',
-    url: 'https://api.codetabs.com/v1/proxy/?quest=',
-    format: 'direct',
-    wrapper: false,
-    headers: {},
-    mobileSupport: true
-  },
-  {
-    name: 'corsproxy.org',
-    url: 'https://corsproxy.org/?',
-    format: 'direct',
-    wrapper: false,
-    headers: {},
-    mobileSupport: false
-  },
-  {
-    name: 'thingproxy',
-    url: 'https://thingproxy.freeboard.io/fetch/',
-    format: 'direct',
-    wrapper: false,
-    headers: {},
-    mobileSupport: false
-  },
-  {
-    name: 'allorigins-raw',
-    url: 'https://api.allorigins.win/raw?url=',
-    format: 'encoded',
-    wrapper: false,
-    headers: {},
-    mobileSupport: false
-  },
-  {
-    name: 'allorigins-get',
-    url: 'https://api.allorigins.win/get?url=',
-    format: 'encoded',
-    wrapper: true,
-    headers: {},
-    mobileSupport: false
-  }
-];
-
-/**
- * Fetches from the self-hosted Vercel serverless proxy (/api/reddit).
- * This runs server-side on the same domain, so there are no CORS issues.
- * Works on all devices including mobile browsers.
- *
- * @param {string} redditUrl - Full Reddit URL (e.g. https://www.reddit.com/r/LiverpoolFC/hot.json?limit=50)
- * @return {Promise<Object>} JSON response from Reddit API
- */
-const tryVercelProxy = async (redditUrl) => {
-  try {
-    // Parse the Reddit URL to extract path and query params for the proxy
-    const url = new URL(redditUrl);
-    const proxyParams = new URLSearchParams(url.search);
-    proxyParams.set('path', url.pathname);
-
-    const proxyUrl = `/api/reddit?${proxyParams.toString()}`;
-    console.log('Trying Vercel proxy:', proxyUrl);
-
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 15000);
-
-    const response = await fetch(proxyUrl, { signal: controller.signal });
-    clearTimeout(timeoutId);
-
-    if (!response.ok) {
-      throw new Error(`Vercel proxy HTTP ${response.status}`);
-    }
-
-    const data = await response.json();
-    console.log('Successfully fetched via Vercel proxy');
-    return data;
-  } catch (error) {
-    if (error.name === 'AbortError') {
-      console.log('Vercel proxy timed out after 15 seconds');
-      throw new Error('Vercel proxy timeout');
-    }
-    console.log('Vercel proxy failed:', error.message);
-    throw error;
-  }
-};
-
-/**
- * @return {boolean} True if user agent matches mobile device or viewport is narrow
- */
-const isMobile = () => {
-  return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || 
-         window.innerWidth <= 768;
-};
-
-const BASE_URL = 'https://www.reddit.com';
 const RATE_LIMIT_REQUESTS = 10;
 const RATE_LIMIT_WINDOW = 60000;
 const CACHE_TTL = 300000;
+const FETCH_TIMEOUT = 15000;
 
 /**
  * Rate limiter prevents API throttling by spacing requests within a time window
@@ -129,14 +28,14 @@ class RateLimiter {
   async waitIfNeeded() {
     const now = Date.now();
     this.requests = this.requests.filter(time => now - time < this.windowMs);
-    
+
     if (this.requests.length >= this.maxRequests) {
       const oldestRequest = this.requests[0];
       const waitTime = this.windowMs - (now - oldestRequest) + 100;
       await new Promise(resolve => setTimeout(resolve, waitTime));
       return this.waitIfNeeded();
     }
-    
+
     this.requests.push(now);
   }
 }
@@ -144,140 +43,46 @@ class RateLimiter {
 const rateLimiter = new RateLimiter(RATE_LIMIT_REQUESTS, RATE_LIMIT_WINDOW);
 
 /**
- * @param {Object} proxy - Proxy configuration object from CORS_PROXIES
- * @param {string} url - Reddit API URL to fetch
+ * Fetches data from the Vercel serverless proxy at /api/reddit.
+ * The proxy forwards the path and query params to Reddit's API server-side,
+ * eliminating all CORS issues including on mobile browsers.
+ *
+ * @param {string} path - Reddit API path (e.g. '/r/LiverpoolFC/hot.json')
+ * @param {Object} [params={}] - Query parameters to forward (e.g. { limit: 50, t: 'week' })
  * @return {Promise<Object>} JSON response from Reddit API
  */
-const tryProxy = async (proxy, url) => {
-  try {
-    const proxyUrl = proxy.format === 'encoded'
-      ? `${proxy.url}${encodeURIComponent(url)}`
-      : `${proxy.url}${url}`;
-
-    console.log(`Trying ${proxy.name}:`, proxyUrl);
-
-    // WHY: AbortController with 15-second timeout prevents indefinite hangs
-    // Allows moving to next proxy in fallback chain if request is too slow
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 15000);
-
-    const fetchOptions = {
-      signal: controller.signal
-    };
-    if (proxy.headers && Object.keys(proxy.headers).length > 0) {
-      fetchOptions.headers = proxy.headers;
-    }
-
-    const response = await fetch(proxyUrl, fetchOptions);
-    clearTimeout(timeoutId);
-
-    if (response.status === 429) {
-      throw new Error('Rate limit exceeded');
-    }
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    // Some proxies return HTML error pages instead of proper HTTP errors
-    const contentType = response.headers.get('content-type');
-    if (contentType && contentType.includes('text/html')) {
-      throw new Error('Proxy returned HTML error page');
-    }
-
-    let data;
-    if (proxy.wrapper) {
-      const wrappedData = await response.json();
-      if (wrappedData && wrappedData.contents) {
-        data = JSON.parse(wrappedData.contents);
-      } else {
-        throw new Error('Invalid wrapper format');
-      }
-    } else {
-      data = await response.json();
-    }
-
-    console.log(`Successfully fetched via ${proxy.name}`);
-    return data;
-  } catch (error) {
-    // WHY: Provide clear error message for timeout vs other failures
-    if (error.name === 'AbortError') {
-      console.log(`${proxy.name} timed out after 15 seconds`);
-      throw new Error('Request timeout');
-    }
-    console.log(`${proxy.name} failed:`, error.message);
-    throw error;
-  }
-};
-
-/**
- * @param {string} url - Reddit API URL to fetch
- * @return {Promise<Object>} JSON response from Reddit API with caching
- */
-const fetchFromReddit = async (url) => {
+const fetchFromReddit = async (path, params = {}) => {
   await rateLimiter.waitIfNeeded();
 
-  const cacheKey = url;
-  const cachedData = cache.get(cacheKey);
+  const queryParams = new URLSearchParams({ path, ...params });
+  const proxyUrl = `/api/reddit?${queryParams.toString()}`;
 
+  const cachedData = cache.get(proxyUrl);
   if (cachedData) {
-    console.log('Using cached data for:', url);
     return cachedData;
   }
 
-  // PRIMARY: Try the self-hosted Vercel serverless proxy first.
-  // This is the most reliable method — runs server-side on the same domain,
-  // no CORS, works on all devices including mobile browsers.
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT);
+
   try {
-    const data = await tryVercelProxy(url);
-    cache.set(cacheKey, data, CACHE_TTL);
-    return data;
-  } catch (vercelError) {
-    console.warn('Vercel proxy unavailable, falling back to CORS proxies:', vercelError.message);
-  }
+    const response = await fetch(proxyUrl, { signal: controller.signal });
+    clearTimeout(timeoutId);
 
-  // FALLBACK: Third-party CORS proxies (for local development or non-Vercel hosting)
-  const mobile = isMobile();
-  let proxies = [...CORS_PROXIES];
-
-  if (mobile) {
-    console.log('Mobile device detected, prioritising mobile-compatible proxies');
-    proxies = proxies.sort((a, b) => {
-      if (a.mobileSupport && !b.mobileSupport) return -1;
-      if (!a.mobileSupport && b.mobileSupport) return 1;
-      if (a.name === 'codetabs') return -1;
-      if (b.name === 'codetabs') return 1;
-      return 0;
-    });
-  } else {
-    console.log('Desktop detected, using standard proxy order');
-    proxies = proxies.filter(p => p.name !== 'codetabs');
-  }
-
-  // Attempt each proxy until one succeeds
-  let lastError;
-  for (const proxy of proxies) {
-    try {
-      const data = await tryProxy(proxy, url);
-      cache.set(cacheKey, data, CACHE_TTL);
-      return data;
-    } catch (error) {
-      lastError = error;
-      continue;
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
     }
+
+    const data = await response.json();
+    cache.set(proxyUrl, data, CACHE_TTL);
+    return data;
+  } catch (error) {
+    clearTimeout(timeoutId);
+    if (error.name === 'AbortError') {
+      throw new Error('Request timed out');
+    }
+    throw error;
   }
-
-  console.error('All proxies failed for URL:', url);
-  console.error('Device info:', {
-    mobile,
-    userAgent: navigator.userAgent
-  });
-
-  if (mobile) {
-    throw new Error(`Mobile browsers cannot connect to Reddit through available proxies. Please try: 1) Using a desktop/laptop computer, 2) Enabling "Desktop Site" mode in your browser settings, or 3) Using the official Reddit app.`);
-  }
-
-  throw new Error(`Failed to fetch from Reddit. Last error: ${lastError?.message}`);
 };
 
 /**
@@ -308,16 +113,13 @@ const processPostData = (post) => {
     stickied: data.stickied,
     over18: data.over_18,
     spoiler: data.spoiler,
-    // WHY: Post flairs help users identify content type (Match Thread, Transfer News, etc.)
     linkFlair: data.link_flair_text || null,
     linkFlairBackgroundColor: data.link_flair_background_color || null,
     linkFlairTextColor: data.link_flair_text_color || null,
-    // WHY: Gallery data needed for rendering multi-image posts
     isGallery: data.is_gallery || false,
     galleryData: data.gallery_data || null,
     mediaMetadata: data.media_metadata || null,
     postHint: data.post_hint || null,
-    // WHY: isSelf flag needed for media type filtering (text-only discussion posts)
     isSelf: data.is_self || false
   };
 };
@@ -329,10 +131,10 @@ const processPostData = (post) => {
  */
 const processCommentData = (comment, level = 0) => {
   if (comment.kind !== 't1') return null;
-  
+
   const data = comment.data;
   const replies = data.replies?.data?.children || [];
-  
+
   return {
     id: data.id,
     author: data.author,
@@ -352,25 +154,21 @@ const processCommentData = (comment, level = 0) => {
 };
 
 /**
- * @param {string} [subreddit='all'] - Subreddit name or 'all' for combined Liverpool subreddits
- * @param {string} [sortBy='hot'] - Sort method: 'hot', 'new', 'top', or 'controversial'
- * @param {string} [timeRange='day'] - Time filter for 'top' and 'controversial': 'day', 'week', 'month', 'year'
+ * @param {string} [subreddit='LiverpoolFC'] - Subreddit name
+ * @param {string} [sortBy='hot'] - Sort method: 'hot', 'new', 'top', 'rising', 'controversial', 'viral'
+ * @param {string} [timeRange='day'] - Time filter for 'top'/'controversial'
  * @return {Promise<Object[]>} Array of normalised post objects
  */
 export const fetchPosts = async (subreddit = 'LiverpoolFC', sortBy = 'hot', timeRange = 'day') => {
-  let url = `${BASE_URL}/r/${subreddit}/${sortBy}.json?limit=50`;
-  
+  const path = `/r/${subreddit}/${sortBy}.json`;
+  const params = { limit: '50' };
+
   if (sortBy === 'top' || sortBy === 'controversial') {
-    url += `&t=${timeRange}`;
+    params.t = timeRange;
   }
-  
-  try {
-    const data = await fetchFromReddit(url);
-    return data.data.children.map(processPostData);
-  } catch (error) {
-    console.error('Error fetching posts:', error);
-    throw error;
-  }
+
+  const data = await fetchFromReddit(path, params);
+  return data.data.children.map(processPostData);
 };
 
 /**
@@ -378,18 +176,14 @@ export const fetchPosts = async (subreddit = 'LiverpoolFC', sortBy = 'hot', time
  * @return {Promise<Object>} Normalised post object with full details
  */
 export const fetchPostDetails = async (postId) => {
-  const url = `${BASE_URL}/api/info.json?id=t3_${postId}`;
-  
-  try {
-    const data = await fetchFromReddit(url);
-    if (data.data.children.length > 0) {
-      return processPostData(data.data.children[0]);
-    }
-    throw new Error('Post not found');
-  } catch (error) {
-    console.error('Error fetching post details:', error);
-    throw error;
+  const path = '/api/info.json';
+  const params = { id: `t3_${postId}` };
+
+  const data = await fetchFromReddit(path, params);
+  if (data.data.children.length > 0) {
+    return processPostData(data.data.children[0]);
   }
+  throw new Error('Post not found');
 };
 
 /**
@@ -398,23 +192,17 @@ export const fetchPostDetails = async (postId) => {
  * @return {Promise<Object[]>} Array of normalised comment objects with nested replies
  */
 export const fetchComments = async (postId, subreddit = 'LiverpoolFC') => {
-  const url = `${BASE_URL}/r/${subreddit}/comments/${postId}.json?limit=500&depth=10`;
-  
-  try {
-    const data = await fetchFromReddit(url);
-    
-    if (data.length < 2) {
-      return [];
-    }
-    
-    const comments = data[1].data.children;
-    return comments
-      .map(comment => processCommentData(comment))
-      .filter(Boolean);
-  } catch (error) {
-    console.error('Error fetching comments:', error);
-    throw error;
+  const path = `/r/${subreddit}/comments/${postId}.json`;
+  const params = { limit: '500', depth: '10' };
+
+  const data = await fetchFromReddit(path, params);
+  if (data.length < 2) {
+    return [];
   }
+
+  return data[1].data.children
+    .map(comment => processCommentData(comment))
+    .filter(Boolean);
 };
 
 // Allowed subreddits for this app - only LiverpoolFC content
@@ -423,7 +211,6 @@ const DEFAULT_SUBREDDIT = 'LiverpoolFC';
 
 /**
  * Validates and sanitizes subreddit parameter to ensure only allowed subreddits are used.
- * This is a critical security measure to prevent searching outside of r/LiverpoolFC.
  * @param {string} subreddit - Subreddit name to validate
  * @return {string} Validated subreddit name (defaults to LiverpoolFC if invalid)
  */
@@ -441,7 +228,7 @@ const validateSubreddit = (subreddit) => {
 
 /**
  * @param {string} searchTerm - Search query string
- * @param {string} [subreddit='LiverpoolFC'] - Subreddit to search within (only LiverpoolFC is allowed)
+ * @param {string} [subreddit='LiverpoolFC'] - Subreddit to search within
  * @return {Promise<Object[]>} Array of normalised post objects matching search query
  */
 export const searchPosts = async (searchTerm, subreddit = DEFAULT_SUBREDDIT) => {
@@ -449,15 +236,15 @@ export const searchPosts = async (searchTerm, subreddit = DEFAULT_SUBREDDIT) => 
     return [];
   }
 
-  // CRITICAL: Always validate subreddit to prevent searching outside r/LiverpoolFC
   const validatedSubreddit = validateSubreddit(subreddit);
-  let url = `${BASE_URL}/r/${validatedSubreddit}/search.json?q=${encodeURIComponent(searchTerm)}&restrict_sr=on&limit=50&sort=relevance`;
-  
-  try {
-    const data = await fetchFromReddit(url);
-    return data.data.children.map(processPostData);
-  } catch (error) {
-    console.error('Error searching posts:', error);
-    throw error;
-  }
+  const path = `/r/${validatedSubreddit}/search.json`;
+  const params = {
+    q: searchTerm,
+    restrict_sr: 'on',
+    limit: '50',
+    sort: 'relevance'
+  };
+
+  const data = await fetchFromReddit(path, params);
+  return data.data.children.map(processPostData);
 };
