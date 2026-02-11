@@ -40,7 +40,10 @@
   "jest": {
     "transformIgnorePatterns": [
       "node_modules/(?!(react-markdown|remark-gfm|remark-parse|remark-rehype|rehype-raw|micromark|micromark-.*|mdast-.*|unist-.*|unified|bail|is-plain-obj|trough|vfile|vfile-.*|decode-named-character-reference|character-entities|property-information|hast-util-.*|hastscript|space-separated-tokens|comma-separated-tokens|ccount|escape-string-regexp|markdown-table|devlop|trim-lines|zwitch|html-url-attributes)/)"
-    ]
+    ],
+    "moduleNameMapper": {
+      "^@/(.*)$": "<rootDir>/src/$1"
+    }
   },
   "devDependencies": {
     "@playwright/test": "^1.57.0",

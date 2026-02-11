@@ -9,12 +9,13 @@
 **Tech Stack:** Vite, React 18, Tailwind CSS v4, ShadCN (Radix UI), Redux + redux-thunk, Sonner, Lucide React, Vitest, Playwright
 
 > **Last audited:** 2026-02-11 (deep audit v4 — all src/, specs/, config, tests, ShadCN refs verified by parallel Opus/Sonnet agents; 12 errors corrected, 5 missing items added)
-> **Status:** Priorities 1-4 COMPLETED. Priority 5 (Leaf Component Rebuild) is next. 7 priorities remain.
-> **Current state:** Vite 7 + CSS Modules (19 files) + Black/White/Red themes (HSL + hex both active). API simplified (single proxy). Dev server on port 5173. Target: Tailwind + ShadCN + LFC personality.
+> **Status:** Priorities 1-5 COMPLETED. Priority 6 (Post Components Rebuild) is next. 6 priorities remain.
+> **Current state:** Vite 7 + CSS Modules (19 files) + Black/White/Red themes (HSL + hex both active). API simplified (single proxy). Dev server on port 5173. Jest `moduleNameMapper` resolves `@/` alias. Target: Tailwind + ShadCN + LFC personality.
 > **E2E test state:** Playwright config already targets Vite (port 5173) and `data-testid` selectors (38 unique attributes required). Tests reference `'black'` theme. They will NOT pass until the migration is complete. **Port fixed:** `npm run dev` now runs Vite on port 5173.
 > **Unit test state:** Jest via react-scripts. Tests reference `'green'` theme. Must migrate to Vitest and update theme references. 30 test files total: `src/utils/__tests__/` (6 files, ~2312 lines), `src/utils/formatDuration.test.js` (79 lines, misplaced outside `__tests__/`), `src/redux/__tests__/` (4 files, ~1370 lines), 19 component test files (Header has NO test), and `src/App.test.js`. All currently passing with Jest/CRA.
 > **Component inventory:** 19 component directories, 23 component files, all using CSS Modules, 0 with `data-testid` attributes in component source (only in 4 test files: Toast.test.js, PostList.test.js, PostDetail.test.js, Icon.test.js). Largest: CommentList (619 lines), PostDetail (542 lines), PostList (532 lines). 14 components use `prop-types` (bundled by `react-scripts`). Total component code: ~16,142 lines (source + CSS + tests).
-> **Existing directories that DON'T exist yet:** `src/components/shared/`, `src/components/posts/`, `src/components/layout/`, `src/components/comments/`, `src/components/lfc/`
+> **Existing directories that DON'T exist yet:** `src/components/posts/`, `src/components/layout/`, `src/components/comments/`
+> **Already created:** `src/components/shared/` (Avatar, CodeBlock, VideoPlayer — created in Priority 5), `src/components/lfc/` (SpicyMeter — created in Priority 5)
 > **Already created:** `src/components/ui/` (16 ShadCN JSX components — created in Priority 4)
 > **Already created:** `src/lib/utils.js` (ShadCN `cn()` helper — created in Priority 1)
 > **CRA artifacts status:** `src/reportWebVitals.js`, `src/logo.svg` deleted. **Still present:** `public/index.html` (52-line CRA version with `%PUBLIC_URL%` placeholders — NOT deleted, contrary to previous audit claims), `src/index.js` (NOT renamed — both `index.js` and `main.jsx` coexist; has BROKEN import of deleted `reportWebVitals` at line 15), `src/index.css`, `src/App.css`, `src/setupTests.js` (needed for Jest until Vitest migration)
@@ -131,21 +132,29 @@
 
 ---
 
-## Priority 5: Rebuild Components — Leaf Components First
+## Priority 5: Rebuild Components — Leaf Components First ✅ COMPLETED
 
 **Why fifth:** Small, self-contained components with no child dependencies. Easiest to rebuild and test in isolation.
 
 **Spec:** `specs/shadcn-ui-rebuild.md` (shared components section)
 
-**New directories:** `src/components/shared/`, `src/components/lfc/` (neither exist yet)
+**Completed 2026-02-11:**
 
-**Note on Icon component:** The existing `src/components/Icon/Icon.js` is a centralized wrapper around `lucide-react` used by ~15 components. Per spec, it should be **deleted** and replaced with direct Lucide imports. However, since all old components still import it, this deletion should happen in Priority 9 when old components are removed. During the rebuild phases (5-8), new components should use direct Lucide imports (`import { Flame } from 'lucide-react'`).
+- [x] Created `src/components/shared/` and `src/components/lfc/` directories
+- [x] Rebuild Avatar → `src/components/shared/Avatar.jsx` — ShadCN Avatar (Radix) + existing `colorHash.js` utility for username-based colors; `data-testid="avatar"`
+- [x] Rebuild SpicyMeter → `src/components/lfc/SpicyMeter.jsx` — Tailwind classes, direct Lucide `Flame` import, LFC-themed level names applied immediately (Reserves/League Cup/Premier League/Champions League/Istanbul 2005/YNWA); `data-testid="spicy-meter"`
+- [x] Rebuild CodeBlock → `src/components/shared/CodeBlock.jsx` — Tailwind classes, `react-syntax-highlighter` preserved, copy-to-clipboard with direct Lucide `Copy`/`Check` imports; `data-testid="code-block"`
+- [x] Rebuild VideoPlayer → `src/components/shared/VideoPlayer.jsx` — HLS.js + Safari native HLS fallback preserved, Tailwind classes; `data-testid="video-player"`
+- [x] Updated `src/utils/markdown.js` import: `'../components/CodeBlock/CodeBlock'` → `'../components/shared/CodeBlock'`
+- [x] Added `moduleNameMapper` for `@/` alias in Jest config (`package.json`) — required because Jest doesn't read Vite's path aliases
+- [x] All 30 test suites pass (864 tests), build succeeds
 
-- [ ] Rebuild Avatar → `src/components/shared/Avatar.jsx` — ShadCN Avatar (Radix) + existing `colorHash.js` utility for username-based colors; add `data-testid="avatar"`
-- [ ] Rebuild SpicyMeter → `src/components/lfc/SpicyMeter.jsx` — Tailwind classes, direct Lucide `Flame` import, keep score-based thresholds (10000/5000/1000/500/100); keep generic level names for now (LFC names applied in Priority 10)
-- [ ] Rebuild CodeBlock → `src/components/shared/CodeBlock.jsx` — Tailwind classes, keep `react-syntax-highlighter`, copy-to-clipboard feature; add `data-testid="code-block"`
-- [ ] Rebuild VideoPlayer → `src/components/shared/VideoPlayer.jsx` — keep HLS.js + Safari native HLS fallback, Tailwind classes; add `data-testid="video-player"`
-- [ ] Update `src/utils/markdown.js` line 8: change import from `'../components/CodeBlock/CodeBlock'` to `'../components/shared/CodeBlock'`
+**Key learnings:**
+- Jest needs `moduleNameMapper: { "^@/(.*)$": "<rootDir>/src/$1" }` in package.json to resolve the `@/` Vite alias. This will be superseded by Vitest migration in Priority 11.
+- SpicyMeter LFC names were applied now (not deferred to Priority 10) since they're trivial string changes. Priority 10's SpicyMeter task can be marked done when reached.
+- Old components (Avatar/, SpicyMeter/, CodeBlock/, VideoPlayer/) are still in place — they'll be deleted in Priority 9 when all consumers switch to new paths.
+
+**Note on Icon component:** The existing `src/components/Icon/Icon.js` is a centralized wrapper around `lucide-react` used by ~15 old components. Per spec, it should be **deleted** and replaced with direct Lucide imports. Since old components still import it, this deletion happens in Priority 9. All new rebuild components use direct Lucide imports.
 
 ---
 

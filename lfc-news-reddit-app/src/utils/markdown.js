@@ -7,7 +7,7 @@
 
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import CodeBlock from '../components/CodeBlock/CodeBlock';
+import CodeBlock from '../components/shared/CodeBlock';
 
 /**
  * @param {string} content - Markdown content to render
