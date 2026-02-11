@@ -9,14 +9,15 @@
 **Tech Stack:** Vite, React 18, Tailwind CSS v4, ShadCN (Radix UI), Redux + redux-thunk, Sonner, Lucide React, Vitest, Playwright
 
 > **Last audited:** 2026-02-11 (deep audit v4 — all src/, specs/, config, tests, ShadCN refs verified by parallel Opus/Sonnet agents; 12 errors corrected, 5 missing items added)
-> **Status:** Priorities 1-6 COMPLETED. Priority 7 (Layout & Navigation Rebuild) is next. 5 priorities remain.
+> **Status:** Priorities 1-7 COMPLETED. Priority 8 (Comments Rebuild) is next. 4 priorities remain.
 > **Current state:** Vite 7 + CSS Modules (19 files) + Black/White/Red themes (HSL + hex both active). API simplified (single proxy). Dev server on port 5173. Jest `moduleNameMapper` resolves `@/` alias. Target: Tailwind + ShadCN + LFC personality.
 > **E2E test state:** Playwright config already targets Vite (port 5173) and `data-testid` selectors (38 unique attributes required). Tests reference `'black'` theme. They will NOT pass until the migration is complete. **Port fixed:** `npm run dev` now runs Vite on port 5173.
 > **Unit test state:** Jest via react-scripts. Tests reference `'green'` theme. Must migrate to Vitest and update theme references. 30 test files total: `src/utils/__tests__/` (6 files, ~2312 lines), `src/utils/formatDuration.test.js` (79 lines, misplaced outside `__tests__/`), `src/redux/__tests__/` (4 files, ~1370 lines), 19 component test files (Header has NO test), and `src/App.test.js`. All currently passing with Jest/CRA.
 > **Component inventory:** 19 component directories, 23 component files, all using CSS Modules, 0 with `data-testid` attributes in component source (only in 4 test files: Toast.test.js, PostList.test.js, PostDetail.test.js, Icon.test.js). Largest: CommentList (619 lines), PostDetail (542 lines), PostList (532 lines). 14 components use `prop-types` (bundled by `react-scripts`). Total component code: ~16,142 lines (source + CSS + tests).
-> **Existing directories that DON'T exist yet:** `src/components/layout/`, `src/components/comments/`
+> **Existing directories that DON'T exist yet:** `src/components/comments/`
+> **Already created:** `src/components/layout/` (Header, SortBar, FilterPanel, ThemeSwitcher, BottomNav — created in Priority 7)
 > **Already created:** `src/components/posts/` (PostItem, PostList, PostDetail, PostSkeleton — created in Priority 6)
-> **Already created:** `src/components/shared/` (Avatar, CodeBlock, VideoPlayer — created in Priority 5), `src/components/lfc/` (SpicyMeter — created in Priority 5)
+> **Already created:** `src/components/shared/` (Avatar, CodeBlock, VideoPlayer — created in Priority 5; SearchBar — created in Priority 7), `src/components/lfc/` (SpicyMeter — created in Priority 5)
 > **Already created:** `src/components/ui/` (16 ShadCN JSX components — created in Priority 4)
 > **Already created:** `src/lib/utils.js` (ShadCN `cn()` helper — created in Priority 1)
 > **CRA artifacts status:** `src/reportWebVitals.js`, `src/logo.svg` deleted. **Still present:** `public/index.html` (52-line CRA version with `%PUBLIC_URL%` placeholders — NOT deleted, contrary to previous audit claims), `src/index.js` (NOT renamed — both `index.js` and `main.jsx` coexist; has BROKEN import of deleted `reportWebVitals` at line 15), `src/index.css`, `src/App.css`, `src/setupTests.js` (needed for Jest until Vitest migration)
@@ -182,25 +183,30 @@
 
 ---
 
-## Priority 7: Rebuild Components — Layout & Navigation
+## Priority 7: Rebuild Components — Layout & Navigation ✅ COMPLETED
 
 **Spec:** `specs/shadcn-ui-rebuild.md` (layout section)
 
-**New directory:** `src/components/layout/` (does not exist yet)
+**Completed 2026-02-11:**
 
-**Current component details:**
-- `Header.js`: Renders SearchBar + Icon (Bird, Code). No Redux connection.
-- `SearchBar.js`: Redux-connected. Dispatches `searchPosts`, `fetchPosts`, `setSearchTerm`. Input with clear and submit buttons.
-- `SubredditFilter.js`: Heavy Redux component (reads `subreddits`, `posts` state). Renders: subreddit selector, sort buttons (hot/new/top/rising/viral), time range dropdown, collapsible flair filters (multi-select from loaded posts), media type filters, ThemeSwitcher. This gets **split into SortBar + FilterPanel**.
-- `ThemeSwitcher.js`: Pure component with localStorage. 3 themes: red/white/green (changing to red/white/black).
-- `BottomNav.js`: Mobile-only. 4 buttons: Home, Search, Theme cycle, Scroll to top. Redux-connected.
+- [x] Rebuild Header → `src/components/layout/Header.jsx` — sticky with `backdrop-blur-md`, LFC tagline bar with Bird icon + "You'll Never Walk Alone", developer attribution link; `data-testid="header"`
+- [x] Rebuild SearchBar → `src/components/shared/SearchBar.jsx` — ShadCN Input + Button, direct Lucide imports (Search, X, Loader2), clear button overlaid inside input; `data-testid="search-bar"`, `data-testid="search-input"`, `data-testid="search-clear"`
+- [x] Create SortBar → `src/components/layout/SortBar.jsx` — ShadCN Tabs for sort (Hot/New/Top/Rising/Spicy) with icons, ShadCN Select for time range (hour/day/week/month/year/all) shown conditionally when sort=Top; `data-testid="sort-bar"`, `data-testid="sort-tabs"`
+- [x] Create FilterPanel → `src/components/layout/FilterPanel.jsx` — ShadCN Collapsible with SlidersHorizontal icon, quick filters (Match Day/Transfers), media filters (Images/Videos/Articles/Discussions), dynamic flair pills from loaded posts with multi-select, active filter count badge; `data-testid="filter-panel"`, `data-testid="filter-expand"`, `data-testid="filter-button"`, `data-testid="flair-pill"`
+- [x] Rebuild ThemeSwitcher → `src/components/layout/ThemeSwitcher.jsx` — ShadCN ToggleGroup type="single", 3 color swatches with ring highlight on active; `data-testid="theme-switcher"`
+- [x] Rebuild BottomNav → `src/components/layout/BottomNav.jsx` — mobile only (`md:hidden`), fixed bottom, ShadCN Button ghost variant, backdrop-blur, 4 nav items (Home/Search/Theme/Top); `data-testid="bottom-nav"`, `data-testid="nav-home"`, `data-testid="nav-search"`
+- [x] All 30 test suites pass (864 tests), build succeeds
 
-- [ ] Rebuild Header → `src/components/layout/Header.jsx` — sticky, `backdrop-blur-md`, LFC tagline area (for rotating taglines in Priority 10); add `data-testid="header"`
-- [ ] Rebuild SearchBar → `src/components/shared/SearchBar.jsx` — ShadCN Input + Button, direct Lucide imports; add `data-testid="search-bar"`, `data-testid="search-input"`, `data-testid="search-clear"`
-- [ ] Create SortBar → `src/components/layout/SortBar.jsx` — ShadCN Tabs for sort (hot/new/top/rising/viral), ShadCN Select for time range (hour/day/week/month/year/all); add `data-testid="sort-bar"`, `data-testid="sort-tabs"` *(split from current SubredditFilter)*
-- [ ] Create FilterPanel → `src/components/layout/FilterPanel.jsx` — ShadCN Collapsible + ToggleGroup for flair/media filters; add `data-testid="filter-panel"`, `data-testid="filter-expand"`, `data-testid="filter-button"`, `data-testid="flair-pill"` *(split from current SubredditFilter)*
-- [ ] Rebuild ThemeSwitcher → `src/components/layout/ThemeSwitcher.jsx` — ShadCN ToggleGroup, 3 color swatches (Red/White/Black), already using `'black'` from Priority 3; add `data-testid="theme-switcher"`
-- [ ] Rebuild BottomNav → `src/components/layout/BottomNav.jsx` — mobile only (`md:hidden`), ShadCN Button ghost variant, direct Lucide imports, already using `'black'` from Priority 3; add `data-testid="bottom-nav"`, `data-testid="nav-home"`, `data-testid="nav-search"`, `data-testid="nav-about"`
+**Key changes:**
+- SubredditFilter (394 lines) split into SortBar (~100 lines) + FilterPanel (~200 lines) — cleaner single-responsibility
+- Header now includes SearchBar and ThemeSwitcher directly (self-contained)
+- SortBar uses ShadCN Tabs with Radix role="tab" — E2E tests use `getByRole('tab', { name: /new/i })`
+- FilterPanel uses ShadCN Collapsible with localStorage persistence for expand/collapse state
+- ThemeSwitcher uses ToggleGroup with ring-2 highlight on active swatch — E2E tests expect `aria-label="${theme.name} theme"`
+- All new components use direct Lucide imports (no Icon wrapper)
+- Old components (Header/, SearchBar/, SubredditFilter/, ThemeSwitcher/, BottomNav/) still in place — deleted in Priority 9
+
+**Note:** SearchBar lives in `src/components/shared/` (not `layout/`) per the spec's folder structure.
 
 ---
 

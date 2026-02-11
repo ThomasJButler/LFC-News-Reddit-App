@@ -1,0 +1,77 @@
+/**
+ * Application header — sticky with backdrop-blur, like Anfield under floodlights.
+ * Contains branding, search bar, and theme switcher.
+ * Tagline area reserved for rotating taglines (Priority 10).
+ */
+
+import React from 'react';
+import { Bird, Code } from 'lucide-react';
+import SearchBar from '../shared/SearchBar';
+import ThemeSwitcher from './ThemeSwitcher';
+import { cn } from '@/lib/utils';
+
+const Header = () => {
+  return (
+    <header
+      data-testid="header"
+      className={cn(
+        'sticky top-0 z-50',
+        'border-b border-border/40',
+        'bg-background/80 backdrop-blur-md',
+        'supports-[backdrop-filter]:bg-background/60',
+      )}
+      role="banner"
+    >
+      <div className="mx-auto max-w-6xl px-3 sm:px-4">
+        {/* Main header row */}
+        <div className="flex items-center justify-between gap-3 py-2.5 sm:py-3">
+          {/* Branding */}
+          <div className="flex flex-col shrink-0">
+            <h1 className="text-base sm:text-lg font-bold tracking-tight text-foreground leading-tight">
+              LFC Reddit Viewer
+            </h1>
+            <span className="text-[10px] sm:text-xs text-muted-foreground leading-tight hidden xs:block">
+              Liverpool FC Community Posts
+            </span>
+          </div>
+
+          {/* Search */}
+          <div className="flex-1 max-w-md">
+            <SearchBar />
+          </div>
+
+          {/* Right section: Theme + Tagline */}
+          <div className="flex items-center gap-2 shrink-0">
+            <ThemeSwitcher />
+          </div>
+        </div>
+
+        {/* Tagline bar — subtle LFC identity */}
+        <div className={cn(
+          'flex items-center justify-between',
+          'py-1.5 -mt-1',
+          'border-t border-border/20',
+          'text-[10px] sm:text-xs text-muted-foreground/70',
+          'hidden sm:flex',
+        )}>
+          <span className="flex items-center gap-1.5">
+            <Bird className="size-3 text-primary/60" aria-hidden="true" />
+            <span className="italic">You&apos;ll Never Walk Alone</span>
+          </span>
+          <a
+            href="https://github.com/thomasjbutler"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1 hover:text-foreground/70 transition-colors"
+            aria-label="Developed by Thomas Butler (opens in new tab)"
+          >
+            <Code className="size-3" aria-hidden="true" />
+            <span>Thomas Butler</span>
+          </a>
+        </div>
+      </div>
+    </header>
+  );
+};
+
+export default React.memo(Header);
