@@ -1,9 +1,11 @@
 import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import PostItem from './PostItem';
+import LfcTrivia from '../lfc/LfcTrivia';
 import { Button } from '@/components/ui/button';
 import { fetchPosts } from '../../redux/actions/posts';
 import { applyFlairFilter, applyMultiFlairFilter, applyMediaFilter } from '../../redux/reducers/posts';
+import { emptyStateMessages } from '../../utils/lfcData';
 import { cn } from '@/lib/utils';
 import { Search, Filter, X, Home, ArrowRight, ChevronDown } from 'lucide-react';
 
@@ -106,6 +108,12 @@ const PostList = () => {
     }
   }, [pullDistance, isRefreshing, loading, dispatch, selectedSubreddit, sortBy, timeRange]);
 
+  // Stable random LFC empty state message (per mount)
+  const lfcEmptyMessage = useMemo(
+    () => emptyStateMessages[Math.floor(Math.random() * emptyStateMessages.length)],
+    []
+  );
+
   // Empty state: no posts at all
   if (filteredPosts.length === 0 && posts.length === 0) {
     const isSearchActive = searchTerm && searchTerm.trim().length > 0;
@@ -116,7 +124,7 @@ const PostList = () => {
           <Search className="size-8 text-muted-foreground" aria-hidden="true" />
         </div>
 
-        <h2 className="text-lg font-semibold text-foreground">No Reds news here</h2>
+        <h2 className="text-lg font-semibold text-foreground">{lfcEmptyMessage}</h2>
 
         {isSearchActive ? (
           <>
@@ -190,9 +198,9 @@ const PostList = () => {
 
         <p className="text-sm text-muted-foreground max-w-md">
           {hasFlairFilter ? (
-            <>No posts with flair: <strong className="text-foreground">{filterName}</strong>. Come on you Reds!</>
+            <>No posts with flair: <strong className="text-foreground">{filterName}</strong>. {lfcEmptyMessage}</>
           ) : (
-            <>No <strong className="text-foreground">{filterName}</strong> content available at the moment. Come on you Reds!</>
+            <>No <strong className="text-foreground">{filterName}</strong> content available at the moment. {lfcEmptyMessage}</>
           )}
         </p>
 
@@ -256,11 +264,16 @@ const PostList = () => {
         }}
       >
         {visiblePosts.map((post, index) => (
-          <PostItem
-            key={post.id}
-            post={post}
-            animationIndex={!hasAnimated ? index : undefined}
-          />
+          <React.Fragment key={post.id}>
+            <PostItem
+              post={post}
+              animationIndex={!hasAnimated ? index : undefined}
+            />
+            {/* Insert LFC trivia card every 10 posts */}
+            {(index + 1) % 10 === 0 && index < visiblePosts.length - 1 && (
+              <LfcTrivia seed={index} />
+            )}
+          </React.Fragment>
         ))}
       </div>
 

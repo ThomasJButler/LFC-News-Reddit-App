@@ -8,24 +8,17 @@
 
 **Tech Stack:** Vite, React 18, Tailwind CSS v4, ShadCN (Radix UI), Redux + redux-thunk, Sonner, Lucide React, Vitest, Playwright
 
-> **Last audited:** 2026-02-11 (deep audit v4 — all src/, specs/, config, tests, ShadCN refs verified by parallel Opus/Sonnet agents; 12 errors corrected, 5 missing items added)
-> **Status:** Priorities 1-9 COMPLETED. Priority 10 (LFC Personality) is next. 2 priorities remain.
-> **Current state:** Vite 7 + Tailwind CSS + ShadCN + Black/White/Red HSL themes. API simplified (single proxy). Dev server on port 5173. All components rebuilt with Tailwind + ShadCN. 12 test suites, 362 tests (old component tests deleted with components). Target: LFC personality + Vitest migration.
-> **E2E test state:** Playwright config already targets Vite (port 5173) and `data-testid` selectors (38 unique attributes required). Tests reference `'black'` theme. They will NOT pass until the migration is complete. **Port fixed:** `npm run dev` now runs Vite on port 5173.
-> **Unit test state:** Jest via react-scripts. 12 test suites, 362 tests (down from 864 — old component tests deleted with their components). Must migrate to Vitest in Priority 11.
-> **Component inventory:** All new components using Tailwind + ShadCN + direct Lucide imports. Old CSS Modules components deleted. All `data-testid` attributes added.
-> **Already created:** `src/components/comments/` (CommentList, Comment, CommentSkeleton — created in Priority 8)
-> **Already created:** `src/components/layout/` (Header, SortBar, FilterPanel, ThemeSwitcher, BottomNav — created in Priority 7)
-> **Already created:** `src/components/posts/` (PostItem, PostList, PostDetail, PostSkeleton — created in Priority 6)
-> **Already created:** `src/components/shared/` (Avatar, CodeBlock, VideoPlayer — created in Priority 5; SearchBar — created in Priority 7; ErrorMessage, ErrorBoundary — created in Priority 9), `src/components/lfc/` (SpicyMeter — created in Priority 5)
-> **Already created:** `src/components/ui/` (16 ShadCN JSX components — created in Priority 4)
-> **Already created:** `src/lib/utils.js` (ShadCN `cn()` helper — created in Priority 1)
-> **CRA artifacts status:** `src/reportWebVitals.js`, `src/logo.svg` deleted. **Still present:** `public/index.html` (52-line CRA version with `%PUBLIC_URL%` placeholders — NOT deleted, contrary to previous audit claims), `src/index.js` (NOT renamed — both `index.js` and `main.jsx` coexist; has BROKEN import of deleted `reportWebVitals` at line 15), `src/index.css`, `src/App.css`, `src/setupTests.js` (needed for Jest until Vitest migration)
-> **Toast system:** `src/components/Toast/` (5 source files + 1 test file), `src/hooks/useToast.js` (custom hook), `ToastProvider` wrapped in both `src/index.js` AND `src/main.jsx` — all to be replaced by Sonner
-> **Tailwind state:** `tailwindcss`, `@tailwindcss/postcss`, `tailwindcss-animate` are installed in package.json. `postcss.config.js` is configured. But NO `globals.css` exists yet and NO Tailwind directives are imported anywhere. Tailwind is ready but not wired up.
-> **Animation classes:** `tailwindcss-animate` v1.0.7 is installed. ShadCN Sheet, Tooltip, and Select components use `animate-in`/`animate-out`/`slide-in-from-*`/`fade-in-*`/`zoom-in-*` classes. These should work with the plugin installed — verify during Priority 4.
-> **Radix UI imports:** All 16 ShadCN reference components use the unified `radix-ui` package (e.g., `import { Dialog } from "radix-ui"`), NOT individual `@radix-ui/react-*` packages. The `radix-ui` package is already installed.
-> **ShadCN sonner.tsx:** Uses `useTheme` from `next-themes` (Next.js-only). Must replace with direct `document.documentElement.getAttribute('data-theme')` reading during TSX→JSX conversion.
+> **Last audited:** 2026-02-11 (deep audit v5 — full codebase verification by 6 parallel research agents + Opus synthesis)
+> **Status:** Priorities 1-9 COMPLETED and VERIFIED. Priority 10a (LFC Data & Components) COMPLETED. Priority 10b (Typography & Visual Atmosphere) is next. 1.5 priorities remain.
+> **Current state:** Vite 7 + Tailwind CSS v4 + ShadCN + 3 HSL themes (Red/White/Black). API simplified to single `/api/reddit` proxy. Dev server on port 5173. All 35 components rebuilt with Tailwind + ShadCN. 12 test suites, 362 tests. `src/main.jsx` imports `./styles/globals.css` correctly. `App.jsx` wires all rebuilt components. Sonner Toaster active. All LFC personality components integrated (lfcData.js, LfcLoadingMessages, LfcTrivia, LfcFooter).
+> **Verified complete:** `src/components/ui/` (16 ShadCN JSX — no TSX, no `use client`, no `@radix-ui/react-*`, all use unified `radix-ui`), `src/components/comments/` (3), `src/components/layout/` (5), `src/components/posts/` (4), `src/components/shared/` (6), `src/components/lfc/SpicyMeter.jsx` (LFC names already applied: Reserves/League Cup/Premier League/Champions League/Istanbul 2005/YNWA)
+> **Config verified:** `vite.config.js` (React plugin + jsxInJsPlugin + @/ alias + dev proxy), `postcss.config.js` (@tailwindcss/postcss), `vercel.json` (dist output + rewrites), `package.json` (Vite scripts + jest config for transition)
+> **globals.css verified:** `@import "tailwindcss"` + 3 theme blocks (:root, [data-theme="white"], [data-theme="black"]) with all 19 ShadCN CSS vars + base styles. Body uses `system-ui` font stack (upgrade planned in P10).
+> **CRA artifacts still present:** `public/index.html` (52-line CRA version — not used by Vite), `src/index.js` (kept for Jest — reportWebVitals import FIXED in P3), `src/index.css`, `src/App.css`, `src/styles/variables.css` (230-line legacy hex theme — superseded by globals.css HSL), `src/setupTests.js`
+> **Toast system:** Old Toast/ directory and useToast.js DELETED in P9. Sonner `<Toaster />` wired in App.jsx.
+> **LFC Personality (P10a):** `src/utils/lfcData.js` created with all 5 arrays. `src/components/lfc/` now has 4 components: SpicyMeter, LfcLoadingMessages, LfcTrivia, LfcFooter. All integrated into App.jsx, PostList.jsx, ErrorMessage.jsx, and Header.jsx.
+> **E2E test state:** Playwright targets port 5173, uses 38 `data-testid` selectors (all verified present in rebuilt components), expects `'black'` theme. All API mocking uses `**/api/reddit**`. Theme button labels: "Anfield Red theme", "Away Day theme", "Third Kit theme". Tests will NOT pass until Vitest migration completes (Jest still the test runner).
+> **data-testid coverage:** 38 E2E-required attributes confirmed in E2E tests AND implemented in components. 14 extras for unit tests/accessibility also present.
 
 ---
 
@@ -259,22 +252,40 @@
 
 ---
 
-## Priority 10: LFC Personality
+## Priority 10: LFC Personality + Visual Polish
 
-**Why here:** Personality features layer on top of rebuilt components. They need the new component structure to integrate properly.
+**Why here:** Personality features layer on top of rebuilt components. They need the new component structure to integrate properly. Visual polish (typography, animations, atmosphere) elevates this from "functional rebuild" to "premium fan experience."
 
 **Spec:** `specs/lfc-personality.md`
 
-**Current state:** None of these exist. SpicyMeter uses generic names (Cool/Mild/Warm/Hot/Blazing/Legendary). No `src/utils/lfcData.js`. No `src/components/lfc/` directory (except SpicyMeter from Priority 5).
+**Current state:** SpicyMeter LFC names ALREADY APPLIED in Priority 5 (Reserves/League Cup/Premier League/Champions League/Istanbul 2005/YNWA — confirmed). All LFC personality components COMPLETED in P10a: `src/utils/lfcData.js` created with all 5 arrays. `src/components/lfc/LfcLoadingMessages.jsx`, `LfcTrivia.jsx`, and `LfcFooter.jsx` all built and integrated. Typography is generic `system-ui` stack (P10b will upgrade). No custom animations beyond `tailwindcss-animate` defaults (P10b will enhance).
 
-- [ ] Create `src/utils/lfcData.js` with 5 exported arrays: `loadingMessages` (12), `lfcTrivia` (16), `emptyStateMessages` (6), `errorMessages` (6), `antiClickbaitMessages` (6)
-- [ ] Create `src/components/lfc/LfcLoadingMessages.jsx` — rotating messages every 3s during loading states, displayed below skeleton loaders
-- [ ] Create `src/components/lfc/LfcTrivia.jsx` — random "Did you know?" ShadCN Card, appears every 10 posts in feed
-- [ ] Create `src/components/lfc/LfcFooter.jsx` — desktop only, "You'll Never Walk Alone" + rotating anti-clickbait taglines ("No ads. No trackers. No Murdoch.")
-- [ ] Update SpicyMeter level names in `src/components/lfc/SpicyMeter.jsx`: Cool→Reserves, Mild→League Cup, Warm→Premier League, Hot→Champions League, Blazing→Istanbul 2005, Legendary→YNWA
-- [ ] Integrate LFC humor into ErrorMessage and empty states (import `errorMessages` and `emptyStateMessages` from `lfcData`)
-- [ ] Add rotating tagline to Header component (import `loadingMessages` or create dedicated tagline array)
-- [ ] Handle JFT97 (Hillsborough) references respectfully — no jokes about tragedies
+### 10a: LFC Data & Components ✅ COMPLETED
+
+- [x] Create `src/utils/lfcData.js` with 5 exported arrays: `loadingMessages` (12), `lfcTrivia` (16 — handle JFT97/Hillsborough with dignity, no jokes about tragedies), `emptyStateMessages` (6), `errorMessages` (6), `antiClickbaitMessages` (6). Content defined in `specs/lfc-personality.md`.
+- [x] Create `src/components/lfc/LfcLoadingMessages.jsx` — rotating messages every 3s via `useEffect`+`setInterval`, displayed below PostSkeleton in loading state. Use `animate-pulse` or subtle crossfade. Import `loadingMessages` from `lfcData`.
+- [x] Create `src/components/lfc/LfcTrivia.jsx` — "Did you know?" ShadCN Card with subtle primary border-left accent, deterministic seed-based fact selection from `lfcTrivia`. Integrated into PostList every 10 posts.
+- [x] Create `src/components/lfc/LfcFooter.jsx` — desktop only (`hidden md:block`), "You'll Never Walk Alone" in primary color + rotating anti-clickbait tagline + developer attribution. Sits below PostList in App.jsx.
+- [x] ~~Update SpicyMeter level names~~ — ALREADY DONE in Priority 5
+- [x] Integrate LFC humor into `ErrorMessage.jsx`: import `errorMessages` from `lfcData`, show random LFC error heading (replaces generic "Oops!")
+- [x] Integrate LFC humor into `PostList.jsx` empty state: import `emptyStateMessages` from `lfcData`, show random message when no posts match filters (both no-posts and filter-empty states)
+- [x] Wire LfcLoadingMessages into `App.jsx` — show below PostSkeleton during `loading` state
+- [x] Wire LfcTrivia into `PostList.jsx` — insert trivia card every 10 posts in the rendered list using React.Fragment
+- [x] Wire LfcFooter into `App.jsx` — place after `</main>` and before BottomNav
+- [x] Update Header.jsx: add rotating anti-clickbait tagline from `antiClickbaitMessages` — replaces static developer attribution in tagline bar, rotates every 10s with crossfade animation
+
+### 10b: Typography & Visual Atmosphere
+
+**Design direction:** This is NOT a generic app. It should feel like a premium fan experience — bold, atmospheric, unmistakably LFC.
+
+- [ ] **Typography upgrade in `globals.css`:** Replace generic `system-ui` font stack with a distinctive LFC-branded approach. Import a bold condensed display font (e.g., from Google Fonts — Barlow Condensed, Oswald, or similar athletic/editorial feel) for headings/titles. Keep a clean sans-serif for body text (e.g., DM Sans, Source Sans). Add `@import url(...)` in `globals.css` and set `--font-display` and `--font-body` custom properties. Update `body` font-family and add heading font-family utility in Tailwind.
+- [ ] **Staggered post reveal animations:** PostItem already uses `animate-in fade-in-0 slide-in-from-bottom-4` with stagger. Verify this works visually and tune `animation-delay` values (40ms stagger per item for first 10 items, then instant). Add `@keyframes` to `globals.css` if `tailwindcss-animate` classes aren't rendering.
+- [ ] **Card hover micro-interactions:** PostItem has left accent stripe on hover — enhance with subtle `scale-[1.01]` lift + shadow transition on card hover. Use `transition-all duration-200 ease-out hover:shadow-lg hover:shadow-primary/5`.
+- [ ] **Theme transition smoothness:** Add `transition-colors duration-300` to `body` in `globals.css` so theme switches feel like a smooth crossfade rather than a hard cut.
+- [ ] **Red theme atmosphere:** The Red theme should feel like Anfield under floodlights. Consider adding a very subtle radial gradient overlay (`bg-gradient-to-b from-primary/3 to-transparent`) at the top of the page or behind the header for warmth.
+- [ ] **Loading skeleton shimmer:** Verify ShadCN Skeleton `animate-pulse` renders correctly in all 3 themes. The shimmer should be visible but not jarring — check contrast between skeleton base and highlight colors.
+- [ ] **ScrollArea custom scrollbar:** Ensure the ShadCN ScrollArea in PostDetail has a themed scrollbar (should already work via Radix — verify it's using `--border` color).
+- [ ] Verify: `npm run build` succeeds, app looks right in all 3 themes
 
 ---
 
@@ -284,29 +295,41 @@
 
 **Spec:** `specs/testing-cleanup.md`
 
-**Current state:**
-- **Unit tests:** Jest via `react-scripts test`. 30 test files. Coverage thresholds in `package.json`: 80% statements, 72% branches, 75% functions. Jest `transformIgnorePatterns` for ESM packages.
-- **E2E tests:** Playwright config targets port 5173, `data-testid` selectors, `'black'` theme. 9 E2E test files. Visual regression with `__screenshots__` directory.
-- **CSS Modules:** 19 `.module.css` files across component directories.
-- **Global CSS:** `src/App.css` (main styles), `src/index.css` (minimal), `src/styles/variables.css` (theme definitions).
+**Current state (verified 2026-02-11 v5):**
+- **Unit tests:** Jest via `react-scripts test`. 12 test suites, 362 tests. `transformIgnorePatterns` and `moduleNameMapper` in package.json `jest` config. Coverage thresholds NOT currently in package.json (were removed with browserslist in P1).
+- **E2E tests:** Playwright config targets port 5173, `data-testid` selectors, `'black'` theme. 8 `.spec.js` files + 1 `helpers/theme.js`. Visual regression with `__screenshots__/`. All API mocking uses `**/api/reddit**`. Theme buttons: "Anfield Red theme", "Away Day theme", "Third Kit theme".
+- **Old CSS Modules:** All 19 `.module.css` files ALREADY DELETED in Priority 9 (old component directories removed).
+- **Legacy CSS still present:** `src/App.css`, `src/index.css`, `src/styles/variables.css` (230 lines, hex-based — superseded by `globals.css` HSL themes).
+- **CRA artifacts still present:** `public/index.html`, `src/index.js`, `src/setupTests.js`.
+- **api.js:** Already simplified to 250 lines (target was ~156, actual is slightly larger but all proxy chain code removed). `api.test.js` already rewritten with 36 tests.
 
-- [ ] Add Vitest to dev dependencies: `vitest`, `@vitest/coverage-v8`, `jsdom`
-- [ ] Add Vitest config to `vite.config.js`: `test: { environment: 'jsdom', globals: true, setupFiles: './src/test-setup.js' }`
-- [ ] Create `src/test-setup.js` (replaces `src/setupTests.js`) — import `@testing-library/jest-dom`; add `vi.mock()` (not `jest.mock()`) for `react-markdown`, `remark-gfm`, `react-syntax-highlighter`, and `react-syntax-highlighter/dist/esm/styles/prism` (all 4 mocks currently in `setupTests.js`)
+### 11a: Vitest Migration
+
+- [ ] Install Vitest: `npm install -D vitest @vitest/coverage-v8 jsdom`
+- [ ] Add Vitest config to `vite.config.js`: `test: { environment: 'jsdom', globals: true, setupFiles: './src/test-setup.js', css: true }`
+- [ ] Create `src/test-setup.js` (replaces `src/setupTests.js`): import `@testing-library/jest-dom`; convert `jest.mock()` calls to `vi.mock()` for `react-markdown`, `remark-gfm`, `react-syntax-highlighter`, `react-syntax-highlighter/dist/esm/styles/prism`
 - [ ] Update `package.json` scripts: `"test": "vitest"`, `"test:coverage": "vitest run --coverage"`, `"test:ci": "vitest run --coverage"`
-- [ ] Remove Jest config from `package.json`: `transformIgnorePatterns`, `coverageThreshold` (move to Vitest config), `eslintConfig`
-- [ ] Update `api.test.js` — remove proxy chain tests, test simplified single-proxy `fetchFromReddit()`
-- [ ] Update remaining unit tests: fix import paths for moved components, update theme references from `'green'` to `'black'`, update `App.test.js` for new component structure
-- [ ] Move `src/utils/formatDuration.test.js` → `src/utils/__tests__/formatDuration.test.js` (misplaced outside `__tests__/` directory)
-- [ ] Playwright config: already correct (port 5173, `npm run dev`) — **no changes needed**
-- [ ] E2E tests: already use `data-testid` selectors and Black theme references — verify they pass against rebuilt app
-- [ ] Delete all 19 CSS Module files (one per old component directory)
-- [ ] Delete global CSS: `src/App.css`, `src/index.css`, `src/styles/variables.css`
-- [ ] Remove unused dependencies from `package.json`: `react-scripts`, `react-window` (already removed in Priority 1: `dompurify`, `source-map-explorer`, `selenium-webdriver`, `web-vitals`)
-- [ ] Delete CRA artifact: `public/index.html` (52-line CRA version with `%PUBLIC_URL%` placeholders, NOT used by Vite)
-- [ ] Verify: all unit tests pass (`npm test`), all E2E tests pass (`npm run test:e2e`), `npm run build` succeeds
-- [ ] Regenerate Playwright visual regression screenshots (`npx playwright test --update-snapshots`)
-- [ ] Final verification on mobile devices (iOS Safari, Chrome Android)
+- [ ] Remove Jest config from `package.json`: delete entire `"jest"` block (contains `transformIgnorePatterns` and `moduleNameMapper` — Vitest inherits `resolve.alias` from vite.config.js so `@/` mapping is automatic)
+- [ ] Update test files: replace any `jest.fn()` → `vi.fn()`, `jest.mock()` → `vi.mock()`, `jest.spyOn()` → `vi.spyOn()` across all test files in `src/`
+- [ ] Update `App.test.js`: verify it works with new App.jsx component imports (was testing old App.js)
+- [ ] Move `src/utils/formatDuration.test.js` → `src/utils/__tests__/formatDuration.test.js` (misplaced)
+- [ ] Run `npm test` — all 12 suites (362 tests) must pass under Vitest
+- [ ] Add coverage thresholds to Vitest config: 80% statements, 72% branches, 75% functions
+
+### 11b: Legacy Cleanup
+
+- [ ] Delete legacy CSS: `src/App.css`, `src/index.css`, `src/styles/variables.css`
+- [ ] Delete CRA artifacts: `public/index.html` (52-line CRA version), `src/index.js` (no longer needed once Jest removed), `src/setupTests.js` (replaced by `test-setup.js`)
+- [ ] Remove unused dependencies: `react-scripts`, `react-window` (dependencies already removed in P1: `dompurify`, `source-map-explorer`, `selenium-webdriver` — do NOT re-remove)
+- [ ] Verify no imports reference deleted files: search for `App.css`, `index.css`, `variables.css`, `setupTests`, `react-scripts`
+
+### 11c: E2E Verification
+
+- [ ] Playwright config: already correct (port 5173, `npm run dev`) — **no changes needed** (verified)
+- [ ] E2E tests: already use `data-testid` selectors and Black theme references — run full suite: `npm run test:e2e`
+- [ ] Fix any E2E failures (expected: some may fail due to visual differences from rebuilt components + new LFC personality elements)
+- [ ] Regenerate Playwright visual regression screenshots: `npx playwright test --update-snapshots`
+- [ ] Final verification: `npm run build` succeeds, `npm test` passes, `npm run test:e2e` passes
 
 ---
 
@@ -332,31 +355,40 @@ These files are complete and correct — do not change during the rebuild:
 - `playwright.config.js` — Already configured for Vite (port 5173, `npm run dev`)
 - `e2e/**` — Already updated for ShadCN rebuild (data-testid selectors, Black theme, `/api/reddit` route interceptions)
 
-## Files to Modify (Preserve Logic, Update Paths/Config)
+## Files to Modify (Remaining)
 
-- `src/utils/markdown.js` — Update CodeBlock import path from `'../components/CodeBlock/CodeBlock'` to `'../components/shared/CodeBlock'`
-- `src/utils/api.js` — Simplify per Priority 2 (remove CORS proxy chain, keep exports)
-- `package.json` — Update scripts, dependencies, remove Jest config (Priorities 2, 11) *(Priority 1 changes already completed)*
-- `vercel.json` — ✅ buildCommand and outputDirectory already added (Priority 1 complete)
-- `.gitignore` — ✅ `/dist` already added (Priority 1 complete)
+- `package.json` — Remove Jest config block, remove `react-scripts` and `react-window` dependencies (Priority 11)
+- `vite.config.js` — Add Vitest `test` config block (Priority 11)
+- `src/styles/globals.css` — Add typography imports, theme transition, custom animations (Priority 10b)
+- `src/components/shared/ErrorMessage.jsx` — Import and use `errorMessages` from `lfcData` (Priority 10a)
+- `src/components/posts/PostList.jsx` — Import and wire `emptyStateMessages` from `lfcData` + LfcTrivia insertion (Priority 10a)
+- `src/App.jsx` — Wire LfcLoadingMessages + LfcFooter (Priority 10a)
+
+**Already completed modifications (P1-P9):**
+- ✅ `src/utils/markdown.js` — CodeBlock import path updated
+- ✅ `src/utils/api.js` — Simplified (250 lines, no proxy chain)
+- ✅ `vercel.json` — buildCommand and outputDirectory added
+- ✅ `.gitignore` — `/dist` added
 
 ## Reference Files (Do NOT Deploy)
 
 - `ui/` directory — Reference-only copy of ShadCN v4 components for TSX→JSX conversion
 - `specs/` directory — Implementation specifications
 
-## Notes
+## Notes (Updated 2026-02-11 v5)
 
 - All deprecated code (`setFlairFilter`, `applyFlairFilter`, `activeFilter` in Redux) can remain until a future cleanup pass
-- The Redux `__tests__/` directory has 4 test files with good coverage (~1200 lines total) — update for Vitest compatibility in Priority 11
-- The `src/utils/__tests__/` directory has 7 test files — only `api.test.js` needs significant changes (Priority 2)
-- `dompurify` is in dependencies but not used in any source files — remove in Priority 11
-- `prop-types` is used by **14 component files** (Avatar, CodeBlock, CommentList, ErrorBoundary, ErrorMessage, Icon, PostItem, SkeletonLoader, SpicyMeter, Toast, ToastContainer, ToastProvider, VideoPlayer + 1 test) — not listed in `package.json`, bundled by `react-scripts`. Since ALL old components get deleted in Priority 9 and rebuilt components won't use PropTypes, this resolves itself. Do NOT add `prop-types` to `package.json`.
-- `src/hooks/useToast.js` imports from `ToastProvider` — must be deleted in Priority 9 when Toast system is removed
-- **Spec discrepancy:** `specs/api-simplification.md` shows `fetchFromReddit(url)` signature that parses internally; plan improves this to `fetchFromReddit(path)` that takes path directly. The plan's approach is intentionally cleaner — follow the plan, not the spec.
-- **Spec discrepancy:** `specs/lfc-themes.md` uses Tailwind v3 directives (`@tailwind base/components/utilities`); plan correctly uses Tailwind v4 format (`@import "tailwindcss"`). Follow the plan.
-- **Animation classes:** ShadCN Sheet component uses `animate-in`/`animate-out`/`slide-in-from-*` classes. In Tailwind CSS v4, these require the `tailwindcss-animate` plugin OR custom `@keyframes` definitions in `globals.css`. Investigate during Priority 3/4 implementation.
-- Header component is the ONLY component without a test file — consider adding one during rebuild
+- The Redux `__tests__/` directory has 4 test files — update `jest.fn()` → `vi.fn()` etc. for Vitest in Priority 11
+- The `src/utils/__tests__/` directory has 7 test files — `api.test.js` was ALREADY rewritten in P2 (36 tests)
+- `dompurify` was already removed from dependencies in Priority 1
+- `prop-types` issue SELF-RESOLVED: all 14 old components that used PropTypes were deleted in P9. New components don't use PropTypes.
+- `src/hooks/useToast.js` was ALREADY DELETED in Priority 9 (confirmed — Toast/ directory removed)
+- **Spec discrepancy (resolved):** `specs/api-simplification.md` showed old signature — P2 implementation used cleaner `fetchFromReddit(path, params)` approach
+- **Spec discrepancy (resolved):** `specs/lfc-themes.md` used Tailwind v3 directives — P3 correctly used Tailwind v4 `@import "tailwindcss"`
+- **Animation classes:** `tailwindcss-animate` v1.0.7 is installed. ShadCN Sheet/Tooltip/Select use `animate-in`/`animate-out` classes. Need to verify these render correctly during P10b visual polish.
+- Header component has NO test file (only component without one) — low priority, consider adding in P11
+- **Typography gap:** `globals.css` currently uses generic `system-ui` font stack. P10b adds distinctive LFC-branded typography.
+- **api.js actual size:** 250 lines (plan estimated ~156; slightly larger due to fuller JSDoc comments and more robust error handling — this is acceptable)
 
 ## Audit Findings (2026-02-11, v2)
 
@@ -538,3 +570,42 @@ These files are complete and correct — do not change during the rebuild:
 **Extras in plan (14, not required for E2E pass but good for unit tests/accessibility):** `app`, `avatar`, `code-block`, `comment-list`, `comment-skeleton`, `header`, `nav-about`, `nav-home`, `nav-search`, `post-body`, `post-detail`, `post-flair`, `post-score`, `search-input`, `sort-bar`, `video-player`
 
 #### All v2/v3 findings confirmed — no regressions.
+
+---
+
+## Audit Findings (2026-02-11, v5)
+
+### Deep verification by Opus + 6 parallel research agents — all source files verified against specs:
+
+#### Priorities 1-9 VERIFIED COMPLETE:
+- ✅ All 18 old component directories deleted (Avatar/, BottomNav/, CodeBlock/, CommentList/, ErrorBoundary/, ErrorMessage/, Header/, Icon/, LoadingSpinner/, PostDetail/, PostItem/, PostList/, SearchBar/, SkeletonLoader/, SpicyMeter/, SubredditFilter/, ThemeSwitcher/, Toast/, VideoPlayer/)
+- ✅ All new components wired in App.jsx with correct import paths
+- ✅ 16 ShadCN UI components: all JSX, no TSX, no `use client`, no `@radix-ui/react-*` imports, all use unified `radix-ui`
+- ✅ `sonner.jsx` does NOT import `next-themes` — uses `document.documentElement.getAttribute('data-theme')` correctly
+- ✅ `toggle-group.jsx` imports from `@/components/ui/toggle` (not registry path)
+- ✅ 14 of 16 UI components import `cn()` from `@/lib/utils` (exceptions: `collapsible.jsx` and `sonner.jsx` — correct, they don't need `cn()`)
+- ✅ `main.jsx` imports `./styles/globals.css` (not `./index.css`)
+- ✅ `globals.css` has `@import "tailwindcss"` + 3 theme blocks with all 19 ShadCN CSS vars
+- ✅ `index.html` (root) has Vite `<script type="module">` and flash-prevention script setting `data-theme`
+- ✅ `api.js` simplified to 250 lines — no CORS_PROXIES, no isMobile(), no tryProxy()
+- ✅ `markdown.js` imports from `../components/shared/CodeBlock` (updated path)
+- ✅ SpicyMeter has LFC-themed names (Reserves through YNWA)
+- ✅ `src/index.js` reportWebVitals import FIXED (removed in P3)
+- ✅ Toast system completely removed (Toast/, useToast.js deleted; Sonner Toaster in App.jsx)
+
+#### Stale Items Corrected in Plan:
+1. **P10 SpicyMeter task:** Was listed as TODO but ALREADY DONE in P5. Marked `[x]` in updated plan.
+2. **P10 "Current state" description:** Said "SpicyMeter uses generic names" — WRONG. LFC names applied in P5. Corrected.
+3. **P11 "Current state" CSS Modules:** Said "19 `.module.css` files across component directories" — WRONG. All deleted in P9. Corrected.
+4. **P11 api.test.js item:** Said "remove proxy chain tests" — ALREADY DONE in P2 (36 new tests). Removed stale item.
+5. **Notes `dompurify`:** Said "in dependencies but not used — remove in P11" — ALREADY REMOVED in P1. Corrected.
+6. **Notes `useToast.js`:** Said "must be deleted in P9" — ALREADY DELETED. Corrected.
+
+#### New Items Added to Plan:
+1. **Priority 10b: Typography & Visual Atmosphere** — NEW SECTION. The app currently uses generic `system-ui` font stack. For a "premium fan experience," this needs distinctive LFC-branded typography, enhanced animations, theme transition smoothness, and atmospheric effects.
+2. **"Files to Modify (Remaining)"** — Updated to only list files that ACTUALLY need modification in P10-P11.
+
+#### Design Gap Identified:
+The frontend-design skill mandates bold, distinctive typography — NOT generic system fonts. Current `globals.css` body uses `system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif` which is exactly the "AI slop" aesthetic the skill warns against. Priority 10b addresses this with a distinctive font pairing imported via Google Fonts or self-hosted.
+
+#### All v2/v3/v4 findings confirmed — no regressions beyond the 6 stale items corrected above.

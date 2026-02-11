@@ -3,13 +3,19 @@
  * ShadCN Card + Button, Tailwind styling, retry with shake animation.
  */
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { AlertCircle, RotateCcw } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { errorMessages } from '../../utils/lfcData';
 import { cn } from '@/lib/utils';
 
 const ErrorMessage = ({ message, onRetry }) => {
+  const lfcMessage = useMemo(
+    () => errorMessages[Math.floor(Math.random() * errorMessages.length)],
+    []
+  );
+
   return (
     <div
       data-testid="error-message"
@@ -34,8 +40,9 @@ const ErrorMessage = ({ message, onRetry }) => {
             </div>
           </div>
 
+          {/* LFC-flavored heading */}
           <h2 className="text-lg font-bold text-foreground mb-2 tracking-tight">
-            Oops! Something went wrong
+            {lfcMessage}
           </h2>
 
           <p className="text-sm text-muted-foreground leading-relaxed max-w-[320px] mb-6">

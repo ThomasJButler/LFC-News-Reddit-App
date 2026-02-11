@@ -1,16 +1,34 @@
 /**
  * Application header — sticky with backdrop-blur, like Anfield under floodlights.
- * Contains branding, search bar, and theme switcher.
- * Tagline area reserved for rotating taglines (Priority 10).
+ * Contains branding, search bar, theme switcher, and rotating anti-clickbait taglines.
  */
 
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Bird, Code } from 'lucide-react';
 import SearchBar from '../shared/SearchBar';
 import ThemeSwitcher from './ThemeSwitcher';
+import { antiClickbaitMessages } from '../../utils/lfcData';
 import { cn } from '@/lib/utils';
 
 const Header = () => {
+  const [taglineIndex, setTaglineIndex] = useState(
+    () => Math.floor(Math.random() * antiClickbaitMessages.length)
+  );
+  const [isVisible, setIsVisible] = useState(true);
+  const intervalRef = useRef(null);
+
+  useEffect(() => {
+    intervalRef.current = setInterval(() => {
+      setIsVisible(false);
+      setTimeout(() => {
+        setTaglineIndex(prev => (prev + 1) % antiClickbaitMessages.length);
+        setIsVisible(true);
+      }, 300);
+    }, 10000);
+
+    return () => clearInterval(intervalRef.current);
+  }, []);
+
   return (
     <header
       data-testid="header"
@@ -58,16 +76,16 @@ const Header = () => {
             <Bird className="size-3 text-primary/60" aria-hidden="true" />
             <span className="italic">You&apos;ll Never Walk Alone</span>
           </span>
-          <a
-            href="https://github.com/thomasjbutler"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1 hover:text-foreground/70 transition-colors"
-            aria-label="Developed by Thomas Butler (opens in new tab)"
+          <span
+            className={cn(
+              'italic transition-all duration-300 ease-in-out',
+              isVisible
+                ? 'opacity-100 translate-y-0'
+                : 'opacity-0 translate-y-0.5'
+            )}
           >
-            <Code className="size-3" aria-hidden="true" />
-            <span>Thomas Butler</span>
-          </a>
+            {antiClickbaitMessages[taglineIndex]}
+          </span>
         </div>
       </div>
     </header>

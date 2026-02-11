@@ -14,6 +14,8 @@ import PostSkeleton from './components/posts/PostSkeleton';
 import ErrorMessage from './components/shared/ErrorMessage';
 import ErrorBoundary from './components/shared/ErrorBoundary';
 import BottomNav from './components/layout/BottomNav';
+import LfcLoadingMessages from './components/lfc/LfcLoadingMessages';
+import LfcFooter from './components/lfc/LfcFooter';
 import { Toaster } from './components/ui/sonner';
 import { fetchPosts } from './redux/actions/posts';
 
@@ -54,7 +56,12 @@ function App() {
         </nav>
 
         {/* Loading state */}
-        {loading && <PostSkeleton />}
+        {loading && (
+          <>
+            <PostSkeleton />
+            <LfcLoadingMessages />
+          </>
+        )}
 
         {/* Error state */}
         {error && (
@@ -80,6 +87,9 @@ function App() {
           </ErrorBoundary>
         </Suspense>
       )}
+
+      {/* Desktop footer with YNWA + anti-clickbait tagline */}
+      <LfcFooter />
 
       {/* Mobile bottom nav */}
       <BottomNav />
