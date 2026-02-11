@@ -8,7 +8,7 @@ import { CommentSkeleton } from '../comments/CommentSkeleton';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { sanitizeUrl } from '../../utils/sanitize';
-import VideoPlayer from '../VideoPlayer/VideoPlayer';
+import VideoPlayer from '../shared/VideoPlayer';
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';

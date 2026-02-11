@@ -1,8 +1,6 @@
 /**
- * @author Tom Butler
- * @date 2025-10-22
- * @description Application entry point. Initialises React root with Redux provider,
- *              ToastProvider for notifications, and strict mode.
+ * CRA entry point — kept for Jest (react-scripts) compatibility until Vitest migration.
+ * Vite uses main.jsx instead. Both point to the same App component.
  */
 
 import React from 'react';
@@ -11,14 +9,12 @@ import { Provider } from 'react-redux';
 import './index.css';
 import App from './App';
 import store from './redux/store';
-import { ToastProvider } from './components/Toast';
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <Provider store={store}>
-      <ToastProvider>
-        <App />
-      </ToastProvider>
+      <App />
     </Provider>
   </React.StrictMode>
 );

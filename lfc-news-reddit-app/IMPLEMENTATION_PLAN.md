@@ -9,15 +9,15 @@
 **Tech Stack:** Vite, React 18, Tailwind CSS v4, ShadCN (Radix UI), Redux + redux-thunk, Sonner, Lucide React, Vitest, Playwright
 
 > **Last audited:** 2026-02-11 (deep audit v4 — all src/, specs/, config, tests, ShadCN refs verified by parallel Opus/Sonnet agents; 12 errors corrected, 5 missing items added)
-> **Status:** Priorities 1-8 COMPLETED. Priority 9 (Error/Toast/App Shell) is next. 3 priorities remain.
-> **Current state:** Vite 7 + CSS Modules (19 files) + Black/White/Red themes (HSL + hex both active). API simplified (single proxy). Dev server on port 5173. Jest `moduleNameMapper` resolves `@/` alias. Target: Tailwind + ShadCN + LFC personality.
+> **Status:** Priorities 1-9 COMPLETED. Priority 10 (LFC Personality) is next. 2 priorities remain.
+> **Current state:** Vite 7 + Tailwind CSS + ShadCN + Black/White/Red HSL themes. API simplified (single proxy). Dev server on port 5173. All components rebuilt with Tailwind + ShadCN. 12 test suites, 362 tests (old component tests deleted with components). Target: LFC personality + Vitest migration.
 > **E2E test state:** Playwright config already targets Vite (port 5173) and `data-testid` selectors (38 unique attributes required). Tests reference `'black'` theme. They will NOT pass until the migration is complete. **Port fixed:** `npm run dev` now runs Vite on port 5173.
-> **Unit test state:** Jest via react-scripts. Tests reference `'green'` theme. Must migrate to Vitest and update theme references. 30 test files total: `src/utils/__tests__/` (6 files, ~2312 lines), `src/utils/formatDuration.test.js` (79 lines, misplaced outside `__tests__/`), `src/redux/__tests__/` (4 files, ~1370 lines), 19 component test files (Header has NO test), and `src/App.test.js`. All currently passing with Jest/CRA.
-> **Component inventory:** 19 component directories, 23 component files, all using CSS Modules, 0 with `data-testid` attributes in component source (only in 4 test files: Toast.test.js, PostList.test.js, PostDetail.test.js, Icon.test.js). Largest: CommentList (619 lines), PostDetail (542 lines), PostList (532 lines). 14 components use `prop-types` (bundled by `react-scripts`). Total component code: ~16,142 lines (source + CSS + tests).
+> **Unit test state:** Jest via react-scripts. 12 test suites, 362 tests (down from 864 — old component tests deleted with their components). Must migrate to Vitest in Priority 11.
+> **Component inventory:** All new components using Tailwind + ShadCN + direct Lucide imports. Old CSS Modules components deleted. All `data-testid` attributes added.
 > **Already created:** `src/components/comments/` (CommentList, Comment, CommentSkeleton — created in Priority 8)
 > **Already created:** `src/components/layout/` (Header, SortBar, FilterPanel, ThemeSwitcher, BottomNav — created in Priority 7)
 > **Already created:** `src/components/posts/` (PostItem, PostList, PostDetail, PostSkeleton — created in Priority 6)
-> **Already created:** `src/components/shared/` (Avatar, CodeBlock, VideoPlayer — created in Priority 5; SearchBar — created in Priority 7), `src/components/lfc/` (SpicyMeter — created in Priority 5)
+> **Already created:** `src/components/shared/` (Avatar, CodeBlock, VideoPlayer — created in Priority 5; SearchBar — created in Priority 7; ErrorMessage, ErrorBoundary — created in Priority 9), `src/components/lfc/` (SpicyMeter — created in Priority 5)
 > **Already created:** `src/components/ui/` (16 ShadCN JSX components — created in Priority 4)
 > **Already created:** `src/lib/utils.js` (ShadCN `cn()` helper — created in Priority 1)
 > **CRA artifacts status:** `src/reportWebVitals.js`, `src/logo.svg` deleted. **Still present:** `public/index.html` (52-line CRA version with `%PUBLIC_URL%` placeholders — NOT deleted, contrary to previous audit claims), `src/index.js` (NOT renamed — both `index.js` and `main.jsx` coexist; has BROKEN import of deleted `reportWebVitals` at line 15), `src/index.css`, `src/App.css`, `src/setupTests.js` (needed for Jest until Vitest migration)
@@ -232,18 +232,30 @@
 
 ---
 
-## Priority 9: Rebuild Components — Error/Toast/App Shell
+## Priority 9: Rebuild Components — Error/Toast/App Shell ✅ COMPLETED
 
 **Spec:** `specs/shadcn-ui-rebuild.md` (error/toast/app section)
 
-- [ ] Rebuild ErrorMessage → `src/components/shared/ErrorMessage.jsx` — ShadCN Card + Button for retry; add `data-testid="error-message"`
-- [ ] Rebuild ErrorBoundary → `src/components/shared/ErrorBoundary.jsx` — Tailwind styling, keep class component pattern (required for error boundaries)
-- [ ] Replace Toast system: delete `src/components/Toast/` directory (5 source files + 1 test: `Toast.js`, `Toast.module.css`, `ToastContainer.js`, `ToastProvider.js`, `index.js`, `__tests__/Toast.test.js`); also delete `src/hooks/useToast.js` (custom hook that imports from ToastProvider); wire `src/components/ui/sonner.jsx` (created in Priority 4) into App, add `<Toaster />` to App
-- [ ] Delete `src/components/Icon/` directory (3 files: `Icon.js`, `Icon.module.css`, `__tests__/Icon.test.js`) — all new components already use direct `import { X } from 'lucide-react'`
-- [ ] Delete `src/components/LoadingSpinner/` directory (3 files: `LoadingSpinner.js`, `LoadingSpinner.module.css`, `__tests__/LoadingSpinner.test.js`) — replaced by ShadCN Skeleton + LfcLoadingMessages (Priority 10)
-- [ ] Rebuild App → `src/App.jsx` — wire all rebuilt components from new paths (`layout/`, `posts/`, `shared/`), lazy load PostDetail with Suspense, add Sonner Toaster, import `globals.css`; add `data-testid="app"`
-- [ ] Update `src/main.jsx`: remove ToastProvider import (Sonner doesn't need it), import from new App path, change CSS import from `'./index.css'` to `'./styles/globals.css'`
-- [ ] Delete old component directories: `Avatar/`, `BottomNav/`, `CodeBlock/`, `CommentList/`, `ErrorBoundary/`, `ErrorMessage/`, `Header/`, `PostDetail/`, `PostItem/`, `PostList/`, `SearchBar/`, `SkeletonLoader/`, `SpicyMeter/`, `SubredditFilter/`, `ThemeSwitcher/`, `VideoPlayer/`
+**Completed 2026-02-11:**
+
+- [x] Rebuild ErrorMessage → `src/components/shared/ErrorMessage.jsx` — ShadCN Card + Button, Tailwind styling, AlertCircle icon with ping animation, destructive/error card border; `data-testid="error-message"`
+- [x] Rebuild ErrorBoundary → `src/components/shared/ErrorBoundary.jsx` — Tailwind styling, kept class component pattern, ShadCN Card + Button, dev-only error details, RotateCcw/RefreshCw icons
+- [x] Replace Toast system: deleted `src/components/Toast/` directory (5 source files + 1 test), deleted `src/hooks/useToast.js`, wired `src/components/ui/sonner.jsx` into App via `<Toaster />`
+- [x] Delete `src/components/Icon/` directory (3 files) — all new components use direct Lucide imports
+- [x] Delete `src/components/LoadingSpinner/` directory (3 files) — replaced by ShadCN Skeleton + PostSkeleton
+- [x] Rebuild App → `src/App.jsx` — wired all rebuilt components from new paths (`layout/`, `posts/`, `shared/`), lazy loaded PostDetail with Suspense, added Sonner Toaster, imported globals.css via main.jsx; `data-testid="app"`
+- [x] Update `src/main.jsx`: removed ToastProvider import, changed CSS import to `./styles/globals.css`
+- [x] Update `src/index.js`: removed ToastProvider import (kept for Jest compatibility)
+- [x] Fixed PostDetail.jsx VideoPlayer import: `../VideoPlayer/VideoPlayer` → `../shared/VideoPlayer`
+- [x] Delete old component directories: `Avatar/`, `BottomNav/`, `CodeBlock/`, `CommentList/`, `ErrorBoundary/`, `ErrorMessage/`, `Header/`, `Icon/`, `LoadingSpinner/`, `PostDetail/`, `PostItem/`, `PostList/`, `SearchBar/`, `SkeletonLoader/`, `SpicyMeter/`, `SubredditFilter/`, `ThemeSwitcher/`, `Toast/`, `VideoPlayer/`
+- [x] Delete old `src/App.js` (replaced by `src/App.jsx`)
+- [x] All 12 test suites pass (362 tests — reduced from 864 because 18 old component test files were deleted with their components), build succeeds
+
+**Key learnings:**
+- Jest (react-scripts) resolves `.jsx` extensions from `import './App'` — no explicit extension needed
+- `radix-ui`, `sonner`, `class-variance-authority`, `clsx`, `tailwind-merge`, `lucide-react` all work with Jest without needing transformIgnorePatterns
+- Toast replacement: 5 source files + 1 test + 1 hook (7 files) → 1 `<Toaster />` component already created in P4
+- PostDetail.jsx had stale import to old `../VideoPlayer/VideoPlayer` — fixed to `../shared/VideoPlayer`
 
 ---
 
