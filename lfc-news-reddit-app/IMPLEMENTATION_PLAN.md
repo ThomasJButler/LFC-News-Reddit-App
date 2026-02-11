@@ -9,12 +9,13 @@
 **Tech Stack:** Vite, React 18, Tailwind CSS v4, ShadCN (Radix UI), Redux + redux-thunk, Sonner, Lucide React, Vitest, Playwright
 
 > **Last audited:** 2026-02-11 (deep audit v4 — all src/, specs/, config, tests, ShadCN refs verified by parallel Opus/Sonnet agents; 12 errors corrected, 5 missing items added)
-> **Status:** Priorities 1-3 COMPLETED. Priority 4 (ShadCN Component Library Setup) is next. 8 priorities remain.
+> **Status:** Priorities 1-4 COMPLETED. Priority 5 (Leaf Component Rebuild) is next. 7 priorities remain.
 > **Current state:** Vite 7 + CSS Modules (19 files) + Black/White/Red themes (HSL + hex both active). API simplified (single proxy). Dev server on port 5173. Target: Tailwind + ShadCN + LFC personality.
 > **E2E test state:** Playwright config already targets Vite (port 5173) and `data-testid` selectors (38 unique attributes required). Tests reference `'black'` theme. They will NOT pass until the migration is complete. **Port fixed:** `npm run dev` now runs Vite on port 5173.
 > **Unit test state:** Jest via react-scripts. Tests reference `'green'` theme. Must migrate to Vitest and update theme references. 30 test files total: `src/utils/__tests__/` (6 files, ~2312 lines), `src/utils/formatDuration.test.js` (79 lines, misplaced outside `__tests__/`), `src/redux/__tests__/` (4 files, ~1370 lines), 19 component test files (Header has NO test), and `src/App.test.js`. All currently passing with Jest/CRA.
 > **Component inventory:** 19 component directories, 23 component files, all using CSS Modules, 0 with `data-testid` attributes in component source (only in 4 test files: Toast.test.js, PostList.test.js, PostDetail.test.js, Icon.test.js). Largest: CommentList (619 lines), PostDetail (542 lines), PostList (532 lines). 14 components use `prop-types` (bundled by `react-scripts`). Total component code: ~16,142 lines (source + CSS + tests).
-> **Existing directories that DON'T exist yet:** `src/components/ui/`, `src/components/shared/`, `src/components/posts/`, `src/components/layout/`, `src/components/comments/`, `src/components/lfc/`
+> **Existing directories that DON'T exist yet:** `src/components/shared/`, `src/components/posts/`, `src/components/layout/`, `src/components/comments/`, `src/components/lfc/`
+> **Already created:** `src/components/ui/` (16 ShadCN JSX components — created in Priority 4)
 > **Already created:** `src/lib/utils.js` (ShadCN `cn()` helper — created in Priority 1)
 > **CRA artifacts status:** `src/reportWebVitals.js`, `src/logo.svg` deleted. **Still present:** `public/index.html` (52-line CRA version with `%PUBLIC_URL%` placeholders — NOT deleted, contrary to previous audit claims), `src/index.js` (NOT renamed — both `index.js` and `main.jsx` coexist; has BROKEN import of deleted `reportWebVitals` at line 15), `src/index.css`, `src/App.css`, `src/setupTests.js` (needed for Jest until Vitest migration)
 > **Toast system:** `src/components/Toast/` (5 source files + 1 test file), `src/hooks/useToast.js` (custom hook), `ToastProvider` wrapped in both `src/index.js` AND `src/main.jsx` — all to be replaced by Sonner
@@ -110,29 +111,23 @@
 
 ---
 
-## Priority 4: ShadCN Component Library Setup
+## Priority 4: ShadCN Component Library Setup ✅ COMPLETED
 
 **Why fourth:** UI components need to be available before any component rebuild can begin.
 
 **Spec:** `specs/shadcn-ui-rebuild.md` (component list section)
 
-**Reference:** `ui/apps/v4/registry/new-york-v4/ui/` (56 TSX components available locally)
+**Completed 2026-02-11:**
 
-**Current state:** `src/components/ui/` directory does not exist.
+- [x] Created `src/components/ui/` directory with 16 JSX components converted from TSX reference
+- [x] Components: `card`, `button`, `badge`, `sheet`, `tabs`, `skeleton`, `scroll-area`, `separator`, `toggle`, `toggle-group`, `tooltip`, `select`, `avatar`, `input`, `collapsible`, `sonner`
+- [x] All TypeScript annotations removed, `"use client"` directives removed, file extensions changed to `.jsx`
+- [x] All imports use `@/lib/utils` for `cn()` and `radix-ui` package for Radix primitives
+- [x] `toggle-group.jsx`: import path fixed to `@/components/ui/toggle`
+- [x] `sonner.jsx`: `next-themes` replaced with `document.documentElement.getAttribute('data-theme')`, mapped to sonner's `'light'`/`'dark'` theme values
+- [x] Build succeeds, all 864 tests pass
 
-- [ ] Create `src/components/ui/` directory
-- [ ] Copy and convert TSX→JSX for these 16 components: `card`, `button`, `badge`, `sheet`, `tabs`, `skeleton`, `scroll-area`, `separator`, `toggle`, `toggle-group`, `tooltip`, `select`, `avatar`, `input`, `collapsible`, `sonner`
-- [ ] Conversion checklist per file:
-  - Remove all TypeScript type annotations (e.g., `React.ComponentProps<"div">`, `VariantProps<typeof X>`)
-  - Remove `"use client"` directives (not using Next.js)
-  - Change file extension from `.tsx` to `.jsx`
-  - Update imports to use `@/lib/utils` for `cn()` (path alias set up in Priority 1)
-  - Verify Radix UI import paths use `radix-ui` package (e.g., `import { Dialog } from "radix-ui"`)
-  - Keep `data-slot` attributes, CVA variant definitions, and `asChild`/`Slot` patterns
-- [ ] Special handling for `toggle-group.jsx`: update import of `toggleVariants` from `@/registry/new-york-v4/ui/toggle` to `@/components/ui/toggle`
-- [ ] Special handling for `sonner.jsx`: remove `next-themes` import (`useTheme`); replace with direct theme reading from `document.documentElement.getAttribute('data-theme')` or pass theme as prop. Remove TypeScript `ToasterProps` type cast. Reference sonner.tsx uses `next-themes` which is Next.js-only.
-- [ ] Ensure all Radix UI dependencies are installed (covered by Priority 1 `radix-ui` package)
-- [ ] Verify: each component imports and renders without build errors
+**Note:** Components are not yet imported by any app code — they'll be used starting in Priority 5.
 
 ---
 
