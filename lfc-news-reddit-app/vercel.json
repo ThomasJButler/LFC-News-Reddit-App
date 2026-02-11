@@ -1,0 +1,6 @@
+{
+  "rewrites": [
+    { "source": "/api/reddit", "destination": "/api/reddit" },
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
+  ]
+}
