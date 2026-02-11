@@ -188,44 +188,43 @@
   --skeleton-highlight: #d9d2c4;
 }
 
-/* Green Third Kit Theme */
-[data-theme="green"] {
-  --theme-primary: var(--lfc-green);
-  --theme-secondary: #008544;
+/* Black Third Kit Theme — OLED Friendly */
+[data-theme="black"] {
+  --theme-primary: var(--lfc-red);
+  --theme-secondary: #a00d26;
   --theme-accent: var(--lfc-white);
 
-  --bg-primary: #0a1a1a;
-  --bg-secondary: #0f2625;
-  --bg-tertiary: #1a3332;
+  --bg-primary: #000000;
+  --bg-secondary: #0a0a0a;
+  --bg-tertiary: #141414;
 
-  /* Skeleton Loading - Green theme shimmer */
+  /* Skeleton Loading - Black theme shimmer */
   --skeleton-base: var(--bg-secondary);
   --skeleton-highlight: var(--bg-tertiary);
-  --bg-glass: rgba(15, 38, 37, 0.8);
-  --bg-gradient: linear-gradient(135deg, var(--lfc-green) 0%, #008a82 100%);
+  --bg-glass: rgba(10, 10, 10, 0.8);
+  --bg-gradient: linear-gradient(135deg, #0a0a0a 0%, #000000 100%);
 
-  --text-primary: #ffffff;
-  --text-secondary: #b0d4d1;
-  /* Fixed: Changed from #6b9996 (4.02:1) to #7faaa7 (4.67:1) for WCAG AA compliance */
-  --text-muted: #7faaa7;
-  --text-accent: var(--lfc-green);
+  --text-primary: #e5e5e5;
+  --text-secondary: #a0a0a0;
+  --text-muted: #737373;
+  --text-accent: var(--lfc-red);
 
-  --accent: var(--lfc-green);
-  --accent-hover: #008544;
-  --accent-light: rgba(0, 166, 81, 0.15);
-  --accent-ultra-light: rgba(0, 166, 81, 0.05);
+  --accent: var(--lfc-red);
+  --accent-hover: #a00d26;
+  --accent-light: rgba(200, 16, 46, 0.15);
+  --accent-ultra-light: rgba(200, 16, 46, 0.05);
 
-  --glass-bg: rgba(0, 166, 81, 0.05);
-  --glass-border: rgba(0, 166, 81, 0.2);
-  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --glass-bg: rgba(200, 16, 46, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
 
-  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.5);
-  --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.6);
-  --shadow-theme: 0 8px 25px rgba(0, 166, 81, 0.4);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.6);
+  --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.7);
+  --shadow-theme: 0 8px 25px rgba(200, 16, 46, 0.3);
 
-  --border-color: rgba(0, 166, 81, 0.2);
-  --border-hover: rgba(0, 166, 81, 0.3);
+  --border-color: rgba(255, 255, 255, 0.08);
+  --border-hover: rgba(255, 255, 255, 0.15);
 }
 

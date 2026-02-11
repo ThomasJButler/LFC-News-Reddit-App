@@ -70,7 +70,7 @@ describe('ThemeSwitcher Component', () => {
 
       expect(screen.getByRole('button', { name: 'Anfield Red theme' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Away Day theme' })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: 'Keeper Kit theme' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Third Kit theme' })).toBeInTheDocument();
     });
 
     it('renders theme names as labels', () => {
@@ -79,7 +79,7 @@ describe('ThemeSwitcher Component', () => {
 
       expect(screen.getByText('Home')).toBeInTheDocument();
       expect(screen.getByText('Away')).toBeInTheDocument();
-      expect(screen.getByText('Keeper')).toBeInTheDocument();
+      expect(screen.getByText('Third')).toBeInTheDocument();
     });
 
     it('renders label with palette icon', () => {
@@ -102,13 +102,13 @@ describe('ThemeSwitcher Component', () => {
 
   describe('Initial State', () => {
     it('uses saved theme from localStorage if available', () => {
-      localStorageMock.getItem.mockReturnValueOnce('green');
+      localStorageMock.getItem.mockReturnValueOnce('black');
       window.matchMedia = mockMatchMedia(false);
 
       render(<ThemeSwitcher />);
 
-      const greenButton = screen.getByRole('button', { name: 'Keeper Kit theme' });
-      expect(greenButton).toHaveAttribute('aria-pressed', 'true');
+      const blackButton = screen.getByRole('button', { name: 'Third Kit theme' });
+      expect(blackButton).toHaveAttribute('aria-pressed', 'true');
     });
 
     it('uses red theme as default regardless of system preference', () => {
@@ -134,13 +134,13 @@ describe('ThemeSwitcher Component', () => {
   });
 
   describe('Theme Application', () => {
-    it('applies red theme by removing data-theme attribute', () => {
+    it('applies red theme by setting data-theme to red', () => {
       localStorageMock.getItem.mockReturnValueOnce('red');
       window.matchMedia = mockMatchMedia(false);
 
       render(<ThemeSwitcher />);
 
-      expect(document.documentElement.hasAttribute('data-theme')).toBe(false);
+      expect(document.documentElement.getAttribute('data-theme')).toBe('red');
     });
 
     it('applies white theme by setting data-theme attribute', () => {
@@ -152,13 +152,13 @@ describe('ThemeSwitcher Component', () => {
       expect(document.documentElement.getAttribute('data-theme')).toBe('white');
     });
 
-    it('applies green theme by setting data-theme attribute', () => {
-      localStorageMock.getItem.mockReturnValueOnce('green');
+    it('applies black theme by setting data-theme attribute', () => {
+      localStorageMock.getItem.mockReturnValueOnce('black');
       window.matchMedia = mockMatchMedia(false);
 
       render(<ThemeSwitcher />);
 
-      expect(document.documentElement.getAttribute('data-theme')).toBe('green');
+      expect(document.documentElement.getAttribute('data-theme')).toBe('black');
     });
   });
 
@@ -170,10 +170,10 @@ describe('ThemeSwitcher Component', () => {
 
       render(<ThemeSwitcher />);
 
-      const greenButton = screen.getByRole('button', { name: 'Keeper Kit theme' });
-      await user.click(greenButton);
+      const blackButton = screen.getByRole('button', { name: 'Third Kit theme' });
+      await user.click(blackButton);
 
-      expect(document.documentElement.getAttribute('data-theme')).toBe('green');
+      expect(document.documentElement.getAttribute('data-theme')).toBe('black');
     });
 
     it('persists theme selection to localStorage', async () => {
@@ -183,26 +183,26 @@ describe('ThemeSwitcher Component', () => {
 
       render(<ThemeSwitcher />);
 
-      const greenButton = screen.getByRole('button', { name: 'Keeper Kit theme' });
-      await user.click(greenButton);
+      const blackButton = screen.getByRole('button', { name: 'Third Kit theme' });
+      await user.click(blackButton);
 
-      expect(localStorageMock.setItem).toHaveBeenCalledWith('lfc-theme', 'green');
+      expect(localStorageMock.setItem).toHaveBeenCalledWith('lfc-theme', 'black');
     });
 
-    it('removes data-theme attribute when switching back to red', async () => {
+    it('sets data-theme to red when switching back to red', async () => {
       const user = userEvent.setup();
-      localStorageMock.getItem.mockReturnValueOnce('green');
+      localStorageMock.getItem.mockReturnValueOnce('black');
       window.matchMedia = mockMatchMedia(false);
 
       render(<ThemeSwitcher />);
 
-      // Verify green theme is initially applied
-      expect(document.documentElement.getAttribute('data-theme')).toBe('green');
+      // Verify black theme is initially applied
+      expect(document.documentElement.getAttribute('data-theme')).toBe('black');
 
       const redButton = screen.getByRole('button', { name: 'Anfield Red theme' });
       await user.click(redButton);
 
-      expect(document.documentElement.hasAttribute('data-theme')).toBe(false);
+      expect(document.documentElement.getAttribute('data-theme')).toBe('red');
     });
 
     it('updates aria-pressed when theme changes', async () => {
@@ -253,7 +253,7 @@ describe('ThemeSwitcher Component', () => {
 
       expect(screen.getByLabelText('Anfield Red theme')).toBeInTheDocument();
       expect(screen.getByLabelText('Away Day theme')).toBeInTheDocument();
-      expect(screen.getByLabelText('Keeper Kit theme')).toBeInTheDocument();
+      expect(screen.getByLabelText('Third Kit theme')).toBeInTheDocument();
     });
 
     it('all buttons have type="button"', () => {
@@ -279,15 +279,15 @@ describe('ThemeSwitcher Component', () => {
       expect(colorSwatches.length).toBeGreaterThan(0);
     });
 
-    it('shows correct color for green theme button', async () => {
+    it('shows correct color for black theme button', async () => {
       const user = userEvent.setup();
       localStorageMock.getItem.mockReturnValueOnce('red');
       window.matchMedia = mockMatchMedia(false);
 
       render(<ThemeSwitcher />);
 
-      const greenButton = screen.getByRole('button', { name: 'Keeper Kit theme' });
-      await user.click(greenButton);
+      const blackButton = screen.getByRole('button', { name: 'Third Kit theme' });
+      await user.click(blackButton);
 
       // Check the color swatch elements exist
       const colorSwatches = document.querySelectorAll('[style*="background-color"]');
@@ -312,11 +312,11 @@ describe('ThemeSwitcher Component', () => {
 
       render(<ThemeSwitcher />);
 
-      const greenButton = screen.getByRole('button', { name: 'Keeper Kit theme' });
-      greenButton.focus();
+      const blackButton = screen.getByRole('button', { name: 'Third Kit theme' });
+      blackButton.focus();
       await user.keyboard('{Enter}');
 
-      expect(document.documentElement.getAttribute('data-theme')).toBe('green');
+      expect(document.documentElement.getAttribute('data-theme')).toBe('black');
     });
 
     it('can select theme with Space key', async () => {

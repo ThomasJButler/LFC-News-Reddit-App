@@ -1,0 +1,93 @@
+@import "tailwindcss";
+
+/*
+ * LFC Theme System — Three kit-inspired themes using ShadCN CSS custom properties.
+ * HSL values without hsl() wrapper as expected by ShadCN/Tailwind.
+ *
+ * Red (Home Kit): Dark bg, LFC red accents — Anfield under floodlights
+ * White (Away Kit): Warm cream bg, red accents — crisp away day feel
+ * Black (Third Kit): Pure black OLED-friendly, red accents — night mode
+ *
+ * Primary color #C8102E (LFC Red) = 349 85% 43% is constant across all themes.
+ */
+
+/* ── Red Theme (Default) ─────────────────────────────────────────── */
+:root {
+  --background: 0 0% 6%;
+  --foreground: 0 0% 100%;
+  --card: 0 0% 10%;
+  --card-foreground: 0 0% 100%;
+  --popover: 0 0% 10%;
+  --popover-foreground: 0 0% 100%;
+  --primary: 349 85% 43%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 0 0% 15%;
+  --secondary-foreground: 0 0% 100%;
+  --muted: 0 0% 15%;
+  --muted-foreground: 0 0% 50%;
+  --accent: 349 85% 43%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 72% 51%;
+  --border: 0 0% 15%;
+  --input: 0 0% 15%;
+  --ring: 349 85% 43%;
+  --radius: 0.75rem;
+}
+
+/* ── White Theme (Away Kit) ──────────────────────────────────────── */
+[data-theme="white"] {
+  --background: 36 33% 93%;
+  --foreground: 0 0% 10%;
+  --card: 37 47% 97%;
+  --card-foreground: 0 0% 10%;
+  --popover: 37 47% 97%;
+  --popover-foreground: 0 0% 10%;
+  --primary: 349 85% 43%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 34 22% 88%;
+  --secondary-foreground: 0 0% 10%;
+  --muted: 34 22% 88%;
+  --muted-foreground: 0 0% 45%;
+  --accent: 349 85% 43%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 72% 51%;
+  --border: 0 0% 0% / 0.1;
+  --input: 0 0% 0% / 0.1;
+  --ring: 349 85% 43%;
+}
+
+/* ── Black Theme (Third Kit / OLED) ──────────────────────────────── */
+[data-theme="black"] {
+  --background: 0 0% 0%;
+  --foreground: 0 0% 90%;
+  --card: 0 0% 4%;
+  --card-foreground: 0 0% 90%;
+  --popover: 0 0% 4%;
+  --popover-foreground: 0 0% 90%;
+  --primary: 349 85% 43%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 0 0% 8%;
+  --secondary-foreground: 0 0% 90%;
+  --muted: 0 0% 8%;
+  --muted-foreground: 0 0% 45%;
+  --accent: 349 85% 43%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 72% 51%;
+  --border: 0 0% 100% / 0.08;
+  --input: 0 0% 100% / 0.08;
+  --ring: 349 85% 43%;
+}
+
+/* ── Base Styles ─────────────────────────────────────────────────── */
+* {
+  border-color: hsl(var(--border));
+}
+
+body {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+               Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

@@ -196,18 +196,18 @@ describe('BottomNav Component', () => {
       fireEvent.click(themeButton);
       expect(localStorageMock.setItem).toHaveBeenCalledWith('lfc-theme', 'white');
 
-      // Second click: white -> green
+      // Second click: white -> black
       fireEvent.click(themeButton);
-      expect(localStorageMock.setItem).toHaveBeenCalledWith('lfc-theme', 'green');
+      expect(localStorageMock.setItem).toHaveBeenCalledWith('lfc-theme', 'black');
 
-      // Third click: green -> red (only 3 themes now)
+      // Third click: black -> red (only 3 themes)
       fireEvent.click(themeButton);
       expect(localStorageMock.setItem).toHaveBeenCalledWith('lfc-theme', 'red');
     });
 
-    it('removes data-theme attribute when cycling to red theme', () => {
+    it('sets data-theme to red when cycling back to red theme', () => {
       localStorageMock.store['lfc-theme'] = 'red';
-      document.documentElement.setAttribute('data-theme', 'green');
+      document.documentElement.setAttribute('data-theme', 'black');
 
       renderWithStore(store);
 
@@ -215,10 +215,10 @@ describe('BottomNav Component', () => {
 
       // Click 3 times to cycle through and back to red (only 3 themes)
       fireEvent.click(themeButton); // white
-      fireEvent.click(themeButton); // green
+      fireEvent.click(themeButton); // black
       fireEvent.click(themeButton); // red
 
-      expect(document.documentElement.hasAttribute('data-theme')).toBe(false);
+      expect(document.documentElement.getAttribute('data-theme')).toBe('red');
     });
   });
 

@@ -16,9 +16,7 @@
     <script>
       (function() {
         var theme = localStorage.getItem('lfc-theme');
-        if (theme && theme !== 'red') {
-          document.documentElement.setAttribute('data-theme', theme);
-        }
+        document.documentElement.setAttribute('data-theme', theme || 'red');
       })();
     </script>
   </head>

@@ -1,7 +1,7 @@
 /**
  * @author Tom Butler
  * @date 2025-10-22
- * @description Theme switcher for Liverpool FC colour schemes (red, white, green).
+ * @description Theme switcher for Liverpool FC colour schemes (red, white, black).
  *              Uses visual button group with colour swatches for desktop.
  *              Persists selection to localStorage and applies via data attributes.
  */
@@ -16,11 +16,11 @@ import styles from './ThemeSwitcher.module.css';
  */
 const ThemeSwitcher = () => {
   // WHY: LFC-branded theme names connect with fans emotionally (kit references)
-  // WHY: Only 3 themes matching Liverpool FC kits - Home (red), Away (white/cream), Keeper (green)
+  // WHY: Only 3 themes matching Liverpool FC kits - Home (red), Away (white/cream), Third (black/OLED)
   const themes = [
     { id: 'red', name: 'Anfield Red', shortName: 'Home', color: '#C8102E', description: 'Home Kit' },
     { id: 'white', name: 'Away Day', shortName: 'Away', color: '#f5f0e8', description: 'Away Kit' },
-    { id: 'green', name: 'Keeper Kit', shortName: 'Keeper', color: '#00A651', description: 'Goalkeeper' }
+    { id: 'black', name: 'Third Kit', shortName: 'Third', color: '#000000', description: 'Third Kit' }
   ];
 
   // WHY: Default to red (home kit) as the primary LFC theme
@@ -42,12 +42,7 @@ const ThemeSwitcher = () => {
   }, [currentTheme]);
 
   const applyTheme = (theme) => {
-    const root = document.documentElement;
-    if (theme === 'red') {
-      root.removeAttribute('data-theme');
-    } else {
-      root.setAttribute('data-theme', theme);
-    }
+    document.documentElement.setAttribute('data-theme', theme);
   };
 
   const handleThemeChange = (themeId) => {

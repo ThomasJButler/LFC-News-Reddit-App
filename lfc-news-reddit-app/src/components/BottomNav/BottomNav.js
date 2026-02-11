@@ -73,11 +73,11 @@ const BottomNav = () => {
 
   /**
    * Handle Theme button click
-   * WHY: Cycle through 3 LFC kit themes (red → white → green)
+   * WHY: Cycle through 3 LFC kit themes (red → white → black)
    * Matches ThemeSwitcher pattern but optimized for mobile single-tap cycling
    */
   const handleThemeClick = () => {
-    const themes = ['red', 'white', 'green'];
+    const themes = ['red', 'white', 'black'];
     const currentIndex = themes.indexOf(currentTheme);
     const nextTheme = themes[(currentIndex + 1) % 3];
 
@@ -85,12 +85,7 @@ const BottomNav = () => {
     localStorage.setItem('lfc-theme', nextTheme);
 
     // Apply theme to document root (matches ThemeSwitcher implementation)
-    const root = document.documentElement;
-    if (nextTheme === 'red') {
-      root.removeAttribute('data-theme');
-    } else {
-      root.setAttribute('data-theme', nextTheme);
-    }
+    document.documentElement.setAttribute('data-theme', nextTheme);
   };
 
   /**
