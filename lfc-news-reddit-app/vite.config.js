@@ -119,6 +119,18 @@ export default defineConfig({
     },
   },
   build: {
+    // Only preload chunks needed for the initial page render.
+    // vendor-markdown, vendor-syntax, vendor-video are loaded lazily when
+    // PostDetail opens — preloading them wastes ~1MB of bandwidth on page load.
+    modulePreload: {
+      resolveDependencies: (filename, deps) => {
+        return deps.filter(dep =>
+          !dep.includes('vendor-markdown') &&
+          !dep.includes('vendor-syntax') &&
+          !dep.includes('vendor-video')
+        );
+      },
+    },
     rollupOptions: {
       output: {
         manualChunks: {

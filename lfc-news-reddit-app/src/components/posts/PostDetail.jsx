@@ -9,6 +9,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { sanitizeUrl } from '../../utils/sanitize';
 import VideoPlayer from '../shared/VideoPlayer';
+import CodeBlock from '../shared/CodeBlock';
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
@@ -353,12 +354,13 @@ const PostDetail = () => {
             {/* Markdown content */}
             {currentPost.selftext && (
               <div className={cn(
-                'prose prose-sm max-w-none',
-                'prose-headings:text-foreground prose-p:text-foreground/90',
+                'prose max-w-none text-foreground',
+                '[&_p]:text-inherit [&_li]:text-inherit',
+                'prose-headings:text-foreground prose-p:text-foreground',
                 'prose-a:text-primary prose-a:no-underline hover:prose-a:underline',
                 'prose-strong:text-foreground prose-code:text-primary',
                 'prose-blockquote:border-primary/30 prose-blockquote:text-muted-foreground',
-                readingMode && 'text-base md:text-lg leading-relaxed'
+                readingMode && 'text-lg md:text-xl leading-relaxed'
               )}>
                 <ReactMarkdown
                   remarkPlugins={[remarkGfm]}
@@ -375,7 +377,12 @@ const PostDetail = () => {
                           {children}
                         </a>
                       );
-                    }
+                    },
+                    code: ({ inline, className, children }) => (
+                      <CodeBlock inline={inline} className={className}>
+                        {children}
+                      </CodeBlock>
+                    ),
                   }}
                 >
                   {currentPost.selftext}

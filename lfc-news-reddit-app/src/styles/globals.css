@@ -10,37 +10,37 @@
  *
  * Primary color #D00027 (Vivid Crimson) = 349 100% 41% is constant across all themes.
  *
- * Typography: Barlow Condensed (display/headings) + DM Sans (body).
+ * Typography: Barlow Condensed (display/headings) + system UI (body).
  * Barlow Condensed gives that athletic, editorial, matchday-programme feel.
- * DM Sans is clean and readable without being generic.
+ * System UI fonts (SF Pro, Roboto, Segoe UI) give native readability.
  */
 
 /* ── Font Custom Properties ──────────────────────────────────────── */
 :root {
   --font-display: 'Barlow Condensed', 'Impact', 'Arial Narrow', sans-serif;
-  --font-body: 'DM Sans', system-ui, -apple-system, sans-serif;
+  --font-body: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 /* ── Red Theme (Default) ─────────────────────────────────────────── */
-/* Warm red-tinted dark — Anfield under floodlights, not neutral black. */
+/* Warm crimson-tinted dark — Anfield under floodlights. */
 :root {
-  --background: 349 25% 8%;
+  --background: 349 40% 7%;
   --foreground: 0 0% 100%;
-  --card: 349 18% 12%;
+  --card: 349 30% 11%;
   --card-foreground: 0 0% 100%;
-  --popover: 349 18% 12%;
+  --popover: 349 30% 11%;
   --popover-foreground: 0 0% 100%;
   --primary: 349 100% 41%;
   --primary-foreground: 0 0% 100%;
-  --secondary: 349 12% 18%;
+  --secondary: 349 25% 16%;
   --secondary-foreground: 0 0% 100%;
-  --muted: 349 12% 18%;
+  --muted: 349 25% 16%;
   --muted-foreground: 0 0% 55%;
   --accent: 349 100% 41%;
   --accent-foreground: 0 0% 100%;
   --destructive: 0 72% 51%;
-  --border: 349 10% 20%;
-  --input: 349 10% 20%;
+  --border: 349 20% 18%;
+  --input: 349 20% 18%;
   --ring: 349 100% 41%;
   --radius: 0.75rem;
 }
@@ -58,12 +58,12 @@
   --secondary: 34 22% 88%;
   --secondary-foreground: 0 0% 10%;
   --muted: 34 22% 88%;
-  --muted-foreground: 0 0% 45%;
+  --muted-foreground: 0 0% 35%;
   --accent: 349 100% 41%;
   --accent-foreground: 0 0% 100%;
   --destructive: 0 72% 51%;
-  --border: 0 0% 0% / 0.1;
-  --input: 0 0% 0% / 0.1;
+  --border: 0 0% 0% / 0.15;
+  --input: 0 0% 0% / 0.15;
   --ring: 349 100% 41%;
 }
 
@@ -98,6 +98,7 @@ body {
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
   font-family: var(--font-body);
+  font-size: 16px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   /* Smooth theme transition — crossfade instead of hard cut */
@@ -109,4 +110,3 @@ h1, h2, h3, h4 {
   font-family: var(--font-display);
   letter-spacing: -0.01em;
 }
-

@@ -9,7 +9,7 @@
 **Tech Stack:** Vite, React 18, Tailwind CSS v4, ShadCN (Radix UI), Redux + redux-thunk, Sonner, Lucide React, Vitest, Playwright
 
 > **Last audited:** 2026-02-12 (deep audit v7 — clipboard robustness, error feedback, pull-to-refresh fix in P12k.)
-> **Status:** ALL PRIORITIES COMPLETED (1-12k). Full rebuild verified end-to-end. Build passes, 381 unit tests pass (13 suites, Vitest), 242 E2E tests pass (Playwright), 183 visual snapshots generated.
+> **Status:** ALL PRIORITIES COMPLETED (1-12l). Full rebuild verified end-to-end. Build passes, 369 unit tests pass (13 suites, Vitest — 12 tests for removed dead `renderMarkdown` function cleaned up), 242 E2E tests pass (Playwright), 183 visual snapshots generated.
 > **Current state:** Vite 7 + Tailwind CSS v4 + ShadCN + 3 HSL themes (Red/White/Black). API simplified to single `/api/reddit` proxy. Dev server on port 5173. All 35 components rebuilt with Tailwind + ShadCN. Vitest 4.x replaces Jest. 12 test suites, 374 tests run in ~3.4s under Vitest. Coverage thresholds enforced on src/utils/, src/redux/, src/lib/ (80% statements, 72% branches, 75% functions). `src/main.jsx` imports `./styles/globals.css` correctly. `App.jsx` wires all rebuilt components. Sonner Toaster active. All LFC personality components integrated (lfcData.js, LfcLoadingMessages, LfcTrivia, LfcFooter).
 > **Verified complete:** `src/components/ui/` (16 ShadCN JSX — no TSX, no `use client`, no `@radix-ui/react-*`, all use unified `radix-ui`), `src/components/comments/` (3), `src/components/layout/` (5), `src/components/posts/` (4), `src/components/shared/` (6), `src/components/lfc/SpicyMeter.jsx` (LFC names already applied: Reserves/League Cup/Premier League/Champions League/Istanbul 2005/YNWA)
 > **Config verified:** `vite.config.js` (React plugin + jsxInJsPlugin + @/ alias + dev proxy + test: block for Vitest), `postcss.config.js` (@tailwindcss/postcss), `vercel.json` (dist output + rewrites), `package.json` (Vite scripts)
@@ -534,8 +534,29 @@ All modifications complete. No remaining changes.
 - Redux thunks that catch errors internally (dispatching FAILURE actions) never throw — callers cannot use `try/catch`. Use `store.getState()` to check error state after awaiting the dispatch.
 - `useStore()` from react-redux provides synchronous access to `getState()` inside callbacks, avoiding the stale-closure problem of reading selector values.
 
+### 12l: Bundle Performance — Deferred Vendor Chunks ✅ COMPLETED
+
+**Completed 2026-02-12:**
+
+- [x] **Dead code elimination in markdown.js** — `renderMarkdown()` function imported `CodeBlock` → `react-syntax-highlighter` (640kB), but no component called `renderMarkdown` (PostDetail and Comment both render their own inline `<ReactMarkdown>`). Removed the function and its `ReactMarkdown`/`CodeBlock`/`remarkGfm` imports from `markdown.js`, leaving only the text utilities (`decodeHtml`, `stripMarkdown`) that `PostItem` uses for previews.
+- [x] **CodeBlock wired into PostDetail and Comment** — Added `CodeBlock` import and `code` component override to both components' `<ReactMarkdown>` configurations. Since both are in the lazy-loaded PostDetail chunk, `react-syntax-highlighter` only loads when a user opens a post — never on initial page load.
+- [x] **modulePreload filtering** — Vite was eagerly preloading `vendor-markdown` (144kB) and `vendor-syntax` (640kB) via `<link rel="modulepreload">` in `index.html`, even though they're only needed for the lazy PostDetail sheet. Added `build.modulePreload.resolveDependencies` filter in `vite.config.js` to skip preloading `vendor-markdown`, `vendor-syntax`, and `vendor-video` chunks.
+- [x] **Markdown test cleanup** — Removed 12 tests for the dead `renderMarkdown` function. Updated test file description to reflect the text-utility focus.
+- [x] Build passes, 369 unit tests pass (13 suites, Vitest)
+
+**Key learnings:**
+- `markdown.js` importing `CodeBlock` for `renderMarkdown` (only used in tests) pulled 640kB of `react-syntax-highlighter` into the main bundle via the `PostItem` → `markdown.js` import chain — a classic tree-shaking failure where a side-effect import in a utility file defeats code splitting
+- Vite's `modulePreload` generates `<link rel="modulepreload">` for lazy chunk dependencies by default — this can negate code splitting benefits by eagerly downloading heavy chunks
+- `build.modulePreload.resolveDependencies` lets you selectively filter which chunks get preloaded, keeping initial page load lean
+
+**Performance impact:**
+- Main bundle: 146.39kB → 140.18kB (saved 6.2kB — CodeBlock/markdown no longer in main entry)
+- Initial preloads: removed ~784kB of `modulepreload` hints (vendor-markdown 144kB + vendor-syntax 640kB)
+- PostDetail chunk: 25.52kB → 31.79kB (CodeBlock moved here, where it belongs)
+- Net initial load savings: ~784kB of deferred network requests
+
 ### 12i: Remaining (not blocking)
 
 - [ ] Verify end-to-end on Vercel production deployment
 - [ ] E2E visual regression screenshots may need regeneration after red theme color change
-- [ ] vendor-syntax (640kB) and vendor-video (521kB) chunks >500kB — inherent library sizes, already code-split
+- [ ] vendor-syntax (640kB) and vendor-video (521kB) chunks >500kB — inherent library sizes, already code-split and deferred from initial load via modulePreload filtering

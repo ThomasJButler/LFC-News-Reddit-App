@@ -1,50 +1,9 @@
 /**
  * @author Tom Butler
  * @date 2025-10-22
- * @description Markdown rendering configuration with GitHub-flavoured markdown support.
- *              Configures safe link handling and code block styling.
+ * @description Text utilities for markdown content: HTML entity decoding and
+ *              markdown-to-plaintext stripping for post previews.
  */
-
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import CodeBlock from '../components/shared/CodeBlock';
-
-/**
- * @param {string} content - Markdown content to render
- * @return {Object|null} ReactMarkdown component configuration or null if no content
- */
-export const renderMarkdown = (content) => {
-  if (!content) return null;
-  
-  return {
-    Component: ReactMarkdown,
-    props: {
-      children: content,
-      remarkPlugins: [remarkGfm],
-      components: {
-        a: ({ href, children }) => {
-          // Extract text content for aria-label (WHY: screen readers need descriptive label for external links)
-          const linkText = typeof children === 'string' ? children : 'link';
-          return (
-            <a
-              href={href}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={`${linkText} (opens in new tab)`}
-            >
-              {children}
-            </a>
-          );
-        },
-        code: ({ inline, className, children }) => (
-          <CodeBlock inline={inline} className={className}>
-            {children}
-          </CodeBlock>
-        )
-      }
-    }
-  };
-};
 
 /**
  * @param {string} html - HTML-encoded string to decode

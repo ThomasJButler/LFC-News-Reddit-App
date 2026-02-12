@@ -3,6 +3,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { formatRelativeTime } from '../../utils/formatTime';
 import { sanitizeUrl } from '../../utils/sanitize';
+import CodeBlock from '../shared/CodeBlock';
 import Avatar from '../shared/Avatar';
 import { Badge } from '@/components/ui/badge';
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible';
@@ -228,7 +229,7 @@ const Comment = ({
         {/* Comment body: markdown + media + action buttons */}
         {!collapsed && (
           <div className="mt-1.5 pl-8">
-            <div className="prose prose-sm max-w-none text-foreground/90 prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-p:my-1 prose-p:leading-relaxed">
+            <div className="prose max-w-none text-foreground [&_p]:text-inherit [&_li]:text-inherit prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-p:my-1 prose-p:leading-relaxed">
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 components={{
@@ -311,6 +312,11 @@ const Comment = ({
                       <img src={sanitizeUrl(src)} alt={alt} className="w-full max-h-80 object-contain rounded-lg" loading="lazy" />
                     );
                   },
+                  code: ({ inline, className, children }) => (
+                    <CodeBlock inline={inline} className={className}>
+                      {children}
+                    </CodeBlock>
+                  ),
                 }}
               >
                 {comment.body}

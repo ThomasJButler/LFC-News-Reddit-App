@@ -1,64 +1,16 @@
 /**
  * @author Tom Butler
  * @date 2026-01-21
- * @description Unit tests for markdown rendering and utility functions.
+ * @description Unit tests for markdown text utility functions.
  *
  * WHY these tests matter:
- * - Markdown rendering is used for post content and comments from Reddit
- * - decodeHtml prevents display issues from encoded entities
- * - stripMarkdown is essential for preview text generation
- * - Link safety ensures external links don't compromise security
+ * - decodeHtml prevents display issues from encoded entities in Reddit content
+ * - stripMarkdown is essential for preview text generation in PostItem cards
+ * - Both are pure text transforms with no React dependencies, keeping the
+ *   main bundle lean (ReactMarkdown rendering happens in lazy-loaded PostDetail)
  */
 
-import { renderMarkdown, decodeHtml, stripMarkdown } from '../markdown';
-
-describe('renderMarkdown', () => {
-  it('should return null for empty content', () => {
-    expect(renderMarkdown('')).toBeNull();
-  });
-
-  it('should return null for null content', () => {
-    expect(renderMarkdown(null)).toBeNull();
-  });
-
-  it('should return null for undefined content', () => {
-    expect(renderMarkdown(undefined)).toBeNull();
-  });
-
-  it('should return configuration object for valid content', () => {
-    const result = renderMarkdown('# Hello');
-
-    expect(result).not.toBeNull();
-    expect(result).toHaveProperty('Component');
-    expect(result).toHaveProperty('props');
-  });
-
-  it('should include remarkGfm plugin in props', () => {
-    const result = renderMarkdown('**bold** text');
-
-    expect(result.props.remarkPlugins).toBeDefined();
-    expect(result.props.remarkPlugins).toHaveLength(1);
-  });
-
-  it('should include custom components for links', () => {
-    const result = renderMarkdown('[link](https://example.com)');
-
-    expect(result.props.components).toHaveProperty('a');
-  });
-
-  it('should include custom components for code blocks', () => {
-    const result = renderMarkdown('```js\ncode\n```');
-
-    expect(result.props.components).toHaveProperty('code');
-  });
-
-  it('should pass content as children prop', () => {
-    const content = '# Test Markdown';
-    const result = renderMarkdown(content);
-
-    expect(result.props.children).toBe(content);
-  });
-});
+import { decodeHtml, stripMarkdown } from '../markdown';
 
 describe('decodeHtml', () => {
   // Note: decodeHtml uses document.createElement which requires DOM environment
@@ -309,45 +261,5 @@ describe('stripMarkdown', () => {
 
       expect(result).toBe('BREAKING: Liverpool sign new player! More details at link');
     });
-  });
-});
-
-describe('link component accessibility', () => {
-  it('should render links with target="_blank"', () => {
-    const result = renderMarkdown('[link](https://example.com)');
-    const linkComponent = result.props.components.a;
-
-    // Test the link component renders correctly
-    const link = linkComponent({ href: 'https://example.com', children: 'link' });
-
-    expect(link.props.target).toBe('_blank');
-  });
-
-  it('should render links with rel="noopener noreferrer"', () => {
-    const result = renderMarkdown('[link](https://example.com)');
-    const linkComponent = result.props.components.a;
-
-    const link = linkComponent({ href: 'https://example.com', children: 'link' });
-
-    expect(link.props.rel).toBe('noopener noreferrer');
-  });
-
-  it('should render links with aria-label for screen readers', () => {
-    const result = renderMarkdown('[Reddit](https://reddit.com)');
-    const linkComponent = result.props.components.a;
-
-    const link = linkComponent({ href: 'https://reddit.com', children: 'Reddit' });
-
-    expect(link.props['aria-label']).toBe('Reddit (opens in new tab)');
-  });
-
-  it('should handle non-string children in links', () => {
-    const result = renderMarkdown('[link](url)');
-    const linkComponent = result.props.components.a;
-
-    // Non-string children (like React elements) should use fallback label
-    const link = linkComponent({ href: 'url', children: ['element', 'array'] });
-
-    expect(link.props['aria-label']).toBe('link (opens in new tab)');
   });
 });

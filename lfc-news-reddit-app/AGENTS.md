@@ -20,7 +20,7 @@ Run these after implementing to get immediate feedback:
 - Dev API proxy: Handled by Vite middleware plugin in `vite.config.js` — no separate server needed. `npm run dev` serves `/api/reddit` requests directly.
 - Vercel serverless function: `api/reddit.js` — CORS proxy to Reddit API with retry logic for rate-limiting.
 - Redux state management: `src/redux/` (store, actions, reducers) — keep unchanged unless a spec explicitly requires changes
-- Utilities: `src/utils/` (api.js, cache.js, formatTime.js, formatDuration.js, colorHash.js, sanitize.js, markdown.js)
+- Utilities: `src/utils/` (api.js, cache.js, formatTime.js, formatDuration.js, colorHash.js, sanitize.js, markdown.js). Note: `markdown.js` contains only text utilities (`decodeHtml`, `stripMarkdown`) — no React imports. ReactMarkdown rendering is done inline in PostDetail and Comment components.
 - Deployment: Vercel auto-deploys from git push. Config in `vercel.json`
 - Build tool: Vite 7. Dev server on port 5173. Tests run under Vitest (no Jest/react-scripts).
 
