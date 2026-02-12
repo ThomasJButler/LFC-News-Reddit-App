@@ -6,7 +6,7 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Bird, Code, Heart } from 'lucide-react';
+import { Bird, Code, Coffee, Heart } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { antiClickbaitMessages } from '../../utils/lfcData';
 import { cn } from '@/lib/utils';
@@ -80,6 +80,17 @@ const LfcFooter = () => {
             >
               <Code className="size-3" aria-hidden="true" />
               <span className="font-medium">Thomas Butler</span>
+            </a>
+            <span className="text-border">&middot;</span>
+            <a
+              href="https://buymeacoffee.com/ojrwoqkgmv"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 hover:text-foreground/70 transition-colors"
+              aria-label="Buy me a coffee (opens in new tab)"
+            >
+              <Coffee className="size-3" aria-hidden="true" />
+              <span className="font-medium">Buy Me a Coffee</span>
             </a>
           </div>
         </div>

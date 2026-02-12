@@ -36,7 +36,7 @@ function App() {
       <div
         className="fixed inset-x-0 top-0 h-[200px] pointer-events-none z-0"
         style={{
-          background: 'radial-gradient(ellipse 80% 100% at 50% 0%, hsl(349 85% 43% / 0.04) 0%, transparent 70%)',
+          background: 'radial-gradient(ellipse 80% 100% at 50% 0%, hsl(349 100% 41% / 0.08) 0%, transparent 70%)',
         }}
         aria-hidden="true"
       />
