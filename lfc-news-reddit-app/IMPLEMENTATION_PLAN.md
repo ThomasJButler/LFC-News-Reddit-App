@@ -434,262 +434,51 @@ All modifications complete. No remaining changes.
 - **Typography gap:** `globals.css` currently uses generic `system-ui` font stack. P10b adds distinctive LFC-branded typography.
 - **api.js actual size:** 250 lines (plan estimated ~156; slightly larger due to fuller JSDoc comments and more robust error handling — this is acceptable)
 
-## Audit Findings (2026-02-11, v2)
+## Priority 12: Post-Launch Fixes (2026-02-12) ✅ IN PROGRESS
 
-### Confirmed by deep codebase analysis (6 parallel research agents):
-- All 11 priorities are correctly ordered with valid dependencies
-- All "Files to Preserve" are verified present and complete (no modifications needed)
-- All "Files to Modify" are verified present in their current state
-- ShadCN v4 reference directory (`ui/apps/v4/registry/new-york-v4/ui/`) contains all **16** required components in TSX format (15 from spec table + sonner)
-- Radix UI v4 imports use `radix-ui` package format (e.g., `import { Dialog } from "radix-ui"`) — confirmed in reference components
-- `react-window` is used by both `PostList.js` (line ~532) and `CommentList.js` (line ~619) with threshold 999 (effectively disabled) — removal in Priorities 6 and 8 is correct
-- Redux state shape verified: `posts` (10 properties), `comments` (3 properties), `subreddits` (2 properties)
-- 6 of 18 components are Redux-connected (BottomNav, PostDetail, PostItem, PostList, SearchBar, SubredditFilter have useSelector/useDispatch)
-- `api.js` confirmed at 463 lines with 6 CORS proxies, `isMobile()`, `tryProxy()`, `tryVercelProxy()` — all targeted for removal in Priority 2
-- SpicyMeter currently uses generic level names (confirmed via code review): Cool/Mild/Warm/Hot/Blazing/Legendary at thresholds 100/500/1000/5000/10000
-- `src/utils/lfcData.js` does NOT exist — must be created in Priority 10
-- `src/styles/globals.css` does NOT exist — must be created in Priority 3
-- `vercel.json` currently has only `rewrites` — needs `buildCommand` and `outputDirectory` added in Priority 1
-- `.gitignore` has `/build` but NOT `/dist` — needs update in Priority 1
-- Zero TODO/FIXME/HACK comments in source code
-- No tsconfig.json or jsconfig.json exists (pure JS project)
-- `src/hooks/useToast.js` exists and imports from ToastProvider — must be deleted in Priority 9
-- `src/utils/formatDuration.test.js` is misplaced outside `__tests__/` directory
-- Header component has NO test file (only component without one)
-- 14 component files import `prop-types` (not just SpicyMeter)
-- `browserslist` section exists in package.json (CRA artifact, must remove in Priority 1)
-- `sonner.tsx` reference uses `--popover` and `--popover-foreground` CSS vars (must define in globals.css)
-- `sheet.tsx` reference uses `animate-in`/`animate-out` animation classes (need `tailwindcss-animate` plugin or custom keyframes)
-- E2E `setThemeDirect()` uses `setAttribute('data-theme', 'red')` for red theme, but current ThemeSwitcher uses `removeAttribute('data-theme')` for red — must align
+**Why:** The v1.1 rebuild is functionally complete but had three critical issues preventing the app from working: broken dev proxy, broken production proxy resilience, and duplicate mobile UI controls.
 
-### Potential issues to watch:
-- **Port mismatch risk:** ✅ RESOLVED — Playwright config targets port 5173 (Vite) and `npm run dev` now runs Vite on port 5173. Priority 1 complete.
-- **`react-window` removal:** Both PostList and CommentList use it. Removal must preserve pull-to-refresh and load-more pagination behavior.
-- **`prop-types` dependency:** 14 components use PropTypes bundled by `react-scripts`. All old components get deleted in Priority 9; rebuilt components won't use PropTypes. Self-resolving.
-- **Toast migration:** Current Toast system (5 source files + 1 test + `src/hooks/useToast.js`) uses React Context. Sonner replacement is significantly simpler. Confirm all toast types (success/error/info/warning) are supported.
-- **`dompurify` in dependencies:** Not imported anywhere in source code. Remove in Priority 11.
-- **Radix UI package format:** vite-migration.md spec lists individual `@radix-ui/react-*` packages but ShadCN v4 reference components import from unified `radix-ui` package. Use the unified `radix-ui` package per the reference components.
-- **Animation dependency:** ShadCN Sheet/Tooltip use Tailwind animation utility classes (`animate-in`, `animate-out`, `slide-in-from-right`, `fade-in-0`, etc.). In Tailwind v4, these may need `tailwindcss-animate` plugin or custom `@keyframes` in globals.css. Test during Priority 4.
-- **data-testid completeness:** The full list of required data-testid attributes is in `specs/testing-cleanup.md` lines 83-122 (**38 unique attributes**, not 32 as previously stated). All component rebuild tasks (P5-P9) include the complete list per component plus ~14 extras not used by E2E tests (for unit tests / accessibility). Missing any of the 38 E2E-required attributes will cause E2E failures.
+### 12a: Fix Dev API Proxy ✅ COMPLETED
 
----
+- [x] Replaced `server.proxy` config (pointed to non-running localhost:3000) with a Vite `configureServer` middleware plugin in `vite.config.js`
+- [x] The plugin mirrors `api/reddit.js` logic — handles `/api/reddit` requests directly in the Vite dev server
+- [x] Deleted `scripts/dev-api-server.js` (no longer needed)
+- [x] `npm run dev` now serves Reddit data without any separate process
 
-## Audit Findings (2026-02-11, v3)
+### 12b: Harden Vercel Serverless Function ✅ COMPLETED
 
-### Deep verification by Opus + 6 parallel Sonnet agents:
+- [x] Added retry logic to `api/reddit.js` — retries once on 429 (rate limit) or 5xx responses with 1s delay
+- [x] Updated User-Agent to `LFCRedditViewer/1.1` with contact URL
+- [x] Added `X-Content-Type-Options: nosniff` security header
 
-**All v2 findings confirmed.** Additional discoveries:
+### 12c: Fix Mobile Layout ✅ COMPLETED
 
-#### CRA Artifact Cleanup (Priority 1 incomplete items):
-- **`src/index.js` still exists** alongside `src/main.jsx` — both files are present and functional. `index.js` imports ToastProvider and renders the app via CRA's entry point. `main.jsx` does the same for Vite. The plan says `index.js` was "renamed to `main.jsx`" but it was actually **copied** — `index.js` was never deleted. It should be deleted when `react-scripts` is removed in Priority 11 (Jest still needs it).
-- **`src/index.css`** still exists (global CSS for CRA entry point). Will be replaced by `globals.css` in Priority 3.
-- **`src/App.css`** still exists (~main styles). Will be deleted in Priority 11.
-- **`browserslist`** section: ✅ Already noted for removal in Priority 1 checklist but verify if actually removed.
+- [x] Added `hidden md:flex` to ThemeSwitcher container in `Header.jsx` — hides it on mobile where BottomNav already has a Theme button
+- [x] Removed unused `Code` import from Header.jsx
+- [x] Fixed Tailwind v4 lint warning: `supports-[backdrop-filter]` → `supports-backdrop-filter`
 
-#### Tailwind Integration Status:
-- `tailwindcss` (v4), `@tailwindcss/postcss`, `tailwindcss-animate` (v1.0.7) are all in `package.json` ✅
-- `postcss.config.js` uses `@tailwindcss/postcss` ✅
-- `src/lib/utils.js` exists with `cn()` helper (clsx + tailwind-merge) ✅
-- **BUT:** No `globals.css` exists, no Tailwind `@import` directive anywhere, no CSS custom properties for themes. Tailwind is installed but completely unwired. Priority 3 creates this.
+### 12d: Fix Red Theme ✅ COMPLETED
 
-#### ShadCN Reference Components — Animation Classes Requiring `tailwindcss-animate`:
-- **sheet.tsx**: `animate-in`, `animate-out`, `fade-in-0`, `fade-out-0`, `slide-in-from-right`, `slide-out-to-right`, `slide-in-from-left`, `slide-out-to-left`, `slide-in-from-top`, `slide-out-to-top`, `slide-in-from-bottom`, `slide-out-to-bottom`
-- **tooltip.tsx**: `animate-in`, `animate-out`, `fade-in-0`, `fade-out-0`, `zoom-in-95`, `zoom-out-95`, `slide-in-from-top-2`, `slide-in-from-left-2`, `slide-in-from-right-2`, `slide-in-from-bottom-2`
-- **select.tsx**: Same animation classes as tooltip
-- **skeleton.tsx**: `animate-pulse` (standard Tailwind, no plugin needed)
-- **sonner.tsx**: `animate-spin` (standard Tailwind, no plugin needed)
-- **Verdict:** `tailwindcss-animate` v1.0.7 is installed. Must verify it works with Tailwind v4 during Priority 4. If not, add custom `@keyframes` in `globals.css`.
+- [x] Red theme backgrounds were neutral gray (0% saturation) — indistinguishable from Black theme
+- [x] Added red tint (hue 349, 10-25% saturation) to background, card, secondary, muted, border, and input vars in `globals.css`
+- [x] Red theme now has warm Anfield-red glow, clearly distinct from neutral Black OLED theme
 
-#### ShadCN toggle-group.tsx Import Path:
-- Currently imports from `@/registry/new-york-v4/ui/toggle` — must change to `@/components/ui/toggle` during TSX→JSX conversion. **Already noted in Priority 4 checklist ✅**
+### 12e: File Cleanup ✅ COMPLETED
 
-#### E2E Test Coverage Summary (9 test files, ~2,273 lines):
-- `happy-path.spec.js` (485 lines): Core user flows
-- `error-recovery.spec.js` (464 lines): Network/API error handling
-- `mobile-navigation.spec.js` (393 lines): Touch/mobile/tablet
-- `theme-persistence.spec.js` (337 lines): Theme switching + persistence
-- `helpers/theme.js` (141 lines): Theme utilities (THEMES array = `['red', 'white', 'black']`)
-- `visual/home.spec.js` (156 lines): Home page visual regression
-- `visual/components.spec.js` (172 lines): Individual component screenshots
-- `visual/comments.spec.js` (145 lines): Comment thread visual tests
-- `visual/post-detail.spec.js` (140 lines): Post detail sheet visual tests
-- **All E2E tests expect `data-testid` selectors** — 0 CSS Module class selectors
-- **All E2E tests expect `'black'` theme** (not `'green'`)
-- **All API mocking uses `**/api/reddit**` pattern** (not `reddit.com`)
-- **Theme button labels expected:** "Anfield Red theme", "Away Day theme", "Third Kit theme"
+- [x] Deleted `BACKEND_PROXY_PLAN.md` (root) — completed historical document
+- [x] Deleted `ralphloop.txt` (root) — redundant with loop.sh
+- [x] Deleted `how-to-ralph-wiggum/` (root) — separate reference repo, no longer needed
+- [x] Deleted `scripts/dev-api-server.js` — replaced by Vite middleware
 
-#### Redux State — Full Verified Shape:
-```javascript
-{
-  posts: {
-    items: [],               // Array of post objects
-    loading: false,
-    error: null,
-    currentPost: null,
-    searchTerm: '',
-    sortBy: 'hot',           // 'hot' | 'new' | 'top' | 'rising' | 'controversial' | 'viral'
-    timeRange: 'day',        // 'hour' | 'day' | 'week' | 'month' | 'year' | 'all'
-    activeFilter: null,      // DEPRECATED single-select
-    activeFlairFilters: [],  // Multi-select flair array
-    activeMediaFilter: null  // 'images' | 'videos' | 'articles' | 'discussions'
-  },
-  comments: {
-    items: [],
-    loading: false,
-    error: null
-  },
-  subreddits: {
-    available: ['LiverpoolFC'],
-    selected: 'LiverpoolFC'
-  }
-}
-```
+### 12f: Documentation Updates ✅ COMPLETED
 
-#### Utility Files — Verified Line Counts:
-| File | Lines | Notes |
-|------|-------|-------|
-| `api.js` | 463 | Priority 2 target: reduce to ~150 |
-| `cache.js` | 108 | Preserve unchanged |
-| `colorHash.js` | 145 | Preserve unchanged |
-| `formatDuration.js` | 40 | Preserve unchanged |
-| `formatTime.js` | 50 | Preserve unchanged |
-| `markdown.js` | 80 | Update CodeBlock import path |
-| `sanitize.js` | 56 | Preserve unchanged |
-| `api.test.js` | 897 | Rewrite for simplified API |
-| `cache.test.js` | 309 | Minimal changes |
-| `colorHash.test.js` | 255 | No changes needed |
-| `formatTime.test.js` | 183 | No changes needed |
-| `markdown.test.js` | 353 | No changes needed |
-| `sanitize.test.js` | 315 | No changes needed |
-| `formatDuration.test.js` | 79 | Move to `__tests__/` |
+- [x] Trimmed IMPLEMENTATION_PLAN.md — removed ~300 lines of historical audit findings (v2-v6)
+- [x] Updated PROMPT_plan.md and PROMPT_build.md for post-launch ralph loop iteration
+- [x] Updated AGENTS.md — removed stale notes, added Vite middleware documentation
 
-#### No Missing Specs:
-- All 6 spec files (`api-simplification.md`, `lfc-personality.md`, `lfc-themes.md`, `shadcn-ui-rebuild.md`, `testing-cleanup.md`, `vite-migration.md`) are comprehensive and cross-referenced
-- No gaps between specs and implementation plan
-- Two known spec discrepancies already documented (API signature, Tailwind v3 vs v4 directives)
+### 12g: Remaining (not blocking)
 
-#### Code Quality Confirmation:
-- Zero TODO/FIXME/HACK/PLACEHOLDER comments in all source code ✅
-- Zero skipped or flaky unit tests ✅
-- No flaky E2E test markers (no `.fixme()`, no `test.fail()`) ✅
-- E2E tests have conditional skips for viewport-appropriate tests (mobile-only, desktop-only) — expected behavior ✅
-- Redux has 2 deprecated functions (`applyFlairFilter`, `setFlairFilter`) properly marked — will self-resolve during rebuild ✅
-
----
-
-## Audit Findings (2026-02-11, v4)
-
-### Deep verification by Opus + 8 parallel Sonnet agents — corrections applied to plan inline:
-
-#### 12 Factual Errors CORRECTED:
-1. **`public/index.html` NOT deleted** — 52-line CRA artifact still exists with `%PUBLIC_URL%` placeholders. Plan header updated to reflect this. Deletion added to Priority 11.
-2. **`src/index.js` has broken `reportWebVitals` import** — Line 15 imports deleted `src/reportWebVitals.js`, line 28 calls it. Fix added to Priority 3.
-3. **data-testid count was 38, not 32** — Corrected in header and "Potential issues" section. Plan assigns ~52 total (38 required by E2E + 14 extras for unit tests/accessibility).
-4. **Sort options missing "viral"** — Priority 7 SortBar now lists `hot/new/top/rising/viral`. Current SubredditFilter has all 5 options.
-5. **Redux `timeRange` missing 'hour'** — Added to state shape comment. SubredditFilter dropdown includes 'hour' at line 247.
-6. **Redux `sortBy` missing 'rising'** — Added to state shape comment alongside existing 'controversial' and 'viral'.
-7. **"Files to Modify" listed completed items** — `vercel.json` and `.gitignore` marked as ✅ completed in Priority 1.
-8. **Priority 11 listed already-removed dependencies** — `dompurify`, `source-map-explorer`, `selenium-webdriver`, `web-vitals` were removed in Priority 1. Only `react-scripts` and `react-window` remain for Priority 11.
-9. **`api.js` line count inconsistency** — Was 462 in utility table, 463 in Priority 2. Corrected to 463 everywhere.
-10. **Plan header claimed `public/index.html` deleted** — Corrected to show it still exists.
-11. **Priority 1 and Priority 11 had duplicate dependency removal items** — Clarified in Priority 11 which items were already removed.
-12. **Priority 9 `main.jsx` task omitted CSS import change** — Added: change `'./index.css'` to `'./styles/globals.css'`.
-
-#### 5 Missing Items ADDED to plan:
-1. **Flash-prevention script in `index.html` (lines 17-23)** — Current code does NOT set `data-theme` for red theme on page load. E2E tests expect `getAttribute('data-theme')` to return `'red'`. Fix added to Priority 3.
-2. **`public/index.html` deletion** — CRA artifact not scheduled for cleanup anywhere. Added to Priority 11.
-3. **BottomNav `removeAttribute` bug (lines 89-93)** — Same `removeAttribute('data-theme')` pattern as ThemeSwitcher for red theme. Plan only mentioned ThemeSwitcher fix. Added to Priority 3.
-4. **`src/index.js` broken `reportWebVitals` import** — Not flagged anywhere in plan. Added to Priority 3.
-5. **`src/main.jsx` CSS import needs updating** — Currently imports `./index.css`, needs to become `./styles/globals.css`. Added to Priority 9.
-
-#### 3 Misleading Descriptions CLARIFIED:
-1. **"9 E2E test files"** — Actually 8 `.spec.js` files + 1 `helpers/theme.js` helper module.
-2. **"4 test files reference data-testid"** — These are mock implementations inside test files, not actual component usage.
-3. **"Files to Modify" implied pending work** — Now annotated with ✅ for Priority 1 completed items.
-
-#### Complete data-testid Reconciliation (38 required by E2E, plan assigns ~52):
-
-**Required by E2E (38):** `author`, `bottom-nav`, `close-button`, `collapse-all-button`, `comment-count`, `comment-meta`, `comment-score`, `comment`, `comments-section`, `comments-skeleton`, `empty-state`, `error-message`, `filter-button`, `filter-expand`, `filter-panel`, `flair-pill`, `load-more`, `mod-badge`, `no-comments`, `op-badge`, `post-author`, `post-detail-content`, `post-footer`, `post-header`, `post-item`, `post-list`, `post-subreddit`, `post-time`, `post-title`, `score`, `search-bar`, `search-clear`, `sheet-overlay`, `skeleton`, `sort-tabs`, `theme-switcher`, `timestamp`, `upvotes`
-
-**Extras in plan (14, not required for E2E pass but good for unit tests/accessibility):** `app`, `avatar`, `code-block`, `comment-list`, `comment-skeleton`, `header`, `nav-about`, `nav-home`, `nav-search`, `post-body`, `post-detail`, `post-flair`, `post-score`, `search-input`, `sort-bar`, `video-player`
-
-#### All v2/v3 findings confirmed — no regressions.
-
----
-
-## Audit Findings (2026-02-11, v5)
-
-### Deep verification by Opus + 6 parallel research agents — all source files verified against specs:
-
-#### Priorities 1-9 VERIFIED COMPLETE:
-- ✅ All 18 old component directories deleted (Avatar/, BottomNav/, CodeBlock/, CommentList/, ErrorBoundary/, ErrorMessage/, Header/, Icon/, LoadingSpinner/, PostDetail/, PostItem/, PostList/, SearchBar/, SkeletonLoader/, SpicyMeter/, SubredditFilter/, ThemeSwitcher/, Toast/, VideoPlayer/)
-- ✅ All new components wired in App.jsx with correct import paths
-- ✅ 16 ShadCN UI components: all JSX, no TSX, no `use client`, no `@radix-ui/react-*` imports, all use unified `radix-ui`
-- ✅ `sonner.jsx` does NOT import `next-themes` — uses `document.documentElement.getAttribute('data-theme')` correctly
-- ✅ `toggle-group.jsx` imports from `@/components/ui/toggle` (not registry path)
-- ✅ 14 of 16 UI components import `cn()` from `@/lib/utils` (exceptions: `collapsible.jsx` and `sonner.jsx` — correct, they don't need `cn()`)
-- ✅ `main.jsx` imports `./styles/globals.css` (not `./index.css`)
-- ✅ `globals.css` has `@import "tailwindcss"` + 3 theme blocks with all 19 ShadCN CSS vars
-- ✅ `index.html` (root) has Vite `<script type="module">` and flash-prevention script setting `data-theme`
-- ✅ `api.js` simplified to 250 lines — no CORS_PROXIES, no isMobile(), no tryProxy()
-- ✅ `markdown.js` imports from `../components/shared/CodeBlock` (updated path)
-- ✅ SpicyMeter has LFC-themed names (Reserves through YNWA)
-- ✅ `src/index.js` reportWebVitals import FIXED (removed in P3)
-- ✅ Toast system completely removed (Toast/, useToast.js deleted; Sonner Toaster in App.jsx)
-
-#### Stale Items Corrected in Plan:
-1. **P10 SpicyMeter task:** Was listed as TODO but ALREADY DONE in P5. Marked `[x]` in updated plan.
-2. **P10 "Current state" description:** Said "SpicyMeter uses generic names" — WRONG. LFC names applied in P5. Corrected.
-3. **P11 "Current state" CSS Modules:** Said "19 `.module.css` files across component directories" — WRONG. All deleted in P9. Corrected.
-4. **P11 api.test.js item:** Said "remove proxy chain tests" — ALREADY DONE in P2 (36 new tests). Removed stale item.
-5. **Notes `dompurify`:** Said "in dependencies but not used — remove in P11" — ALREADY REMOVED in P1. Corrected.
-6. **Notes `useToast.js`:** Said "must be deleted in P9" — ALREADY DELETED. Corrected.
-
-#### New Items Added to Plan:
-1. **Priority 10b: Typography & Visual Atmosphere** — NEW SECTION. The app currently uses generic `system-ui` font stack. For a "premium fan experience," this needs distinctive LFC-branded typography, enhanced animations, theme transition smoothness, and atmospheric effects.
-2. **"Files to Modify (Remaining)"** — Updated to only list files that ACTUALLY need modification in P10-P11.
-
-#### Design Gap Identified:
-The frontend-design skill mandates bold, distinctive typography — NOT generic system fonts. Current `globals.css` body uses `system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif` which is exactly the "AI slop" aesthetic the skill warns against. Priority 10b addresses this with a distinctive font pairing imported via Google Fonts or self-hosted.
-
-#### All v2/v3/v4 findings confirmed — no regressions beyond the 6 stale items corrected above.
-
----
-
-## Post-Completion Quality Improvements (2026-02-12)
-
-### Bundle Optimization
-- Added `manualChunks` to `vite.config.js` to split the monolithic 1MB index bundle into smaller cacheable chunks
-- Main app bundle reduced from 1,015kB to 146kB (7x reduction in initial load)
-- PostDetail chunk reduced from 708kB to 24kB
-- Vendor libraries split into: vendor-radix (246kB), vendor-markdown (144kB), vendor-syntax (640kB), vendor-video (521kB)
-- vendor-syntax (react-syntax-highlighter) and vendor-video (hls.js) remain over 500kB — these are inherent library sizes that cannot be reduced without library swaps
-
-### Test Quality
-- Fixed `act()` warnings in App.test.js by mocking `fetchPosts` action and using `waitFor()` for async assertions
-- All 362 tests pass cleanly with no warnings
-
-### Git Hygiene
-- Untracked `playwright-report/index.html` (was tracked before `.gitignore` entry was added)
-
-### Version Bump
-- `package.json` version bumped from `1.0.4` to `1.1.0` to match the `v1.1` branch
-
----
-
-## Post-Completion: Accessibility & Test Coverage (2026-02-12)
-
-### Completed
-- [x] **SortBar aria-labels:** Added `aria-label` to each `TabsTrigger` in `SortBar.jsx` — on mobile, text labels are hidden (`hidden xs:inline`) so only icons show. Without aria-labels, screen readers had no way to identify which sort option each tab represented.
-- [x] **Header aria-live:** Added `aria-live="polite"` and `aria-atomic="true"` to the rotating anti-clickbait tagline in `Header.jsx` — content rotates every 10s via setInterval, screen readers now announce changes.
-- [x] **PostList pull-to-refresh:** Added `role="status"` and `aria-live="polite"` to the pull-to-refresh indicator in `PostList.jsx` — assistive technology now announces "Pull down to refresh" / "Release to refresh" / "Refreshing..." state changes.
-- [x] **Header.test.js created:** 12 tests covering rendering (title, subtitle, YNWA, data-testid), accessibility (role=banner, aria-live, aria-hidden icons), child components (SearchBar, ThemeSwitcher present), rotating tagline (message from lfcData, rotation after 10s), and styling (sticky + backdrop-blur classes).
-
-### Test counts
-- **Before:** 12 test files, 362 tests
-- **After:** 13 test files, 374 tests (+12 Header tests)
-
-### Remaining quality opportunities (not blocking)
-- App.test.js has only 3 smoke tests — could expand to cover loading/error states and Redux integration
-- Build warning: vendor-syntax (640kB) and vendor-video (521kB) chunks are >500kB — inherent library sizes, would need library swaps to reduce
-- GitHub Dependabot reports 8 vulnerabilities on default branch (1 high, 5 moderate, 2 low) — these are on `main`, not necessarily in the v1.1 branch deps
+- [ ] Verify end-to-end on Vercel production deployment
+- [ ] E2E visual regression screenshots may need regeneration after red theme color change
+- [ ] App.test.js has only 3 smoke tests — could expand
+- [ ] vendor-syntax (640kB) and vendor-video (521kB) chunks >500kB — inherent library sizes

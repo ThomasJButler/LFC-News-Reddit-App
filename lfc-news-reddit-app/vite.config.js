@@ -24,8 +24,85 @@ function jsxInJsPlugin() {
   };
 }
 
+/**
+ * Dev-only middleware that handles /api/reddit requests directly,
+ * mirroring the Vercel serverless function at api/reddit.js.
+ * Eliminates the need for a separate dev API server on port 3000.
+ */
+function redditProxyPlugin() {
+  return {
+    name: 'reddit-api-proxy',
+    configureServer(server) {
+      server.middlewares.use('/api/reddit', async (req, res) => {
+        const url = new URL(req.url, 'http://localhost');
+        const redditPath = url.searchParams.get('path');
+
+        if (!redditPath) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: 'Missing "path" query parameter' }));
+          return;
+        }
+
+        const normalizedPath = redditPath.toLowerCase();
+        const isAllowed =
+          normalizedPath.startsWith('/r/liverpoolfc/') ||
+          normalizedPath.startsWith('/r/liverpoolfc.json') ||
+          normalizedPath.startsWith('/api/info.json');
+
+        if (!isAllowed) {
+          res.writeHead(403, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: 'Only r/LiverpoolFC requests allowed' }));
+          return;
+        }
+
+        const queryParams = new URLSearchParams(url.searchParams);
+        queryParams.delete('path');
+        const qs = queryParams.toString();
+        const redditUrl = `https://www.reddit.com${redditPath}${qs ? '?' + qs : ''}`;
+
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+          const response = await fetch(redditUrl, {
+            signal: controller.signal,
+            headers: {
+              'User-Agent': 'LFCRedditViewer/1.1 (DevServer)',
+              'Accept': 'application/json',
+            },
+          });
+          clearTimeout(timeoutId);
+
+          if (!response.ok) {
+            res.writeHead(response.status, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: `Reddit API returned ${response.status}` }));
+            return;
+          }
+
+          const data = await response.json();
+          res.writeHead(200, {
+            'Content-Type': 'application/json',
+            'Cache-Control': 's-maxage=60, stale-while-revalidate=300',
+          });
+          res.end(JSON.stringify(data));
+        } catch (error) {
+          if (error.name === 'AbortError') {
+            res.writeHead(504, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'Reddit API request timed out' }));
+            return;
+          }
+          console.error('Reddit proxy error:', error.message);
+          res.writeHead(500, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: 'Failed to fetch from Reddit' }));
+        }
+      });
+    },
+  };
+}
+
 export default defineConfig({
   plugins: [
+    redditProxyPlugin(),
     jsxInJsPlugin(),
     react({
       include: /\.(js|jsx)$/,
@@ -51,11 +128,6 @@ export default defineConfig({
           'vendor-video': ['hls.js'],
         },
       },
-    },
-  },
-  server: {
-    proxy: {
-      '/api/reddit': 'http://localhost:3000',
     },
   },
   test: {

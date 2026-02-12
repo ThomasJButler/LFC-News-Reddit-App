@@ -40,37 +40,53 @@ module.exports = async (req, res) => {
   const queryString = new URLSearchParams(queryParams).toString();
   const redditUrl = `${REDDIT_BASE}${path}${queryString ? '?' + queryString : ''}`;
 
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
+  const MAX_ATTEMPTS = 2;
 
-    const response = await fetch(redditUrl, {
-      signal: controller.signal,
-      headers: {
-        'User-Agent': 'LFCRedditViewer/1.0 (Vercel Serverless)',
-        'Accept': 'application/json'
-      }
-    });
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
 
-    clearTimeout(timeoutId);
-
-    if (!response.ok) {
-      return res.status(response.status).json({
-        error: `Reddit API returned ${response.status}`
+      const response = await fetch(redditUrl, {
+        signal: controller.signal,
+        headers: {
+          'User-Agent': 'LFCRedditViewer/1.1 (Vercel Serverless; +https://github.com/tombutler)',
+          'Accept': 'application/json'
+        }
       });
-    }
 
-    const data = await response.json();
+      clearTimeout(timeoutId);
 
-    // Cache for 60 seconds at CDN edge, 300 seconds in browser
-    res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=300');
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    return res.status(200).json(data);
-  } catch (error) {
-    if (error.name === 'AbortError') {
-      return res.status(504).json({ error: 'Reddit API request timed out' });
+      // Retry on 429 (rate limit) or 5xx (server error) if we have attempts left
+      if ((response.status === 429 || response.status >= 500) && attempt < MAX_ATTEMPTS) {
+        await new Promise(r => setTimeout(r, 1000));
+        continue;
+      }
+
+      if (!response.ok) {
+        return res.status(response.status).json({
+          error: `Reddit API returned ${response.status}`
+        });
+      }
+
+      const data = await response.json();
+
+      // Cache for 60 seconds at CDN edge, 300 seconds in browser
+      res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=300');
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+      return res.status(200).json(data);
+    } catch (error) {
+      if (error.name === 'AbortError') {
+        return res.status(504).json({ error: 'Reddit API request timed out' });
+      }
+      // Retry on network errors if we have attempts left
+      if (attempt < MAX_ATTEMPTS) {
+        await new Promise(r => setTimeout(r, 1000));
+        continue;
+      }
+      console.error('Reddit proxy error:', error.message);
+      return res.status(500).json({ error: 'Failed to fetch from Reddit' });
     }
-    console.error('Reddit proxy error:', error.message);
-    return res.status(500).json({ error: 'Failed to fetch from Reddit' });
   }
 };

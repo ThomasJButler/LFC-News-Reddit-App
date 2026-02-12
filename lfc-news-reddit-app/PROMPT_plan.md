@@ -1,13 +1,17 @@
-0a. Study `specs/*` with up to 250 parallel Sonnet subagents to learn the application specifications.
-0b. Study @IMPLEMENTATION_PLAN.md (if present) to understand the plan so far.
-0c. Study `src/utils/*` and `src/redux/*` with up to 250 parallel Sonnet subagents to understand shared utilities, state management, and existing patterns.
-0d. For reference, the application source code is in `src/*`.
-0e. ShadCN v4 component reference files are at `ui/apps/v4/registry/new-york-v4/ui/` — study these to understand available components and their patterns.
+0a. Study @IMPLEMENTATION_PLAN.md to understand completed work and remaining tasks.
+0b. Study @AGENTS.md for build commands, validation steps, and codebase patterns.
+0c. Study `src/*` with up to 250 parallel Sonnet subagents to verify the current state of the application.
 
-1. Study @IMPLEMENTATION_PLAN.md (if present; it may be incorrect) and use up to 500 Sonnet subagents to study existing source code in `src/*` and compare it against `specs/*`. Use an Opus subagent to analyze findings, prioritize tasks, and create/update @IMPLEMENTATION_PLAN.md as a bullet point list sorted in priority of items yet to be implemented. Ultrathink. Consider searching for TODO, minimal implementations, placeholders, skipped/flaky tests, and inconsistent patterns. Study @IMPLEMENTATION_PLAN.md to determine starting point for research and keep it up to date with items considered complete/incomplete using subagents.
+1. The v1.0→v1.1 rebuild is COMPLETE (Priorities 1-11). Priority 12 (post-launch fixes) is in progress. Focus is now on post-launch quality:
+   - Verify the app works end-to-end: `npm run dev` loads Reddit posts, themes switch, mobile layout is correct
+   - Check for regressions: `npx vitest run` (374 unit tests), `npm run build` (production build)
+   - Check Vercel deployment: does `/api/reddit` return Reddit data on production?
+   - Look for UX polish opportunities: loading states, error messages, animations, accessibility
 
-IMPORTANT: Plan only. Do NOT implement anything. Do NOT assume functionality is missing; confirm with code search first. Treat `src/utils` and `src/redux` as the project's core utilities and state management. Prefer reusing existing implementations over creating new ones.
+2. Search the codebase for issues using Sonnet subagents: TODO comments, console.log statements, unused imports, dead code, accessibility gaps, performance bottlenecks.
 
-ULTIMATE GOAL: We want to rebuild the LFC Reddit Viewer with Vite + ShadCN + Tailwind CSS, fix mobile by removing the CORS proxy chain (use only /api/reddit serverless proxy), add LFC personality (humor, trivia, anti-clickbait messaging), and implement 3 switchable themes (Red, White, Black). The app should be a love letter to LFC fans — simple, clean, no ads, no trackers. Consider missing elements and plan accordingly. If an element is missing, search first to confirm it doesn't exist, then if needed author the specification at specs/FILENAME.md. If you create a new element then document the plan to implement it in @IMPLEMENTATION_PLAN.md using a subagent.
+3. Update @IMPLEMENTATION_PLAN.md with any findings — add to Priority 12 "Post-Launch Quality" section.
 
-DESIGN DIRECTION: Use the /frontend-design skill for all UI/component planning. This is NOT a generic app — it should feel like a premium fan experience. Plan for: bold LFC-branded typography (not Inter/Roboto), atmospheric dark themes with red accent drama, staggered reveal animations on post loads, scroll-triggered effects, and micro-interactions on buttons/cards. The Red theme should feel like walking into Anfield under floodlights. The White theme like a crisp away-day kit. The Black theme like a premium OLED night mode. When planning component specs, include notes on animation, typography, and visual personality.
+IMPORTANT: Plan only. Do NOT implement anything. Confirm issues with code search before adding to plan.
+
+CURRENT STATE: Vite 7 + React 18 + Tailwind v4 + ShadCN + 3 LFC themes (Red/White/Black). API proxy via Vite middleware plugin (dev) and Vercel serverless function with retry logic (production). 13 test files, 374 unit tests (Vitest). 8 E2E spec files (Playwright). All 35 components rebuilt. No CRA artifacts remain. Red theme has warm red-tinted backgrounds (hue 349). Dev server handles `/api/reddit` requests directly — no separate API server needed.

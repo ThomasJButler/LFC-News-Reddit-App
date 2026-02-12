@@ -17,12 +17,12 @@ Run these after implementing to get immediate feedback:
 ## Operational Notes
 
 - Source code: `src/`
-- Vercel serverless function: `api/reddit.js` — CORS proxy to Reddit API. DO NOT MODIFY this file.
-- ShadCN v4 component reference: `ui/apps/v4/registry/new-york-v4/ui/` — copy components from here, convert TSX to JSX
+- Dev API proxy: Handled by Vite middleware plugin in `vite.config.js` — no separate server needed. `npm run dev` serves `/api/reddit` requests directly.
+- Vercel serverless function: `api/reddit.js` — CORS proxy to Reddit API with retry logic for rate-limiting.
 - Redux state management: `src/redux/` (store, actions, reducers) — keep unchanged unless a spec explicitly requires changes
 - Utilities: `src/utils/` (api.js, cache.js, formatTime.js, formatDuration.js, colorHash.js, sanitize.js, markdown.js)
 - Deployment: Vercel auto-deploys from git push. Config in `vercel.json`
-- Build tool: Vite 7 (migrated from CRA in Priority 1). Dev server on port 5173. `react-scripts` still in devDeps for Jest until Vitest migration (Priority 11)
+- Build tool: Vite 7. Dev server on port 5173. Tests run under Vitest (no Jest/react-scripts).
 
 ### Codebase Patterns
 

@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Bird, Code } from 'lucide-react';
+import { Bird } from 'lucide-react';
 import SearchBar from '../shared/SearchBar';
 import ThemeSwitcher from './ThemeSwitcher';
 import { antiClickbaitMessages } from '../../utils/lfcData';
@@ -36,7 +36,7 @@ const Header = () => {
         'sticky top-0 z-50',
         'border-b border-border/40',
         'bg-background/80 backdrop-blur-md',
-        'supports-[backdrop-filter]:bg-background/60',
+        'supports-backdrop-filter:bg-background/60',
       )}
       role="banner"
     >
@@ -59,7 +59,7 @@ const Header = () => {
           </div>
 
           {/* Right section: Theme + Tagline */}
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="hidden md:flex items-center gap-2 shrink-0">
             <ThemeSwitcher />
           </div>
         </div>

@@ -22,24 +22,25 @@
 }
 
 /* ── Red Theme (Default) ─────────────────────────────────────────── */
+/* Warm red-tinted dark — Anfield under floodlights, not neutral black. */
 :root {
-  --background: 0 0% 6%;
+  --background: 349 25% 8%;
   --foreground: 0 0% 100%;
-  --card: 0 0% 10%;
+  --card: 349 18% 12%;
   --card-foreground: 0 0% 100%;
-  --popover: 0 0% 10%;
+  --popover: 349 18% 12%;
   --popover-foreground: 0 0% 100%;
   --primary: 349 85% 43%;
   --primary-foreground: 0 0% 100%;
-  --secondary: 0 0% 15%;
+  --secondary: 349 12% 18%;
   --secondary-foreground: 0 0% 100%;
-  --muted: 0 0% 15%;
-  --muted-foreground: 0 0% 50%;
+  --muted: 349 12% 18%;
+  --muted-foreground: 0 0% 55%;
   --accent: 349 85% 43%;
   --accent-foreground: 0 0% 100%;
   --destructive: 0 72% 51%;
-  --border: 0 0% 15%;
-  --input: 0 0% 15%;
+  --border: 349 10% 20%;
+  --input: 349 10% 20%;
   --ring: 349 85% 43%;
   --radius: 0.75rem;
 }
