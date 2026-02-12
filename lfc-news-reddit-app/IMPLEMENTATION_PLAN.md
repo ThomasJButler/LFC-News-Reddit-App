@@ -653,3 +653,24 @@ All modifications complete. No remaining changes.
 The frontend-design skill mandates bold, distinctive typography — NOT generic system fonts. Current `globals.css` body uses `system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif` which is exactly the "AI slop" aesthetic the skill warns against. Priority 10b addresses this with a distinctive font pairing imported via Google Fonts or self-hosted.
 
 #### All v2/v3/v4 findings confirmed — no regressions beyond the 6 stale items corrected above.
+
+---
+
+## Post-Completion Quality Improvements (2026-02-12)
+
+### Bundle Optimization
+- Added `manualChunks` to `vite.config.js` to split the monolithic 1MB index bundle into smaller cacheable chunks
+- Main app bundle reduced from 1,015kB to 146kB (7x reduction in initial load)
+- PostDetail chunk reduced from 708kB to 24kB
+- Vendor libraries split into: vendor-radix (246kB), vendor-markdown (144kB), vendor-syntax (640kB), vendor-video (521kB)
+- vendor-syntax (react-syntax-highlighter) and vendor-video (hls.js) remain over 500kB — these are inherent library sizes that cannot be reduced without library swaps
+
+### Test Quality
+- Fixed `act()` warnings in App.test.js by mocking `fetchPosts` action and using `waitFor()` for async assertions
+- All 362 tests pass cleanly with no warnings
+
+### Git Hygiene
+- Untracked `playwright-report/index.html` (was tracked before `.gitignore` entry was added)
+
+### Version Bump
+- `package.json` version bumped from `1.0.4` to `1.1.0` to match the `v1.1` branch

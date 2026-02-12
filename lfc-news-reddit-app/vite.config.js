@@ -41,6 +41,18 @@ export default defineConfig({
       loader: { '.js': 'jsx' },
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-radix': ['radix-ui'],
+          'vendor-markdown': ['react-markdown', 'remark-gfm'],
+          'vendor-syntax': ['react-syntax-highlighter'],
+          'vendor-video': ['hls.js'],
+        },
+      },
+    },
+  },
   server: {
     proxy: {
       '/api/reddit': 'http://localhost:3000',
