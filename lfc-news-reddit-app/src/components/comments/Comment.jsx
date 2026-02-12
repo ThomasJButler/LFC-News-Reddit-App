@@ -314,7 +314,7 @@ const Comment = ({
                   href={`https://www.reddit.com/r/${subreddit}/comments/${postId}/comment/${comment.id}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-colors"
+                  className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   aria-label="Reply on Reddit (opens in new tab)"
                 >
                   <MessageCircle className="size-3" />
@@ -323,7 +323,7 @@ const Comment = ({
               )}
               <button
                 className={cn(
-                  'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs transition-colors',
+                  'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                   copied
                     ? 'text-emerald-400'
                     : 'text-muted-foreground hover:text-foreground hover:bg-muted/80',

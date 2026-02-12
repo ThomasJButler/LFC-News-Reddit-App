@@ -62,7 +62,7 @@ const LfcFooter = () => {
           </p>
 
           {/* Attribution */}
-          <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground/50">
+          <div className="flex items-center gap-1.5 text-xs text-muted-foreground/70">
             <span>Made with</span>
             <Heart className="size-3 text-primary/60 fill-primary/60" aria-hidden="true" />
             <span>by</span>

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { clearCurrentPost } from '../../redux/actions/posts';
-import { clearComments } from '../../redux/actions/comments';
+import { fetchComments, clearComments } from '../../redux/actions/comments';
 import { formatDateTime } from '../../utils/formatTime';
 import CommentList from '../comments/CommentList';
 import { CommentSkeleton } from '../comments/CommentSkeleton';
@@ -13,12 +13,12 @@ import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
-import { X, BookOpen, Book, ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
+import { X, BookOpen, Book, ChevronLeft, ChevronRight, ExternalLink, AlertCircle, RotateCcw } from 'lucide-react';
 
 const PostDetail = () => {
   const dispatch = useDispatch();
   const { currentPost } = useSelector(state => state.posts);
-  const { items: comments, loading: commentsLoading } = useSelector(state => state.comments);
+  const { items: comments, loading: commentsLoading, error: commentsError } = useSelector(state => state.comments);
   const contentRef = useRef(null);
 
   const [readingMode, setReadingMode] = useState(false);
@@ -163,14 +163,14 @@ const PostDetail = () => {
           {totalImages > 1 && (
             <>
               <button
-                className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/60 p-2 text-white backdrop-blur-sm transition-colors hover:bg-black/80"
+                className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/60 p-2 text-white backdrop-blur-sm transition-colors hover:bg-black/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 onClick={handlePrevious}
                 aria-label="Previous image"
               >
                 <ChevronLeft className="size-5" />
               </button>
               <button
-                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/60 p-2 text-white backdrop-blur-sm transition-colors hover:bg-black/80"
+                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/60 p-2 text-white backdrop-blur-sm transition-colors hover:bg-black/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 onClick={handleNext}
                 aria-label="Next image"
               >
@@ -307,7 +307,7 @@ const PostDetail = () => {
           <button
             data-testid="close-button"
             onClick={handleClose}
-            className="rounded-full p-2 hover:bg-muted transition-colors"
+            className="rounded-full p-2 hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             aria-label="Close post detail"
           >
             <X className="size-4" />
@@ -316,7 +316,7 @@ const PostDetail = () => {
           <button
             onClick={toggleReadingMode}
             className={cn(
-              'rounded-full p-2 transition-colors',
+              'rounded-full p-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
               readingMode ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'
             )}
             aria-label={readingMode ? 'Exit reading mode (press R)' : 'Enter reading mode (press R)'}
@@ -412,6 +412,20 @@ const PostDetail = () => {
                   <h2 className="text-base font-semibold mb-4">Comments</h2>
                   {commentsLoading ? (
                     <CommentSkeleton />
+                  ) : commentsError ? (
+                    <div className="py-8 text-center space-y-3" role="alert">
+                      <AlertCircle className="size-8 text-destructive mx-auto" />
+                      <p className="text-sm text-muted-foreground">
+                        Failed to load comments. {commentsError}
+                      </p>
+                      <button
+                        onClick={() => dispatch(fetchComments(currentPost.id, currentPost.subreddit))}
+                        className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-primary hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      >
+                        <RotateCcw className="size-3.5" aria-hidden="true" />
+                        Retry
+                      </button>
+                    </div>
                   ) : (
                     <CommentList comments={comments} />
                   )}

@@ -9,8 +9,8 @@
 **Tech Stack:** Vite, React 18, Tailwind CSS v4, ShadCN (Radix UI), Redux + redux-thunk, Sonner, Lucide React, Vitest, Playwright
 
 > **Last audited:** 2026-02-12 (deep audit v5 — full codebase verification by 6 parallel research agents + Opus synthesis. P11c E2E verification completed.)
-> **Status:** ALL PRIORITIES COMPLETED (1-11). Full rebuild verified end-to-end. Build passes, 362 unit tests pass (Vitest), 242 E2E tests pass (Playwright), 183 visual snapshots generated.
-> **Current state:** Vite 7 + Tailwind CSS v4 + ShadCN + 3 HSL themes (Red/White/Black). API simplified to single `/api/reddit` proxy. Dev server on port 5173. All 35 components rebuilt with Tailwind + ShadCN. Vitest 4.x replaces Jest. 12 test suites, 362 tests run in ~3.4s under Vitest. Coverage thresholds enforced on src/utils/, src/redux/, src/lib/ (80% statements, 72% branches, 75% functions). `src/main.jsx` imports `./styles/globals.css` correctly. `App.jsx` wires all rebuilt components. Sonner Toaster active. All LFC personality components integrated (lfcData.js, LfcLoadingMessages, LfcTrivia, LfcFooter).
+> **Status:** ALL PRIORITIES COMPLETED (1-11). Full rebuild verified end-to-end. Build passes, 374 unit tests pass (Vitest), 242 E2E tests pass (Playwright), 183 visual snapshots generated.
+> **Current state:** Vite 7 + Tailwind CSS v4 + ShadCN + 3 HSL themes (Red/White/Black). API simplified to single `/api/reddit` proxy. Dev server on port 5173. All 35 components rebuilt with Tailwind + ShadCN. Vitest 4.x replaces Jest. 12 test suites, 374 tests run in ~3.4s under Vitest. Coverage thresholds enforced on src/utils/, src/redux/, src/lib/ (80% statements, 72% branches, 75% functions). `src/main.jsx` imports `./styles/globals.css` correctly. `App.jsx` wires all rebuilt components. Sonner Toaster active. All LFC personality components integrated (lfcData.js, LfcLoadingMessages, LfcTrivia, LfcFooter).
 > **Verified complete:** `src/components/ui/` (16 ShadCN JSX — no TSX, no `use client`, no `@radix-ui/react-*`, all use unified `radix-ui`), `src/components/comments/` (3), `src/components/layout/` (5), `src/components/posts/` (4), `src/components/shared/` (6), `src/components/lfc/SpicyMeter.jsx` (LFC names already applied: Reserves/League Cup/Premier League/Champions League/Istanbul 2005/YNWA)
 > **Config verified:** `vite.config.js` (React plugin + jsxInJsPlugin + @/ alias + dev proxy + test: block for Vitest), `postcss.config.js` (@tailwindcss/postcss), `vercel.json` (dist output + rewrites), `package.json` (Vite scripts)
 > **globals.css verified:** `@import "tailwindcss"` + 3 theme blocks (:root, [data-theme="white"], [data-theme="black"]) with all 19 ShadCN CSS vars + base styles. Body uses `system-ui` font stack (upgrade planned in P10).
@@ -434,7 +434,7 @@ All modifications complete. No remaining changes.
 - **Typography gap:** `globals.css` currently uses generic `system-ui` font stack. P10b adds distinctive LFC-branded typography.
 - **api.js actual size:** 250 lines (plan estimated ~156; slightly larger due to fuller JSDoc comments and more robust error handling — this is acceptable)
 
-## Priority 12: Post-Launch Fixes (2026-02-12) ✅ IN PROGRESS
+## Priority 12: Post-Launch Fixes (2026-02-12) ✅ COMPLETED
 
 **Why:** The v1.1 rebuild is functionally complete but had three critical issues preventing the app from working: broken dev proxy, broken production proxy resilience, and duplicate mobile UI controls.
 
@@ -476,9 +476,23 @@ All modifications complete. No remaining changes.
 - [x] Updated PROMPT_plan.md and PROMPT_build.md for post-launch ralph loop iteration
 - [x] Updated AGENTS.md — removed stale notes, added Vite middleware documentation
 
-### 12g: Remaining (not blocking)
+### 12g: UX Polish & Accessibility Audit ✅ COMPLETED
+
+**Completed 2026-02-12:**
+
+- [x] **Comments error state in PostDetail** — Added error display with retry button when comment fetch fails. Previously, a failed comment load showed infinite skeleton with no recovery path. Now shows error message + retry button that re-dispatches `fetchComments`. Uses `AlertCircle` + `RotateCcw` icons.
+- [x] **Focus indicators on interactive elements** — Added `focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring` to: gallery prev/next buttons, close button, reading mode toggle (PostDetail), comment Reply link, comment Share button (Comment.jsx). All buttons now have visible keyboard focus rings.
+- [x] **LfcFooter contrast fix** — Attribution text upgraded from `text-[11px] text-muted-foreground/50` (failing WCAG AA) to `text-xs text-muted-foreground/70` for adequate contrast at readable size.
+- [x] **Accessibility audit verified OK**: Skip-to-content link present (App.jsx:49), comment collapse via primary chevron button (in tab order with aria-expanded), gallery thumbnails use decorative `alt=""` inside labeled buttons (correct per WCAG), `aria-live` regions on loading states, `role="alert"` on error messages.
+
+**Key learnings:**
+- Comments error was a silent failure: Redux `state.comments.error` was populated but PostDetail only checked `commentsLoading` — never surfaced errors to users
+- Gallery thumbnail `alt=""` is correct WCAG practice when the image is decorative inside a button with `aria-label`
+- Comment thread line `tabIndex={-1}` is correct — it's a supplementary hover target; the primary collapse control (chevron) is keyboard-accessible
+
+### 12h: Remaining (not blocking)
 
 - [ ] Verify end-to-end on Vercel production deployment
 - [ ] E2E visual regression screenshots may need regeneration after red theme color change
+- [ ] vendor-syntax (640kB) and vendor-video (521kB) chunks >500kB — inherent library sizes, already code-split
 - [ ] App.test.js has only 3 smoke tests — could expand
-- [ ] vendor-syntax (640kB) and vendor-video (521kB) chunks >500kB — inherent library sizes
