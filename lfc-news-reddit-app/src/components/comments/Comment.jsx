@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { formatRelativeTime } from '../../utils/formatTime';
@@ -66,6 +66,12 @@ const Comment = ({
   animationIndex,
 }) => {
   const [copied, setCopied] = useState(false);
+  const copiedTimeoutRef = useRef(null);
+
+  // Clean up copy-feedback timeout on unmount
+  useEffect(() => {
+    return () => clearTimeout(copiedTimeoutRef.current);
+  }, []);
 
   const level = Math.min(comment.level || 0, MAX_NESTING_LEVEL);
   const hasReplies = comment.replies && comment.replies.length > 0;
@@ -80,7 +86,8 @@ const Comment = ({
       : `https://www.reddit.com${comment.permalink || ''}`;
     navigator.clipboard.writeText(permalink).then(() => {
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      clearTimeout(copiedTimeoutRef.current);
+      copiedTimeoutRef.current = setTimeout(() => setCopied(false), 2000);
     });
   }, [postId, subreddit, comment.id, comment.permalink]);
 

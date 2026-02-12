@@ -17,16 +17,21 @@ const Header = () => {
   const [isVisible, setIsVisible] = useState(true);
   const intervalRef = useRef(null);
 
+  const timeoutRef = useRef(null);
+
   useEffect(() => {
     intervalRef.current = setInterval(() => {
       setIsVisible(false);
-      setTimeout(() => {
+      timeoutRef.current = setTimeout(() => {
         setTaglineIndex(prev => (prev + 1) % antiClickbaitMessages.length);
         setIsVisible(true);
       }, 300);
     }, 10000);
 
-    return () => clearInterval(intervalRef.current);
+    return () => {
+      clearInterval(intervalRef.current);
+      clearTimeout(timeoutRef.current);
+    };
   }, []);
 
   return (

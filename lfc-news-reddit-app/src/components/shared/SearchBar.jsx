@@ -3,7 +3,7 @@
  * Uses ShadCN Input + Button with direct Lucide imports.
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { searchPosts, fetchPosts, setSearchTerm } from '../../redux/actions/posts';
 import { Search, X, Loader2 } from 'lucide-react';
@@ -16,6 +16,14 @@ const SearchBar = () => {
   const { selected: selectedSubreddit } = useSelector((state) => state.subreddits);
   const { searchTerm: currentSearchTerm, loading } = useSelector((state) => state.posts);
   const [inputValue, setInputValue] = useState(currentSearchTerm);
+
+  // Sync local input when Redux search term is cleared externally
+  // (e.g., PostList "Clear search" button dispatches SET_SEARCH_TERM)
+  useEffect(() => {
+    if (currentSearchTerm === '' && inputValue !== '') {
+      setInputValue('');
+    }
+  }, [currentSearchTerm]);
 
   const handleSearch = (e) => {
     e.preventDefault();

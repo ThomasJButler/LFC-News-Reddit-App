@@ -8,8 +8,8 @@
 
 **Tech Stack:** Vite, React 18, Tailwind CSS v4, ShadCN (Radix UI), Redux + redux-thunk, Sonner, Lucide React, Vitest, Playwright
 
-> **Last audited:** 2026-02-12 (deep audit v5 — full codebase verification by 6 parallel research agents + Opus synthesis. P11c E2E verification completed.)
-> **Status:** ALL PRIORITIES COMPLETED (1-12h). Full rebuild verified end-to-end. Build passes, 381 unit tests pass (13 suites, Vitest), 242 E2E tests pass (Playwright), 183 visual snapshots generated.
+> **Last audited:** 2026-02-12 (deep audit v6 — memory leak audit, accessibility pass, and robustness fixes in P12j.)
+> **Status:** ALL PRIORITIES COMPLETED (1-12j). Full rebuild verified end-to-end. Build passes, 381 unit tests pass (13 suites, Vitest), 242 E2E tests pass (Playwright), 183 visual snapshots generated.
 > **Current state:** Vite 7 + Tailwind CSS v4 + ShadCN + 3 HSL themes (Red/White/Black). API simplified to single `/api/reddit` proxy. Dev server on port 5173. All 35 components rebuilt with Tailwind + ShadCN. Vitest 4.x replaces Jest. 12 test suites, 374 tests run in ~3.4s under Vitest. Coverage thresholds enforced on src/utils/, src/redux/, src/lib/ (80% statements, 72% branches, 75% functions). `src/main.jsx` imports `./styles/globals.css` correctly. `App.jsx` wires all rebuilt components. Sonner Toaster active. All LFC personality components integrated (lfcData.js, LfcLoadingMessages, LfcTrivia, LfcFooter).
 > **Verified complete:** `src/components/ui/` (16 ShadCN JSX — no TSX, no `use client`, no `@radix-ui/react-*`, all use unified `radix-ui`), `src/components/comments/` (3), `src/components/layout/` (5), `src/components/posts/` (4), `src/components/shared/` (6), `src/components/lfc/SpicyMeter.jsx` (LFC names already applied: Reserves/League Cup/Premier League/Champions League/Istanbul 2005/YNWA)
 > **Config verified:** `vite.config.js` (React plugin + jsxInJsPlugin + @/ alias + dev proxy + test: block for Vitest), `postcss.config.js` (@tailwindcss/postcss), `vercel.json` (dist output + rewrites), `package.json` (Vite scripts)
@@ -502,6 +502,23 @@ All modifications complete. No remaining changes.
 **Key learnings:**
 - App.test.js `fetchPosts` mock dispatches `FETCH_POSTS_REQUEST` on mount, overriding pre-seeded Redux state. Tests that need custom initial state must mock `fetchPosts` to return `{ type: '@@NOOP' }` to prevent the loading flag from being set.
 - Sonner `toast.error()` is the right UX for pull-to-refresh failures because users initiated the action and should keep seeing their current posts.
+
+### 12j: Memory Leak Fixes, Accessibility, & Robustness ✅ COMPLETED
+
+**Completed 2026-02-12:**
+
+- [x] **Timer cleanup in rotating message components** — Header.jsx, LfcLoadingMessages.jsx, LfcFooter.jsx all had `setTimeout` nested inside `setInterval` without cleanup. If the component unmounted during the 300ms fade-out window, the `setTimeout` callback would fire on an unmounted component. Fixed by tracking timeout refs and clearing both interval + timeout in cleanup.
+- [x] **SearchBar input state sync** — Local `inputValue` was only initialized from Redux `searchTerm` on mount. When search was cleared externally (e.g., PostList "Clear search" button dispatching `SET_SEARCH_TERM`), the input still showed the old value. Added `useEffect` to sync when `currentSearchTerm` becomes empty.
+- [x] **Comment share button timeout cleanup** — `handleShare` in Comment.jsx used `setTimeout(() => setCopied(false), 2000)` without cleanup. If the user navigated away (closing PostDetail) before the 2s elapsed, React would attempt a state update on an unmounted component. Fixed with `useRef` + `useEffect` cleanup, also clears previous timeout on rapid clicks.
+- [x] **PostItem thumbnail error fallback** — Broken thumbnail URLs (stale Reddit CDN links, deleted images) showed broken image icons. Added `onError` handler that hides the thumbnail container, matching PostDetail's existing pattern.
+- [x] **SortBar Tabs accessibility** — Added `aria-label="Sort posts by"` to the Tabs component so screen readers announce what the tab group controls.
+- [x] **VideoPlayer Vite-idiomatic env check** — Replaced `process.env.NODE_ENV === 'development'` with `import.meta.env.DEV` for HLS debug logging. While Vite shims `process.env.NODE_ENV`, `import.meta.env.DEV` is the canonical Vite approach and avoids edge cases.
+- [x] Build passes, 381 unit tests pass (13 suites, Vitest)
+
+**Key learnings:**
+- The `setTimeout`-inside-`setInterval` pattern is a common React cleanup pitfall — `clearInterval` only cancels future interval ticks, not already-scheduled timeouts from previous ticks
+- SearchBar's one-way state flow (Redux → local on mount only) breaks when external actions clear the search term — `useEffect` sync is needed for bidirectional coherence
+- `import.meta.env.DEV` is statically replaced by Vite at build time (becomes `true` in dev, `false` in production), while `process.env.NODE_ENV` requires runtime shimming
 
 ### 12i: Remaining (not blocking)
 

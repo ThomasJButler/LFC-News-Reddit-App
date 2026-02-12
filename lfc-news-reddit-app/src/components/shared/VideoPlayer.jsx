@@ -22,7 +22,7 @@ const VideoPlayer = ({ videoData, className = '', title = 'Video' }) => {
     if (hasAudio && hlsUrl) {
       if (Hls.isSupported()) {
         const hls = new Hls({
-          debug: process.env.NODE_ENV === 'development',
+          debug: import.meta.env.DEV,
           enableWorker: true,
           lowLatencyMode: false,
           maxBufferLength: 30,

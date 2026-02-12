@@ -70,6 +70,7 @@ const SortBar = () => {
         value={sortBy}
         onValueChange={handleSortChange}
         className="w-auto"
+        aria-label="Sort posts by"
       >
         <TabsList className="h-9 bg-secondary/60 backdrop-blur-sm">
           {sortOptions.map(({ value, label, icon: Icon }) => (

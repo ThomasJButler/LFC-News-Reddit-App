@@ -13,17 +13,22 @@ const LfcLoadingMessages = () => {
   const [isVisible, setIsVisible] = useState(true);
   const intervalRef = useRef(null);
 
+  const timeoutRef = useRef(null);
+
   useEffect(() => {
     intervalRef.current = setInterval(() => {
       // Fade out, swap message, fade in
       setIsVisible(false);
-      setTimeout(() => {
+      timeoutRef.current = setTimeout(() => {
         setIndex(prev => (prev + 1) % loadingMessages.length);
         setIsVisible(true);
       }, 300);
     }, 3000);
 
-    return () => clearInterval(intervalRef.current);
+    return () => {
+      clearInterval(intervalRef.current);
+      clearTimeout(timeoutRef.current);
+    };
   }, []);
 
   return (
