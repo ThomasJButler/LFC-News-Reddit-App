@@ -86,7 +86,7 @@ const VideoPlayer = ({ videoData, className = '', title = 'Video' }) => {
       aria-label={title}
       data-testid="video-player"
     >
-      <track kind="captions" src="" label="Captions" />
+      {/* Captions track omitted — Reddit videos don't provide caption files */}
       <p>Your browser does not support the video element.</p>
     </video>
   );

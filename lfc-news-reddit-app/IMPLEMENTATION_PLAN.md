@@ -9,7 +9,7 @@
 **Tech Stack:** Vite, React 18, Tailwind CSS v4, ShadCN (Radix UI), Redux + redux-thunk, Sonner, Lucide React, Vitest, Playwright
 
 > **Last audited:** 2026-02-12 (deep audit v5 — full codebase verification by 6 parallel research agents + Opus synthesis. P11c E2E verification completed.)
-> **Status:** ALL PRIORITIES COMPLETED (1-11). Full rebuild verified end-to-end. Build passes, 374 unit tests pass (Vitest), 242 E2E tests pass (Playwright), 183 visual snapshots generated.
+> **Status:** ALL PRIORITIES COMPLETED (1-12h). Full rebuild verified end-to-end. Build passes, 381 unit tests pass (13 suites, Vitest), 242 E2E tests pass (Playwright), 183 visual snapshots generated.
 > **Current state:** Vite 7 + Tailwind CSS v4 + ShadCN + 3 HSL themes (Red/White/Black). API simplified to single `/api/reddit` proxy. Dev server on port 5173. All 35 components rebuilt with Tailwind + ShadCN. Vitest 4.x replaces Jest. 12 test suites, 374 tests run in ~3.4s under Vitest. Coverage thresholds enforced on src/utils/, src/redux/, src/lib/ (80% statements, 72% branches, 75% functions). `src/main.jsx` imports `./styles/globals.css` correctly. `App.jsx` wires all rebuilt components. Sonner Toaster active. All LFC personality components integrated (lfcData.js, LfcLoadingMessages, LfcTrivia, LfcFooter).
 > **Verified complete:** `src/components/ui/` (16 ShadCN JSX — no TSX, no `use client`, no `@radix-ui/react-*`, all use unified `radix-ui`), `src/components/comments/` (3), `src/components/layout/` (5), `src/components/posts/` (4), `src/components/shared/` (6), `src/components/lfc/SpicyMeter.jsx` (LFC names already applied: Reserves/League Cup/Premier League/Champions League/Istanbul 2005/YNWA)
 > **Config verified:** `vite.config.js` (React plugin + jsxInJsPlugin + @/ alias + dev proxy + test: block for Vitest), `postcss.config.js` (@tailwindcss/postcss), `vercel.json` (dist output + rewrites), `package.json` (Vite scripts)
@@ -490,9 +490,21 @@ All modifications complete. No remaining changes.
 - Gallery thumbnail `alt=""` is correct WCAG practice when the image is decorative inside a button with `aria-label`
 - Comment thread line `tabIndex={-1}` is correct — it's a supplementary hover target; the primary collapse control (chevron) is keyboard-accessible
 
-### 12h: Remaining (not blocking)
+### 12h: UX Hardening & Test Expansion ✅ COMPLETED
+
+**Completed 2026-02-12:**
+
+- [x] **Pull-to-refresh error notification** — PostList.jsx `handleTouchEnd` catch block previously only `console.error`'d failures. Now uses Sonner `toast.error()` so users see "Refresh failed" instead of silent failure. Users keep seeing current posts while being informed.
+- [x] **Broken image fallback** — PostDetail.jsx preview images and direct URL images now have `onError` handler that hides the broken image element. Prevents broken image icons from cluttering the post detail view.
+- [x] **VideoPlayer empty caption track removed** — `<track kind="captions" src="" label="Captions" />` with empty `src` confused assistive technology. Removed since Reddit videos don't provide caption files.
+- [x] **App.test.js expanded from 3 to 10 tests** — Added 7 tests covering: loading skeleton display, error state with "Try Again" button, post list rendering with mock data, mutual exclusion of loading/content states, SortBar/FilterPanel presence, BottomNav presence, main content landmark role. Tests use `mockFetchPosts` with `@@NOOP` dispatch for pre-seeded state tests.
+
+**Key learnings:**
+- App.test.js `fetchPosts` mock dispatches `FETCH_POSTS_REQUEST` on mount, overriding pre-seeded Redux state. Tests that need custom initial state must mock `fetchPosts` to return `{ type: '@@NOOP' }` to prevent the loading flag from being set.
+- Sonner `toast.error()` is the right UX for pull-to-refresh failures because users initiated the action and should keep seeing their current posts.
+
+### 12i: Remaining (not blocking)
 
 - [ ] Verify end-to-end on Vercel production deployment
 - [ ] E2E visual regression screenshots may need regeneration after red theme color change
 - [ ] vendor-syntax (640kB) and vendor-video (521kB) chunks >500kB — inherent library sizes, already code-split
-- [ ] App.test.js has only 3 smoke tests — could expand

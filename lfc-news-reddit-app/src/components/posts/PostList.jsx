@@ -7,6 +7,7 @@ import { fetchPosts } from '../../redux/actions/posts';
 import { applyFlairFilter, applyMultiFlairFilter, applyMediaFilter } from '../../redux/reducers/posts';
 import { emptyStateMessages } from '../../utils/lfcData';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 import { Search, Filter, X, Home, ArrowRight, ChevronDown } from 'lucide-react';
 
 const INITIAL_VISIBLE_COUNT = 20;
@@ -98,7 +99,7 @@ const PostList = () => {
         await dispatch(fetchPosts(selectedSubreddit, sortBy, timeRange));
         setVisibleCount(INITIAL_VISIBLE_COUNT);
       } catch (error) {
-        console.error('Pull-to-refresh error:', error);
+        toast.error('Refresh failed — try again in a moment');
       } finally {
         setIsRefreshing(false);
         setPullDistance(0);

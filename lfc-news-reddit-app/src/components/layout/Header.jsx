@@ -44,13 +44,20 @@ const Header = () => {
         {/* Main header row */}
         <div className="flex items-center justify-between gap-3 py-2.5 sm:py-3">
           {/* Branding */}
-          <div className="flex flex-col shrink-0">
-            <h1 className="text-base sm:text-lg font-bold tracking-tight text-foreground leading-tight">
-              LFC Reddit Viewer
-            </h1>
-            <span className="text-[10px] sm:text-xs text-muted-foreground leading-tight hidden xs:block">
-              Liverpool FC Community Posts
-            </span>
+          <div className="flex items-center gap-2 shrink-0">
+            <img
+              src="/lfclogo.svg"
+              alt="Liverpool FC crest"
+              className="size-7 sm:size-8"
+            />
+            <div className="flex flex-col">
+              <h1 className="text-base sm:text-lg font-bold tracking-tight text-foreground leading-tight">
+                LFC Reddit Viewer
+              </h1>
+              <span className="text-[10px] sm:text-xs text-muted-foreground leading-tight hidden xs:block">
+                Liverpool FC Community Posts
+              </span>
+            </div>
           </div>
 
           {/* Search */}

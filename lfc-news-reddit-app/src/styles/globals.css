@@ -8,7 +8,7 @@
  * White (Away Kit): Warm cream bg, red accents — crisp away day feel
  * Black (Third Kit): Pure black OLED-friendly, red accents — night mode
  *
- * Primary color #C8102E (LFC Red) = 349 85% 43% is constant across all themes.
+ * Primary color #D00027 (Vivid Crimson) = 349 100% 41% is constant across all themes.
  *
  * Typography: Barlow Condensed (display/headings) + DM Sans (body).
  * Barlow Condensed gives that athletic, editorial, matchday-programme feel.
@@ -30,18 +30,18 @@
   --card-foreground: 0 0% 100%;
   --popover: 349 18% 12%;
   --popover-foreground: 0 0% 100%;
-  --primary: 349 85% 43%;
+  --primary: 349 100% 41%;
   --primary-foreground: 0 0% 100%;
   --secondary: 349 12% 18%;
   --secondary-foreground: 0 0% 100%;
   --muted: 349 12% 18%;
   --muted-foreground: 0 0% 55%;
-  --accent: 349 85% 43%;
+  --accent: 349 100% 41%;
   --accent-foreground: 0 0% 100%;
   --destructive: 0 72% 51%;
   --border: 349 10% 20%;
   --input: 349 10% 20%;
-  --ring: 349 85% 43%;
+  --ring: 349 100% 41%;
   --radius: 0.75rem;
 }
 
@@ -53,18 +53,18 @@
   --card-foreground: 0 0% 10%;
   --popover: 37 47% 97%;
   --popover-foreground: 0 0% 10%;
-  --primary: 349 85% 43%;
+  --primary: 349 100% 41%;
   --primary-foreground: 0 0% 100%;
   --secondary: 34 22% 88%;
   --secondary-foreground: 0 0% 10%;
   --muted: 34 22% 88%;
   --muted-foreground: 0 0% 45%;
-  --accent: 349 85% 43%;
+  --accent: 349 100% 41%;
   --accent-foreground: 0 0% 100%;
   --destructive: 0 72% 51%;
   --border: 0 0% 0% / 0.1;
   --input: 0 0% 0% / 0.1;
-  --ring: 349 85% 43%;
+  --ring: 349 100% 41%;
 }
 
 /* ── Black Theme (Third Kit / OLED) ──────────────────────────────── */
@@ -75,18 +75,18 @@
   --card-foreground: 0 0% 90%;
   --popover: 0 0% 4%;
   --popover-foreground: 0 0% 90%;
-  --primary: 349 85% 43%;
+  --primary: 349 100% 41%;
   --primary-foreground: 0 0% 100%;
   --secondary: 0 0% 8%;
   --secondary-foreground: 0 0% 90%;
   --muted: 0 0% 8%;
   --muted-foreground: 0 0% 45%;
-  --accent: 349 85% 43%;
+  --accent: 349 100% 41%;
   --accent-foreground: 0 0% 100%;
   --destructive: 0 72% 51%;
   --border: 0 0% 100% / 0.08;
   --input: 0 0% 100% / 0.08;
-  --ring: 349 85% 43%;
+  --ring: 349 100% 41%;
 }
 
 /* ── Base Styles ─────────────────────────────────────────────────── */

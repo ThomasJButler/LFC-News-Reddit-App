@@ -50,24 +50,24 @@ describe('colorHash utility', () => {
 
     it('returns default colour for null username', () => {
       const colour = getColorFromUsername(null);
-      expect(colour).toBe('#C8102E'); // LFC Red (default)
+      expect(colour).toBe('#D00027'); // LFC Vivid Crimson (default)
     });
 
     it('returns default colour for undefined username', () => {
       const colour = getColorFromUsername(undefined);
-      expect(colour).toBe('#C8102E'); // LFC Red (default)
+      expect(colour).toBe('#D00027'); // LFC Vivid Crimson (default)
     });
 
     it('returns default colour for empty string', () => {
       const colour = getColorFromUsername('');
-      expect(colour).toBe('#C8102E'); // LFC Red (default)
+      expect(colour).toBe('#D00027'); // LFC Vivid Crimson (default)
     });
 
     it('returns default colour for non-string input', () => {
       const colour1 = getColorFromUsername(123);
       const colour2 = getColorFromUsername({ name: 'test' });
-      expect(colour1).toBe('#C8102E');
-      expect(colour2).toBe('#C8102E');
+      expect(colour1).toBe('#D00027');
+      expect(colour2).toBe('#D00027');
     });
 
     it('handles special characters in usernames', () => {
@@ -221,14 +221,14 @@ describe('colorHash utility', () => {
       const data = getAvatarData(null);
 
       expect(data.initial).toBe('?');
-      expect(data.backgroundColor).toBe('#C8102E'); // Default LFC Red
+      expect(data.backgroundColor).toBe('#D00027'); // Default LFC Vivid Crimson
     });
 
     it('handles empty string gracefully', () => {
       const data = getAvatarData('');
 
       expect(data.initial).toBe('?');
-      expect(data.backgroundColor).toBe('#C8102E'); // Default LFC Red
+      expect(data.backgroundColor).toBe('#D00027'); // Default LFC Vivid Crimson
     });
   });
 

@@ -252,6 +252,7 @@ const PostDetail = () => {
             alt={currentPost.title}
             className="w-full h-auto rounded-lg max-h-[60vh] object-contain"
             loading="lazy"
+            onError={(e) => { e.target.style.display = 'none'; }}
           />
         );
       }
@@ -264,6 +265,7 @@ const PostDetail = () => {
           alt={currentPost.title}
           className="w-full h-auto rounded-lg max-h-[60vh] object-contain"
           loading="lazy"
+          onError={(e) => { e.target.style.display = 'none'; }}
         />
       );
     }

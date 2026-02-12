@@ -9,7 +9,7 @@
  * Includes Liverpool FC brand colors and complementary tones
  */
 const AVATAR_COLORS = [
-  '#C8102E', // LFC Red (primary)
+  '#D00027', // LFC Vivid Crimson (primary)
   '#00A651', // LFC Green
   '#F6EB61', // LFC Yellow
   '#1E90FF', // Dodger Blue (contrast)

@@ -10,7 +10,7 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { cn } from '@/lib/utils';
 
 const themes = [
-  { id: 'red', name: 'Anfield Red', shortName: 'Home', color: '#C8102E', description: 'Home Kit' },
+  { id: 'red', name: 'Anfield Red', shortName: 'Home', color: '#D00027', description: 'Home Kit' },
   { id: 'white', name: 'Away Day', shortName: 'Away', color: '#f5f0e8', description: 'Away Kit' },
   { id: 'black', name: 'Third Kit', shortName: 'Third', color: '#000000', description: 'Third Kit' },
 ];
