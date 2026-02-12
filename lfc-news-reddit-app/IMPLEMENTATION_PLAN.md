@@ -674,3 +674,22 @@ The frontend-design skill mandates bold, distinctive typography — NOT generic 
 
 ### Version Bump
 - `package.json` version bumped from `1.0.4` to `1.1.0` to match the `v1.1` branch
+
+---
+
+## Post-Completion: Accessibility & Test Coverage (2026-02-12)
+
+### Completed
+- [x] **SortBar aria-labels:** Added `aria-label` to each `TabsTrigger` in `SortBar.jsx` — on mobile, text labels are hidden (`hidden xs:inline`) so only icons show. Without aria-labels, screen readers had no way to identify which sort option each tab represented.
+- [x] **Header aria-live:** Added `aria-live="polite"` and `aria-atomic="true"` to the rotating anti-clickbait tagline in `Header.jsx` — content rotates every 10s via setInterval, screen readers now announce changes.
+- [x] **PostList pull-to-refresh:** Added `role="status"` and `aria-live="polite"` to the pull-to-refresh indicator in `PostList.jsx` — assistive technology now announces "Pull down to refresh" / "Release to refresh" / "Refreshing..." state changes.
+- [x] **Header.test.js created:** 12 tests covering rendering (title, subtitle, YNWA, data-testid), accessibility (role=banner, aria-live, aria-hidden icons), child components (SearchBar, ThemeSwitcher present), rotating tagline (message from lfcData, rotation after 10s), and styling (sticky + backdrop-blur classes).
+
+### Test counts
+- **Before:** 12 test files, 362 tests
+- **After:** 13 test files, 374 tests (+12 Header tests)
+
+### Remaining quality opportunities (not blocking)
+- App.test.js has only 3 smoke tests — could expand to cover loading/error states and Redux integration
+- Build warning: vendor-syntax (640kB) and vendor-video (521kB) chunks are >500kB — inherent library sizes, would need library swaps to reduce
+- GitHub Dependabot reports 8 vulnerabilities on default branch (1 high, 5 moderate, 2 low) — these are on `main`, not necessarily in the v1.1 branch deps
