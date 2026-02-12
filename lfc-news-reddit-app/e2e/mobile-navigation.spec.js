@@ -13,7 +13,7 @@
  *              - Filter buttons use ShadCN Toggle/ToggleGroup
  */
 
-const { test, expect } = require('@playwright/test');
+import { test, expect } from '@playwright/test';
 
 // These tests are specifically for mobile viewport
 test.describe('Mobile Navigation', () => {

@@ -283,7 +283,7 @@ const PostDetail = () => {
         aria-describedby={undefined}
       >
         {/* Accessible title for Radix Dialog */}
-        <SheetTitle className="sr-only">{currentPost.title}</SheetTitle>
+        <SheetTitle id="modal-title" className="sr-only">{currentPost.title}</SheetTitle>
 
         {/* Reading progress bar */}
         {readingProgress > 0 && (
@@ -326,9 +326,6 @@ const PostDetail = () => {
             {readingMode ? <BookOpen className="size-4" /> : <Book className="size-4" />}
           </button>
         </div>
-
-        {/* Overlay for data-testid */}
-        <div data-testid="sheet-overlay" className="hidden" />
 
         <ScrollArea ref={contentRef} className="flex-1 h-[calc(100vh-3.5rem)]">
           <div data-testid="post-body" className="p-4 md:p-6 space-y-4">

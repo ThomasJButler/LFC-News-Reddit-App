@@ -1,0 +1,173 @@
+{
+  "kind": "Listing",
+  "data": {
+    "after": "t3_mock_after",
+    "dist": 5,
+    "modhash": "",
+    "geo_filter": null,
+    "children": [
+      {
+        "kind": "t3",
+        "data": {
+          "subreddit": "LiverpoolFC",
+          "selftext": "Virgil van Dijk 61'\n\nPros: We are the only PL team to win away at the Stadium of Light this season and top 4 is back in our hands.",
+          "author_fullname": "t2_mock1",
+          "title": "FT: SUN 0 - 1 LIV",
+          "subreddit_name_prefixed": "r/LiverpoolFC",
+          "name": "t3_mock1",
+          "upvote_ratio": 0.97,
+          "ups": 1250,
+          "score": 1250,
+          "thumbnail": "self",
+          "created": 1739000000,
+          "created_utc": 1739000000,
+          "num_comments": 342,
+          "permalink": "/r/LiverpoolFC/comments/mock1/ft_sun_0_1_liv/",
+          "url": "https://www.reddit.com/r/LiverpoolFC/comments/mock1/ft_sun_0_1_liv/",
+          "id": "mock1",
+          "author": "DragonSlayer271",
+          "link_flair_text": "Full-Time Thread",
+          "link_flair_background_color": "#c8102e",
+          "stickied": true,
+          "is_video": false,
+          "is_gallery": false,
+          "is_self": true,
+          "over_18": false,
+          "spoiler": false
+        }
+      },
+      {
+        "kind": "t3",
+        "data": {
+          "subreddit": "LiverpoolFC",
+          "selftext": "",
+          "author_fullname": "t2_mock2",
+          "title": "Mohamed Salah goal vs Sunderland (0-1)",
+          "subreddit_name_prefixed": "r/LiverpoolFC",
+          "name": "t3_mock2",
+          "upvote_ratio": 0.99,
+          "ups": 5200,
+          "score": 5200,
+          "thumbnail": "https://b.thumbs.redditmedia.com/mock.jpg",
+          "created": 1738999000,
+          "created_utc": 1738999000,
+          "num_comments": 156,
+          "permalink": "/r/LiverpoolFC/comments/mock2/mohamed_salah_goal/",
+          "url": "https://streamja.com/mock-goal",
+          "id": "mock2",
+          "author": "LFC_Russ",
+          "link_flair_text": "Media",
+          "link_flair_background_color": "#1a73e8",
+          "stickied": false,
+          "is_video": false,
+          "is_gallery": false,
+          "is_self": false,
+          "over_18": false,
+          "spoiler": false,
+          "preview": {
+            "images": [
+              {
+                "source": {
+                  "url": "https://preview.redd.it/mock-preview.jpg?width=640&format=pjpg&auto=webp",
+                  "width": 640,
+                  "height": 360
+                },
+                "resolutions": []
+              }
+            ]
+          }
+        }
+      },
+      {
+        "kind": "t3",
+        "data": {
+          "subreddit": "LiverpoolFC",
+          "selftext": "Slot post-match: \"The boys showed incredible character today. Van Dijk was immense.\"",
+          "author_fullname": "t2_mock3",
+          "title": "Arne Slot post-match interview after Sunderland win",
+          "subreddit_name_prefixed": "r/LiverpoolFC",
+          "name": "t3_mock3",
+          "upvote_ratio": 0.95,
+          "ups": 890,
+          "score": 890,
+          "thumbnail": "self",
+          "created": 1738998000,
+          "created_utc": 1738998000,
+          "num_comments": 78,
+          "permalink": "/r/LiverpoolFC/comments/mock3/slot_interview/",
+          "url": "https://www.reddit.com/r/LiverpoolFC/comments/mock3/slot_interview/",
+          "id": "mock3",
+          "author": "YNWA_in_Red",
+          "link_flair_text": "News",
+          "link_flair_background_color": "#46d160",
+          "stickied": false,
+          "is_video": false,
+          "is_gallery": false,
+          "is_self": true,
+          "over_18": false,
+          "spoiler": false
+        }
+      },
+      {
+        "kind": "t3",
+        "data": {
+          "subreddit": "LiverpoolFC",
+          "selftext": "What a signing this man has been. Truly world class.",
+          "author_fullname": "t2_mock4",
+          "title": "Ryan Gravenberch Appreciation Thread",
+          "subreddit_name_prefixed": "r/LiverpoolFC",
+          "name": "t3_mock4",
+          "upvote_ratio": 0.98,
+          "ups": 2100,
+          "score": 2100,
+          "thumbnail": "self",
+          "created": 1738997000,
+          "created_utc": 1738997000,
+          "num_comments": 203,
+          "permalink": "/r/LiverpoolFC/comments/mock4/gravenberch_appreciation/",
+          "url": "https://www.reddit.com/r/LiverpoolFC/comments/mock4/gravenberch_appreciation/",
+          "id": "mock4",
+          "author": "RedmenTV",
+          "link_flair_text": "Discussion",
+          "link_flair_background_color": "#ff4500",
+          "stickied": false,
+          "is_video": false,
+          "is_gallery": false,
+          "is_self": true,
+          "over_18": false,
+          "spoiler": false
+        }
+      },
+      {
+        "kind": "t3",
+        "data": {
+          "subreddit": "LiverpoolFC",
+          "selftext": "Van Dijk's header was absolutely unstoppable. What a captain.",
+          "author_fullname": "t2_mock5",
+          "title": "Van Dijk winning goal header - alternate angle",
+          "subreddit_name_prefixed": "r/LiverpoolFC",
+          "name": "t3_mock5",
+          "upvote_ratio": 0.96,
+          "ups": 3400,
+          "score": 3400,
+          "thumbnail": "https://b.thumbs.redditmedia.com/mock2.jpg",
+          "created": 1738996000,
+          "created_utc": 1738996000,
+          "num_comments": 95,
+          "permalink": "/r/LiverpoolFC/comments/mock5/vvd_header/",
+          "url": "https://streamja.com/mock-header",
+          "id": "mock5",
+          "author": "AnfieldWatch",
+          "link_flair_text": "Media",
+          "link_flair_background_color": "#1a73e8",
+          "stickied": false,
+          "is_video": false,
+          "is_gallery": false,
+          "is_self": true,
+          "over_18": false,
+          "spoiler": false
+        }
+      }
+    ]
+  }
+}

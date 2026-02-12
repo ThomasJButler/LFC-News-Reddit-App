@@ -13,11 +13,13 @@
  *              - Themes: red, white, black (was red, white, green)
  */
 
-const { test, expect } = require('@playwright/test');
-const { THEMES, setThemeDirect, screenshotName, getDynamicContentMasks } = require('../helpers/theme');
+import { test, expect } from '@playwright/test';
+import { THEMES, setThemeDirect, screenshotName, getDynamicContentMasks } from '../helpers/theme.js';
+import { mockApiResponses } from '../helpers/api-mock.js';
 
 test.describe('Component Visual Tests', () => {
   test.beforeEach(async ({ page }) => {
+    await mockApiResponses(page);
     await page.goto('/');
     await page.waitForSelector('[data-testid="post-item"]', { timeout: 10000 });
   });

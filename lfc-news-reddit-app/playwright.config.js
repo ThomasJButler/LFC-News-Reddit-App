@@ -10,12 +10,12 @@
  *              reliable test selectors instead of CSS Module class name matching.
  */
 
-const { defineConfig, devices } = require('@playwright/test');
+import { defineConfig, devices } from '@playwright/test';
 
 /**
  * @see https://playwright.dev/docs/test-configuration
  */
-module.exports = defineConfig({
+export default defineConfig({
   // Test directory for E2E and visual tests
   testDir: './e2e',
 

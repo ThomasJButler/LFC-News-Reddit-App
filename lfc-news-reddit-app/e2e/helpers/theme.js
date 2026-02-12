@@ -42,8 +42,8 @@ async function setTheme(page, theme) {
     black: 'Third Kit theme'
   };
 
-  // Click the theme button directly (no dropdown to open)
-  const themeButton = page.getByRole('button', { name: themeButtonNames[theme] });
+  // Click the theme toggle directly (ShadCN ToggleGroup renders as radio buttons)
+  const themeButton = page.getByRole('radio', { name: themeButtonNames[theme] });
   await themeButton.click();
 
   // Wait for theme to be applied (all themes set data-theme attribute)
@@ -128,7 +128,7 @@ function getDynamicContentMasks(page) {
   ];
 }
 
-module.exports = {
+export {
   THEMES,
   THEME_NAMES,
   setTheme,

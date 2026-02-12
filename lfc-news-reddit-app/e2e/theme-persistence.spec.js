@@ -14,10 +14,15 @@
  *              - Theme buttons: Anfield Red, Away Day, Third Kit
  */
 
-const { test, expect } = require('@playwright/test');
-const { THEMES, setTheme, getTheme, setThemeDirect } = require('./helpers/theme');
+import { test, expect } from '@playwright/test';
+import { THEMES, setTheme, getTheme, setThemeDirect } from './helpers/theme.js';
+import { mockApiResponses } from './helpers/api-mock.js';
 
 test.describe('Theme Persistence', () => {
+  test.beforeEach(async ({ page }) => {
+    await mockApiResponses(page);
+  });
+
   test.describe('Theme Switching', () => {
     test('defaults to red theme on first visit', async ({ page }) => {
       // Clear any stored theme
@@ -56,10 +61,10 @@ test.describe('Theme Persistence', () => {
       await page.goto('/');
       await page.waitForSelector('[data-testid="post-item"]', { timeout: 15000 });
 
-      // Find theme buttons - they're always visible (ShadCN ToggleGroup)
-      const homeButton = page.getByRole('button', { name: 'Anfield Red theme' });
-      const awayButton = page.getByRole('button', { name: 'Away Day theme' });
-      const thirdButton = page.getByRole('button', { name: 'Third Kit theme' });
+      // Find theme toggles - they're always visible (ShadCN ToggleGroup renders as radios)
+      const homeButton = page.getByRole('radio', { name: 'Anfield Red theme' });
+      const awayButton = page.getByRole('radio', { name: 'Away Day theme' });
+      const thirdButton = page.getByRole('radio', { name: 'Third Kit theme' });
 
       await expect(homeButton).toBeVisible();
       await expect(awayButton).toBeVisible();
@@ -207,8 +212,8 @@ test.describe('Theme Persistence', () => {
       await page.goto('/');
       await page.waitForSelector('[data-testid="post-item"]', { timeout: 15000 });
 
-      // Find and focus Third Kit theme button
-      const thirdButton = page.getByRole('button', { name: 'Third Kit theme' });
+      // Find and focus Third Kit theme toggle (ShadCN ToggleGroup renders as radios)
+      const thirdButton = page.getByRole('radio', { name: 'Third Kit theme' });
       await thirdButton.focus();
       await expect(thirdButton).toBeFocused();
 

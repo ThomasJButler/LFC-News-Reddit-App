@@ -14,7 +14,7 @@
  *              - Theme references updated: green → black
  */
 
-const { test, expect } = require('@playwright/test');
+import { test, expect } from '@playwright/test';
 
 test.describe('Error Recovery', () => {
   test.describe('Network Error Handling', () => {

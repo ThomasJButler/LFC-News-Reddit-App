@@ -13,7 +13,7 @@
  *              - API requests route through /api/reddit proxy (not direct to reddit.com)
  */
 
-const { test, expect } = require('@playwright/test');
+import { test, expect } from '@playwright/test';
 
 test.describe('Happy Path - Core User Journeys', () => {
   test.describe('Homepage Load and Display', () => {
@@ -176,6 +176,16 @@ test.describe('Happy Path - Core User Journeys', () => {
       // Wait for comments section to appear
       const commentsSection = page.locator('[data-testid="comments-section"]');
       await expect(commentsSection).toBeVisible({ timeout: 10000 });
+
+      // Wait for comments to finish loading (skeleton disappears, real content appears)
+      await page.waitForFunction(
+        () => {
+          const hasComments = document.querySelectorAll('[data-testid="comment"]').length > 0;
+          const hasNoComments = document.querySelectorAll('[data-testid="no-comments"]').length > 0;
+          return hasComments || hasNoComments;
+        },
+        { timeout: 15000 }
+      );
 
       // Either we have comments or a "no comments" message
       const hasComments = await page.locator('[data-testid="comment"]').count() > 0;
