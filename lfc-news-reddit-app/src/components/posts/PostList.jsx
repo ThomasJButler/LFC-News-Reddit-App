@@ -234,6 +234,8 @@ const PostList = () => {
       {/* Pull-to-refresh indicator */}
       {pullDistance > 0 && (
         <div
+          role="status"
+          aria-live="polite"
           className="flex items-center justify-center overflow-hidden text-sm text-muted-foreground"
           style={{
             height: `${pullDistance}px`,

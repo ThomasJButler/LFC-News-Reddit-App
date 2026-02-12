@@ -77,6 +77,8 @@ const Header = () => {
             <span className="italic">You&apos;ll Never Walk Alone</span>
           </span>
           <span
+            aria-live="polite"
+            aria-atomic="true"
             className={cn(
               'italic transition-all duration-300 ease-in-out',
               isVisible

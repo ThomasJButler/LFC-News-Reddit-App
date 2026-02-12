@@ -76,6 +76,7 @@ const SortBar = () => {
             <TabsTrigger
               key={value}
               value={value}
+              aria-label={label}
               className={cn(
                 'gap-1 text-xs sm:text-sm px-2 sm:px-3',
                 value === 'viral' && 'data-[state=active]:text-primary',
