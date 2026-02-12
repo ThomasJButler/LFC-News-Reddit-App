@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector, useDispatch, useStore } from 'react-redux';
 import PostItem from './PostItem';
 import LfcTrivia from '../lfc/LfcTrivia';
 import { Button } from '@/components/ui/button';
@@ -16,6 +16,7 @@ const PULL_THRESHOLD = 80;
 
 const PostList = () => {
   const dispatch = useDispatch();
+  const store = useStore();
   const { items: posts, searchTerm, loading, activeFilter, activeFlairFilters, activeMediaFilter } = useSelector(state => state.posts);
   const { selected: selectedSubreddit } = useSelector(state => state.subreddits);
   const { sortBy, timeRange } = useSelector(state => state.posts);
@@ -95,19 +96,21 @@ const PostList = () => {
     setIsPulling(false);
     if (pullDistance >= PULL_THRESHOLD && !isRefreshing && !loading) {
       setIsRefreshing(true);
-      try {
-        await dispatch(fetchPosts(selectedSubreddit, sortBy, timeRange));
-        setVisibleCount(INITIAL_VISIBLE_COUNT);
-      } catch (error) {
+      await dispatch(fetchPosts(selectedSubreddit, sortBy, timeRange));
+      // Thunk catches errors internally and dispatches FETCH_POSTS_FAILURE,
+      // so check Redux state to detect failures
+      const { error } = store.getState().posts;
+      if (error) {
         toast.error('Refresh failed — try again in a moment');
-      } finally {
-        setIsRefreshing(false);
-        setPullDistance(0);
+      } else {
+        setVisibleCount(INITIAL_VISIBLE_COUNT);
       }
+      setIsRefreshing(false);
+      setPullDistance(0);
     } else {
       setPullDistance(0);
     }
-  }, [pullDistance, isRefreshing, loading, dispatch, selectedSubreddit, sortBy, timeRange]);
+  }, [pullDistance, isRefreshing, loading, dispatch, store, selectedSubreddit, sortBy, timeRange]);
 
   // Stable random LFC empty state message (per mount)
   const lfcEmptyMessage = useMemo(

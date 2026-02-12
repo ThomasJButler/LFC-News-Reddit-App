@@ -8,8 +8,8 @@
 
 **Tech Stack:** Vite, React 18, Tailwind CSS v4, ShadCN (Radix UI), Redux + redux-thunk, Sonner, Lucide React, Vitest, Playwright
 
-> **Last audited:** 2026-02-12 (deep audit v6 — memory leak audit, accessibility pass, and robustness fixes in P12j.)
-> **Status:** ALL PRIORITIES COMPLETED (1-12j). Full rebuild verified end-to-end. Build passes, 381 unit tests pass (13 suites, Vitest), 242 E2E tests pass (Playwright), 183 visual snapshots generated.
+> **Last audited:** 2026-02-12 (deep audit v7 — clipboard robustness, error feedback, pull-to-refresh fix in P12k.)
+> **Status:** ALL PRIORITIES COMPLETED (1-12k). Full rebuild verified end-to-end. Build passes, 381 unit tests pass (13 suites, Vitest), 242 E2E tests pass (Playwright), 183 visual snapshots generated.
 > **Current state:** Vite 7 + Tailwind CSS v4 + ShadCN + 3 HSL themes (Red/White/Black). API simplified to single `/api/reddit` proxy. Dev server on port 5173. All 35 components rebuilt with Tailwind + ShadCN. Vitest 4.x replaces Jest. 12 test suites, 374 tests run in ~3.4s under Vitest. Coverage thresholds enforced on src/utils/, src/redux/, src/lib/ (80% statements, 72% branches, 75% functions). `src/main.jsx` imports `./styles/globals.css` correctly. `App.jsx` wires all rebuilt components. Sonner Toaster active. All LFC personality components integrated (lfcData.js, LfcLoadingMessages, LfcTrivia, LfcFooter).
 > **Verified complete:** `src/components/ui/` (16 ShadCN JSX — no TSX, no `use client`, no `@radix-ui/react-*`, all use unified `radix-ui`), `src/components/comments/` (3), `src/components/layout/` (5), `src/components/posts/` (4), `src/components/shared/` (6), `src/components/lfc/SpicyMeter.jsx` (LFC names already applied: Reserves/League Cup/Premier League/Champions League/Istanbul 2005/YNWA)
 > **Config verified:** `vite.config.js` (React plugin + jsxInJsPlugin + @/ alias + dev proxy + test: block for Vitest), `postcss.config.js` (@tailwindcss/postcss), `vercel.json` (dist output + rewrites), `package.json` (Vite scripts)
@@ -519,6 +519,20 @@ All modifications complete. No remaining changes.
 - The `setTimeout`-inside-`setInterval` pattern is a common React cleanup pitfall — `clearInterval` only cancels future interval ticks, not already-scheduled timeouts from previous ticks
 - SearchBar's one-way state flow (Redux → local on mount only) breaks when external actions clear the search term — `useEffect` sync is needed for bidirectional coherence
 - `import.meta.env.DEV` is statically replaced by Vite at build time (becomes `true` in dev, `false` in production), while `process.env.NODE_ENV` requires runtime shimming
+
+### 12k: Error Feedback & Clipboard Robustness ✅ COMPLETED
+
+**Completed 2026-02-12:**
+
+- [x] **Comment.jsx clipboard error handling** — `navigator.clipboard.writeText()` had no `.catch()`, causing unhandled promise rejections when clipboard API is unavailable (HTTP context, denied permissions, mobile restrictions). Added `.catch()` with Sonner toast notification: "Could not copy link — try long-pressing to copy instead".
+- [x] **CodeBlock.jsx copy failure feedback** — Copy failure only `console.error`'d with no user feedback. Replaced with Sonner `toast.error()` so users see "Could not copy code — try selecting and copying manually" instead of silent failure.
+- [x] **PostList.jsx pull-to-refresh error detection** — `try/catch` around `await dispatch(fetchPosts(...))` was dead code: Redux thunks catch errors internally and dispatch `FETCH_POSTS_FAILURE` — they never throw. Replaced with `store.getState().posts.error` check after dispatch resolves, using `useStore()` from react-redux. Toast error notification now actually fires on refresh failures.
+- [x] Build passes, 381 unit tests pass (13 suites, Vitest)
+
+**Key learnings:**
+- `navigator.clipboard.writeText()` requires HTTPS or localhost — fails silently on HTTP deployments and some mobile browsers. Always add `.catch()` with user-facing feedback.
+- Redux thunks that catch errors internally (dispatching FAILURE actions) never throw — callers cannot use `try/catch`. Use `store.getState()` to check error state after awaiting the dispatch.
+- `useStore()` from react-redux provides synchronous access to `getState()` inside callbacks, avoiding the stale-closure problem of reading selector values.
 
 ### 12i: Remaining (not blocking)
 

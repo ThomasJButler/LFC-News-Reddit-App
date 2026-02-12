@@ -7,6 +7,7 @@ import Avatar from '../shared/Avatar';
 import { Badge } from '@/components/ui/badge';
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 import { ChevronDown, MessageCircle, Share2, Check } from 'lucide-react';
 
 /**
@@ -88,6 +89,8 @@ const Comment = ({
       setCopied(true);
       clearTimeout(copiedTimeoutRef.current);
       copiedTimeoutRef.current = setTimeout(() => setCopied(false), 2000);
+    }).catch(() => {
+      toast.error('Could not copy link — try long-pressing to copy instead');
     });
   }, [postId, subreddit, comment.id, comment.permalink]);
 
